@@ -1,6 +1,0 @@
-encrypt:
-#  key: my_project_secret_key
-  key-store:
-    location: file://${user.home}/Work/keystore/apiEncryptionKey.jks
-    password: hw1234
-    alias: apiEncryptionKey
