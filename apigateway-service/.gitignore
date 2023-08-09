@@ -26,6 +26,7 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
+<<<<<<< HEAD
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -35,3 +36,8 @@ out/
 
 ### VS Code ###
 .vscode/
+=======
+*.yml
+*.properties
+.DS_Store
+>>>>>>> 5f29ba3cadca03b6abb75ebdc527a2b0832b0c24
