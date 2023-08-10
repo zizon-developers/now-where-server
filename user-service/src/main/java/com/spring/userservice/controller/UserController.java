@@ -7,6 +7,8 @@ import com.spring.userservice.vo.Greeting;
 import com.spring.userservice.vo.RequestUser;
 import com.spring.userservice.vo.ResponseUser;
 import io.micrometer.core.annotation.Timed;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -46,6 +48,7 @@ public class UserController {
     }
 
     @PostMapping("/users")
+    @Operation(summary = "create user", description = "사용자는 회원가입을 할 수 있다.")
     public ResponseEntity<ResponseUser> createUser(@Validated @RequestBody RequestUser user){
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -58,6 +61,8 @@ public class UserController {
     }
 
     @GetMapping("/users")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
+            summary = "all users", description = "모든 사용자를 조회할 수 있다.")
     public ResponseEntity<List<ResponseUser>> getUsers(){
         Iterable<UserEntity> userList = userService.getUserByAll();
 
@@ -68,6 +73,8 @@ public class UserController {
     }
 
     @GetMapping("/users/{userId}")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
+            summary = "get user", description = "특정 사용자를 조회할 수 있다.")
     public ResponseEntity<ResponseUser> getUser(@PathVariable String userId){
         UserDto findUser = userService.getUserByUserId(userId);
         ResponseUser user = new ModelMapper().map(findUser, ResponseUser.class);
