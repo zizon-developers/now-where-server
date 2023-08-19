@@ -26,7 +26,7 @@ public class UserServiceApplication {
     }
 
     @Bean
-    @LoadBalanced //.yml에서 Microservice name을 사용하기 위해서
+    @LoadBalanced //.yml에서 Microservice name을 사용하기 위해서 외부 API는 주석처리 해야됨 아니면 새로 New
     public RestTemplate getRestTemplate(){
         return new RestTemplate();
     }

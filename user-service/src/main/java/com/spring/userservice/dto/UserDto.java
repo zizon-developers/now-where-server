@@ -1,21 +1,28 @@
 package com.spring.userservice.dto;
 
-import com.spring.userservice.vo.ResponseOrder;
-import lombok.Data;
+import com.spring.userservice.entity.User;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
-import java.util.Date;
-import java.util.List;
-
-@Data
+@Getter
 public class UserDto {
     private String email;
     private String name;
-    private String password;
     private String userId;
-    private Date createDate;
 
-    private String encryptedPassword;
+    @Builder
+    private UserDto(String email, String name, String userId) {
+        this.email = email;
+        this.name = name;
+        this.userId = userId;
+    }
 
-    private List<ResponseOrder> orders;
-
+    public static UserDto of(User user){
+        return UserDto.builder()
+                .email(user.getEmail())
+                .name(user.getName())
+                .userId(user.getUserId())
+                .build();
+    }
 }
