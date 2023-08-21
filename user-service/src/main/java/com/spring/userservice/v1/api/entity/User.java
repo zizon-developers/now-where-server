@@ -28,11 +28,12 @@ public class User {
     private String password;
 
     @Column
+    @Enumerated(value = EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> roles = new ArrayList<>();
+    private List<UserRole> roles = new ArrayList<>();
 
     @Builder
-    private User(Long id, String email, String name, String userId, String password, List<String> roles) {
+    private User(Long id, String email, String name, String userId, String password, List<UserRole> roles) {
         this.id = id;
         this.email = email;
         this.name = name;

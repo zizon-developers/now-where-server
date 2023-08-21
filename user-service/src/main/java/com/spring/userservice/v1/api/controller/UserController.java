@@ -32,7 +32,7 @@ public class UserController {
                 +  ", token expiration time =" + env.getProperty("token.expiration_time"));
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
             summary = "all users", description = "모든 사용자를 조회할 수 있다.")
     public ResponseEntity<List<UserResponse>> getUsers(){

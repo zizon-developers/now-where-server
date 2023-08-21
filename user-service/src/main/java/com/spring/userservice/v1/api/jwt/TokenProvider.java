@@ -22,7 +22,7 @@ public class TokenProvider {
     }
 
     public String generateJwtAccessToken(User user) {
-        return setJwt(user, generateAccessTokenExpireTime(), env.getProperty("jwt.expiration-time"));
+        return setJwt(user, generateAccessTokenExpireTime(), env.getProperty("jwt.secret"));
     }
 
     public String generateJwtRefreshToken(User user) {
@@ -58,11 +58,7 @@ public class TokenProvider {
 
         return claims;
     }
-    public boolean isValidAccessToken(String token) {
-        return isValidToken(token,env.getProperty("jwt.secret"));
-    }
-
-    public boolean isValidRefreshToken(String token) {
+    public boolean isValidToken(String token) {
         return isValidToken(token,env.getProperty("jwt.secret"));
     }
 
@@ -92,7 +88,7 @@ public class TokenProvider {
 
     private Date generateAccessTokenExpireTime() {
         return new Date(System.currentTimeMillis() +
-                Long.parseLong(env.getProperty("token.expiration_time")));
+                Long.parseLong(env.getProperty("jwt.expiration-time")));
     }
 
     private static Date createExpireDateForOneYear() {
@@ -118,12 +114,7 @@ public class TokenProvider {
         return (String) claims.get("email");
     }
 
-    public Date getExpireTimeFromAccessToken(String token){
-        Claims claims = getClaimsFormToken(token, env.getProperty("jwt.secret"));
-        return claims.getExpiration();
-    }
-
-    public Date getExpireTimeFromRefreshToken(String token){
+    public Date getExpireTimeFromToken(String token){
         Claims claims = getClaimsFormToken(token, env.getProperty("jwt.secret"));
         return claims.getExpiration();
     }

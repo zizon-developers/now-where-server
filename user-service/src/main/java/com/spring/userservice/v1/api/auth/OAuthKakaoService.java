@@ -3,6 +3,7 @@ package com.spring.userservice.v1.api.auth;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.spring.userservice.v1.api.auth.exception.KakaoFriendsException;
+import com.spring.userservice.v1.api.entity.UserRepository;
 import com.spring.userservice.v1.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +26,9 @@ public class OAuthKakaoService {
     private final RestTemplate restTemplate;
     private final Environment evn;
     private final UserService userService;
+    private final UserRepository userRepository;
 
-    public void getKakaoAccessToken (String code) {
+    public OAuthUserDto getKakaoAccessToken (String code) {
         ResponseEntity<Map> response = null;
         String accessToken = "";
         String refreshToken = "";
@@ -59,18 +61,22 @@ public class OAuthKakaoService {
             log.info("access ={}",accessToken);
             log.info("refresh ={}",refreshToken);
 
-
         } catch (Exception e) {
             log.error("error",e);
+            /**
+             * 400 Bad Request: "{"error":"invalid_grant","error_description":"authorization code not found for code=ogATdbLnCaE8xIiVDWl5A3x9ymgEXzlSYEq406SuTFRNCTqiuscWSFZngTXnxXCoIc07ygo9dRoAAAGKFt8jag","error_code":"KOE320"}"
+             * 예외처리하기
+             */
             throw new KakaoFriendsException("Failed to retrieve Kakao friends. Status code: " + response.getStatusCode());
         }
-        createKakaoUser(accessToken);
+        return createKakaoUser(accessToken);
     }
 
-    private void createKakaoUser(String accessToken) {
+    private OAuthUserDto createKakaoUser(String accessToken) {
 
         String reqURL = evn.getProperty("spring.security.oauth2.client.provider.kakao.user-info-uri");
         ResponseEntity<String> response = null;
+        OAuthUserDto user = null;
 
         try {
 
@@ -92,20 +98,32 @@ public class OAuthKakaoService {
             //Gson 라이브러리로 JSON파싱
             JsonElement element = JsonParser.parseString(responseBody);
 
-            int id = element.getAsJsonObject().get("id").getAsInt();
-            boolean hasEmail = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("has_email").getAsBoolean();
-            String email = "";
-            if(hasEmail){
-                email = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email").getAsString();
+            String id = element.getAsJsonObject().get("id").getAsString();
+            String name = element.getAsJsonObject().get("properties").getAsJsonObject().get("nickname").getAsString();
+            //email_needs_agreement = true 면 이메일 동의 항목에 사용자 동의 필요하다 라는 뜻
+            boolean hasEmail = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email_needs_agreement").getAsBoolean();
+            Optional<String> email = Optional.empty();
+            if(!hasEmail){
+                email = Optional.of(element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email").getAsString());
             }
 
+
             log.info("id ={}" ,id);
+            log.info("name ={}",name);
             log.info("email ={}" ,email);
+
+
+            user = userService.createUser(OAuthUserDto.builder()
+                    .userId(id)
+                    .name(name)
+                    .email(email.orElse(id))
+                    .build());
 
         } catch (Exception e) {
             log.error("error",e);
             throw new KakaoFriendsException("Failed to retrieve Kakao friends. Status code: " + response.getStatusCode());
         }
+        return user;
     }
 
     public Map<String, Object> getKakaoFriends(String accessToken) {

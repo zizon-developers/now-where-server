@@ -1,6 +1,6 @@
 package com.spring.userservice.v1.api.auth;
 
-public class OAuthDto {
+public class OAuthRequest {
     String code;
 
     public String getCode() {

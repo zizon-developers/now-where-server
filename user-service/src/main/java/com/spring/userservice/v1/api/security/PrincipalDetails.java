@@ -53,7 +53,8 @@ public class PrincipalDetails implements UserDetails {
     @Override
     public List<? extends GrantedAuthority> getAuthorities() {
         return user.getRoles().stream()
-                .map(SimpleGrantedAuthority::new)
+//                .map(SimpleGrantedAuthority::new)
+                .map(role -> new SimpleGrantedAuthority(role.name()))
                 .collect(Collectors.toList());
     }
 }

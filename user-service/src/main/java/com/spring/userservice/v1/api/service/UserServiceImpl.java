@@ -1,8 +1,11 @@
 package com.spring.userservice.v1.api.service;
 
+import com.spring.userservice.v1.api.auth.OAuthUserDto;
+import com.spring.userservice.v1.api.auth.exception.DuplicateUserException;
 import com.spring.userservice.v1.api.dto.UserDto;
 import com.spring.userservice.v1.api.entity.User;
 import com.spring.userservice.v1.api.entity.UserRepository;
+import com.spring.userservice.v1.api.entity.UserRole;
 import com.spring.userservice.v1.api.security.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,19 +27,22 @@ public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final Environment evn;
 
-    public UserDto createUser(UserDto userDto) {
+    //auth
+    public OAuthUserDto createUser(OAuthUserDto userDto) {
+        List<UserRole> roles = new ArrayList<>();
+        roles.add(UserRole.ROLE_USER);
 
         User user = User.builder()
-                .userId(UUID.randomUUID().toString())
+                .userId(userDto.getUserId())
                 .name(userDto.getName())
                 .email(userDto.getEmail())
                 .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                .roles(roles)
                 .build();
         userRepository.save(user);
 
-        return UserDto.of(user);
+        return OAuthUserDto.of(user);
     }
 
     @Override
