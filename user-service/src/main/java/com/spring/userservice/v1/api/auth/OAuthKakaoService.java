@@ -2,7 +2,8 @@ package com.spring.userservice.v1.api.auth;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.spring.userservice.v1.api.auth.exception.KakaoFriendsException;
+import com.spring.userservice.v1.api.auth.exception.DuplicateUserException;
+import com.spring.userservice.v1.api.auth.exception.OauthKakaoApiException;
 import com.spring.userservice.v1.api.entity.UserRepository;
 import com.spring.userservice.v1.api.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class OAuthKakaoService {
     private final UserService userService;
     private final UserRepository userRepository;
 
-    public OAuthUserDto getKakaoAccessToken (String code) {
+    public TokenDto getKakaoToken(String code) {
         ResponseEntity<Map> response = null;
         String accessToken = "";
         String refreshToken = "";
@@ -53,7 +54,7 @@ public class OAuthKakaoService {
             log.info("bode ={}",response.getBody());
 
             if (response.getStatusCode() != HttpStatus.OK)
-                throw new KakaoFriendsException("Failed to retrieve Kakao friends. Status code: " + response.getStatusCode());
+                throw new OauthKakaoApiException("Failed to retrieve Kakao friends. Status code: " + response.getStatusCode());
 
             Map responseBody = response.getBody();
             accessToken = (String) responseBody.get("access_token");
@@ -61,23 +62,22 @@ public class OAuthKakaoService {
             log.info("access ={}",accessToken);
             log.info("refresh ={}",refreshToken);
 
+            return new TokenDto(accessToken, refreshToken);
+
         } catch (Exception e) {
             log.error("error",e);
             /**
              * 400 Bad Request: "{"error":"invalid_grant","error_description":"authorization code not found for code=ogATdbLnCaE8xIiVDWl5A3x9ymgEXzlSYEq406SuTFRNCTqiuscWSFZngTXnxXCoIc07ygo9dRoAAAGKFt8jag","error_code":"KOE320"}"
              * 예외처리하기
              */
-            throw new KakaoFriendsException("Failed to retrieve Kakao friends. Status code: " + response.getStatusCode());
+            throw new OauthKakaoApiException("Failed to retrieve Kakao friends. Status code: " + response.getStatusCode());
         }
-        return createKakaoUser(accessToken);
     }
 
-    private OAuthUserDto createKakaoUser(String accessToken) {
+    public OAuthUserDto getKakaoUser(String accessToken) {
 
         String reqURL = evn.getProperty("spring.security.oauth2.client.provider.kakao.user-info-uri");
         ResponseEntity<String> response = null;
-        OAuthUserDto user = null;
-
         try {
 
             HttpHeaders headers = new HttpHeaders();
@@ -89,7 +89,7 @@ public class OAuthKakaoService {
 
             log.info("status ={}",response.getStatusCode());
             if (response.getStatusCode() != HttpStatus.OK)
-                throw new KakaoFriendsException("Failed to retrieve Kakao friends. Status code: " + response.getStatusCode());
+                throw new OauthKakaoApiException("Failed to retrieve Kakao friends. Status code: " + response.getStatusCode());
 
             String responseBody = response.getBody();
             log.info("body ={}",responseBody);
@@ -101,35 +101,35 @@ public class OAuthKakaoService {
             String id = element.getAsJsonObject().get("id").getAsString();
             String name = element.getAsJsonObject().get("properties").getAsJsonObject().get("nickname").getAsString();
             //email_needs_agreement = true 면 이메일 동의 항목에 사용자 동의 필요하다 라는 뜻
-            boolean hasEmail = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email_needs_agreement").getAsBoolean();
+            boolean hasAgreedToEmails = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email_needs_agreement").getAsBoolean();
             Optional<String> email = Optional.empty();
-            if(!hasEmail){
+            if(!hasAgreedToEmails){
                 email = Optional.of(element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email").getAsString());
             }
-
-
             log.info("id ={}" ,id);
             log.info("name ={}",name);
             log.info("email ={}" ,email);
 
+            OAuthUserDto user = OAuthUserDto.builder()
+                            .userId(id)
+                            .name(name)
+                            .email(email.orElse(id))
+                            .build();
 
-            user = userService.createUser(OAuthUserDto.builder()
-                    .userId(id)
-                    .name(name)
-                    .email(email.orElse(id))
-                    .build());
+            return user;
 
+        } catch (DuplicateUserException ex){
+            throw ex;
         } catch (Exception e) {
             log.error("error",e);
-            throw new KakaoFriendsException("Failed to retrieve Kakao friends. Status code: " + response.getStatusCode());
+            throw new OauthKakaoApiException("Failed to retrieve Kakao friends. Status code: " + response.getStatusCode());
         }
-        return user;
     }
 
     public Map<String, Object> getKakaoFriends(String accessToken) {
 
         String reqURL = evn.getProperty("spring.security.oauth2.client.provider.kakao.friend-uri");
-        ResponseEntity<Map> response = null;
+        ResponseEntity<Map> response = null; //예외처리 할 때 catch에서 사용하려고
 
         try {
             log.info(accessToken);
@@ -151,11 +151,27 @@ public class OAuthKakaoService {
             if (response.getStatusCode() == HttpStatus.OK) {
                 return response.getBody();
             } else {
-                throw new KakaoFriendsException("Failed to retrieve Kakao friends. Status code: " + response.getStatusCode());
+                throw new OauthKakaoApiException("Failed to retrieve Kakao friends. Status code: " + response.getStatusCode());
             }
         } catch (Exception e){
             log.error("error",e);
-            throw new KakaoFriendsException("Failed to retrieve Kakao friends. Status code: " + response.getStatusCode());
+            throw e;
         }
     }
+
+//    public ResponseEntity<LogoutAccessTokenFromRedis> logout(String token) {
+//        String userEmailFromAccessToken = tokenProvide.getUserEmailFromAccessToken(token);
+//        Date expireTimeFromAccessToken = TokenUtils.getExpireTimeFromAccessToken(token);
+//
+//        LogoutAccessTokenFromRedis logoutAccessToken = LogoutAccessTokenFromRedis.createLogoutAccessToken(token,
+//                userEmailFromAccessToken, expireTimeFromAccessToken.getTime());
+//        logoutAccessTokenRedisRepository.save(logoutAccessToken);
+//
+//        //refresh token 만료되어 있을 수 있다.
+//        RefreshTokenFromRedis refreshToken = refreshTokenRedisRepository.findByEmail(userEmailFromAccessToken)
+//                .orElseThrow(() -> new UsernameNotFoundException(token + "에 해당하는 유저를 찾을 수 없습니다."));
+//
+//        refreshTokenRedisRepository.delete(refreshToken);
+//        return ResponseEntity.ok().body(logoutAccessToken);
+//    }
 }
