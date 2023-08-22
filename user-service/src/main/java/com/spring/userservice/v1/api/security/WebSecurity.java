@@ -2,11 +2,13 @@ package com.spring.userservice.v1.api.security;
 
 import com.spring.userservice.v1.api.entity.UserRepository;
 import com.spring.userservice.v1.api.jwt.TokenProvider;
+import com.spring.userservice.v1.api.redis.logout.LogoutAccessTokenRedisRepository;
 import com.spring.userservice.v1.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.objenesis.SpringObjenesis;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -26,6 +28,7 @@ public class WebSecurity {
     private final BCryptPasswordEncoder passwordEncoder;
     private final CorsConfig corsConfig;
     private final Environment env;
+    private final LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
 
 
     @Bean
@@ -69,7 +72,7 @@ public class WebSecurity {
 
     @Bean
     public AuthorizationFilter getAuthorizationFilter() throws Exception {
-        return new AuthorizationFilter(authenticationManager(), userRepository, tokenProvider());
+        return new AuthorizationFilter(authenticationManager(), userRepository, tokenProvider(), logoutAccessTokenRedisRepository);
     }
 
     @Bean

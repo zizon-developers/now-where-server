@@ -4,8 +4,9 @@ import com.spring.userservice.v1.api.entity.User;
 import com.spring.userservice.v1.api.entity.UserRepository;
 import com.spring.userservice.v1.api.jwt.JwtProperties;
 import com.spring.userservice.v1.api.jwt.TokenProvider;
+import com.spring.userservice.v1.api.redis.logout.LogoutAccessTokenRedisRepository;
+import com.spring.userservice.v1.api.security.exception.LogoutTokenException;
 import io.jsonwebtoken.ExpiredJwtException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,13 +32,16 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 
     private UserRepository userRepository;
     private TokenProvider tokenProvider;
+    private LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
 
     public AuthorizationFilter(AuthenticationManager authenticationManager,
                                UserRepository userRepository,
-                               TokenProvider tokenProvider) {
+                               TokenProvider tokenProvider,
+                               LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository) {
         super(authenticationManager);
         this.userRepository = userRepository;
         this.tokenProvider = tokenProvider;
+        this.logoutAccessTokenRedisRepository = logoutAccessTokenRedisRepository;
     }
 
     //인증이나 권한이 필요한 주소요청이 있을때 거침
@@ -57,9 +61,9 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
         String email = "";
         try {
             email = tokenProvider.getUserEmailFromAccessToken(token);
-//            if (logoutAccessTokenRedisRepository.findByEmail(email).isPresent()){
-//                throw new LogoutTokenException("Logout된 토큰 입니다.");
-//            }
+            if (logoutAccessTokenRedisRepository.findByEmail(email).isPresent()){
+                throw new LogoutTokenException("Logout된 토큰 입니다.");
+            }
 
             // 이메일이 유효하면, 다음 필터로 진행
             User user = userRepository.findByEmail(email)

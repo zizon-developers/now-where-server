@@ -2,6 +2,7 @@ package com.spring.userservice.v1.api.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.userservice.v1.api.jwt.TokenProvider;
+import com.spring.userservice.v1.api.redis.logout.LogoutAccessTokenRedisRepository;
 import com.spring.userservice.v1.api.service.UserService;
 import com.spring.userservice.v1.api.vo.RequestLogin;
 import lombok.extern.slf4j.Slf4j;

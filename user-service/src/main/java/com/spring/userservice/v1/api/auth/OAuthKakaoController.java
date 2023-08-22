@@ -26,7 +26,6 @@ import java.util.Map;
 public class OAuthKakaoController {
 
     private final OAuthKakaoService oAuthKakaoService;
-    private final UserRepository userRepository; // 의존성 없애보기
     private final UserService userService;
     private final TokenProvider tokenProvider;
 
@@ -37,13 +36,8 @@ public class OAuthKakaoController {
         TokenDto kakaoToken = oAuthKakaoService.getKakaoToken(OAuthCodeRequest.getCode());
         OAuthUserDto kakaoUser = oAuthKakaoService.getKakaoUser(kakaoToken.getAccessToken());
 
-        userRepository.findByEmail(kakaoUser.getEmail())
-                .ifPresent(ex -> {
-                    throw new DuplicateUserException("There is information registered as a member.");
-                });
 
         OAuthUserDto user = userService.createUser(kakaoUser);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
@@ -55,15 +49,14 @@ public class OAuthKakaoController {
         TokenDto kakaoToken = oAuthKakaoService.getKakaoToken(OAuthCodeRequest.getCode());
         OAuthUserDto kakaoUser = oAuthKakaoService.getKakaoUser(kakaoToken.getAccessToken());
 
-        User findUser = userRepository.findByEmail(kakaoUser.getEmail()).orElseThrow(
-                () -> new UserNotSavedException("user not saved"));
+        User user = userService.login(kakaoUser);
 
-        String accessToken = tokenProvider.generateJwtAccessToken(findUser);
-        String refreshToken = tokenProvider.generateJwtRefreshToken(findUser);
+        String accessToken = tokenProvider.generateJwtAccessToken(user);
+        String refreshToken = tokenProvider.generateJwtRefreshToken(user);
 
         response.addHeader(JwtProperties.ACCESS_TOKEN, accessToken);
         response.addHeader(JwtProperties.REFRESH_TOKEN, refreshToken);
-        return ResponseEntity.ok(OAuthUserDto.of(findUser));
+        return ResponseEntity.ok(OAuthUserDto.of(user));
     }
 
     @PostMapping("/logout")
@@ -72,8 +65,8 @@ public class OAuthKakaoController {
         String token = request.getHeader(JwtProperties.ACCESS_HEADER_STRING)
                 .replace(JwtProperties.TOKEN_PREFIX, "");
 
-//        return oAuthKakaoService.logout(token);
-        return null;
+        LogoutAccessTokenFromRedis logout = userService.logout(token);
+        return ResponseEntity.ok(logout);
     }
 
     @GetMapping("/kakao/friends")

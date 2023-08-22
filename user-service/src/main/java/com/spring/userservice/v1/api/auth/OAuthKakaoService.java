@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import com.spring.userservice.v1.api.auth.exception.DuplicateUserException;
 import com.spring.userservice.v1.api.auth.exception.OauthKakaoApiException;
 import com.spring.userservice.v1.api.entity.UserRepository;
+import com.spring.userservice.v1.api.redis.logout.LogoutAccessTokenFromRedis;
 import com.spring.userservice.v1.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +27,6 @@ import java.util.*;
 public class OAuthKakaoService {
     private final RestTemplate restTemplate;
     private final Environment evn;
-    private final UserService userService;
-    private final UserRepository userRepository;
 
     public TokenDto getKakaoToken(String code) {
         ResponseEntity<Map> response = null;
@@ -157,21 +156,7 @@ public class OAuthKakaoService {
             log.error("error",e);
             throw e;
         }
-    }
 
-//    public ResponseEntity<LogoutAccessTokenFromRedis> logout(String token) {
-//        String userEmailFromAccessToken = tokenProvide.getUserEmailFromAccessToken(token);
-//        Date expireTimeFromAccessToken = TokenUtils.getExpireTimeFromAccessToken(token);
-//
-//        LogoutAccessTokenFromRedis logoutAccessToken = LogoutAccessTokenFromRedis.createLogoutAccessToken(token,
-//                userEmailFromAccessToken, expireTimeFromAccessToken.getTime());
-//        logoutAccessTokenRedisRepository.save(logoutAccessToken);
-//
-//        //refresh token 만료되어 있을 수 있다.
-//        RefreshTokenFromRedis refreshToken = refreshTokenRedisRepository.findByEmail(userEmailFromAccessToken)
-//                .orElseThrow(() -> new UsernameNotFoundException(token + "에 해당하는 유저를 찾을 수 없습니다."));
-//
-//        refreshTokenRedisRepository.delete(refreshToken);
-//        return ResponseEntity.ok().body(logoutAccessToken);
-//    }
+
+    }
 }
