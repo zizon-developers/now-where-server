@@ -1,12 +1,10 @@
 package com.spring.userservice.v1.api.auth;
 
-import com.spring.userservice.v1.api.auth.exception.DuplicateUserException;
-import com.spring.userservice.v1.api.auth.exception.UserNotSavedException;
 import com.spring.userservice.v1.api.entity.User;
-import com.spring.userservice.v1.api.entity.UserRepository;
 import com.spring.userservice.v1.api.jwt.JwtProperties;
 import com.spring.userservice.v1.api.jwt.TokenProvider;
 import com.spring.userservice.v1.api.redis.logout.LogoutAccessTokenFromRedis;
+import com.spring.userservice.v1.api.redis.logout.LogoutAccessTokenRedisRepository;
 import com.spring.userservice.v1.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +26,7 @@ public class OAuthKakaoController {
     private final OAuthKakaoService oAuthKakaoService;
     private final UserService userService;
     private final TokenProvider tokenProvider;
+    private final LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository; // 다음에 지우기
 
     @PostMapping("/join")
     public ResponseEntity<OAuthUserDto> registerWithKakaoAccount (@RequestBody OAuthCodeRequest OAuthCodeRequest) {
@@ -65,8 +64,8 @@ public class OAuthKakaoController {
         String token = request.getHeader(JwtProperties.ACCESS_HEADER_STRING)
                 .replace(JwtProperties.TOKEN_PREFIX, "");
 
-        LogoutAccessTokenFromRedis logout = userService.logout(token);
-        return ResponseEntity.ok(logout);
+        LogoutAccessTokenFromRedis logoutToken = userService.logout(token);
+        return ResponseEntity.ok(logoutToken);
     }
 
     @GetMapping("/kakao/friends")
@@ -82,4 +81,8 @@ public class OAuthKakaoController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/tokens/logout")
+    public Iterable<LogoutAccessTokenFromRedis> findAllToken(){
+        return logoutAccessTokenRedisRepository.findAll();
+    }
 }
