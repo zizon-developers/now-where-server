@@ -1,6 +1,7 @@
 package com.spring.userservice.v1.api.auth;
 
 import com.spring.userservice.v1.api.auth.exception.OauthKakaoApiException;
+import com.spring.userservice.v1.api.dto.ResponseApi;
 import com.spring.userservice.v1.api.entity.User;
 import com.spring.userservice.v1.api.jwt.JwtProperties;
 import com.spring.userservice.v1.api.jwt.TokenProvider;
@@ -11,7 +12,6 @@ import com.spring.userservice.v1.api.redis.logout.LogoutAccessTokenRedisReposito
 import com.spring.userservice.v1.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +32,8 @@ public class OAuthKakaoController {
     private final TokenProvider tokenProvider;
     private final LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository; // 다음에 지우기
     private final KakaoTokenRedisRepository kakaoTokenRedisRepository;
+    private final ResponseApi responseApi;
+    
 
     @PostMapping("/join")
     public ResponseEntity<OAuthUserDto> registerWithKakaoAccount (@RequestBody OAuthCodeRequest OAuthCodeRequest) {
@@ -41,7 +43,7 @@ public class OAuthKakaoController {
         OAuthUserDto kakaoUser = oAuthKakaoService.getKakaoUser(kakaoToken.getAccessToken());
 
         OAuthUserDto user = userService.createUser(kakaoUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        return responseApi.success(user, "회원가입 성공", HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
@@ -59,7 +61,7 @@ public class OAuthKakaoController {
         String refreshToken = tokenProvider.generateJwtRefreshToken(user);
         response.addHeader(JwtProperties.ACCESS_TOKEN, accessToken);
         response.addHeader(JwtProperties.REFRESH_TOKEN, refreshToken);
-        return ResponseEntity.ok(OAuthUserDto.of(user));
+        return responseApi.success(user);
     }
     private void savedKakaoAccessToken(TokenDto tokenDto, String email) {
 
@@ -97,20 +99,20 @@ public class OAuthKakaoController {
         response.addHeader(JwtProperties.ACCESS_TOKEN, accessToken);
         response.addHeader(JwtProperties.REFRESH_TOKEN, refreshToken);
 
-        return ResponseEntity.ok(kakaoUser);
+        return responseApi.success(kakaoUser);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<LogoutAccessTokenFromRedis> logout(HttpServletRequest request){
 
         String token = getTokenByReqeust(request);
-
         LogoutAccessTokenFromRedis logoutToken = userService.logout(token);
-        return ResponseEntity.ok(logoutToken);
+
+        return responseApi.success(logoutToken);
     }
 
     @GetMapping("/kakao/friends")
-    public Map getKakaoFriends(HttpServletRequest request) {
+    public ResponseEntity<Map> getKakaoFriends(HttpServletRequest request) {
         String token = getTokenByReqeust(request);
         String email = tokenProvider.getUserEmailFromAccessToken(token);
 
@@ -118,7 +120,7 @@ public class OAuthKakaoController {
         KakaoTokenFromRedis kakaoTokenFromRedis = kakaoTokenRedisRepository.findByEmail(email)
                 .orElseThrow(() -> new OauthKakaoApiException("kakao accessToken이 없습니다."));
 
-        return oAuthKakaoService.getKakaoFriends(kakaoTokenFromRedis.getId());
+        return responseApi.success(oAuthKakaoService.getKakaoFriends(kakaoTokenFromRedis.getId()));
     }
 
     private static String getTokenByReqeust(HttpServletRequest request) {
