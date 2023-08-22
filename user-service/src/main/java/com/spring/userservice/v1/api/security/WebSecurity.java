@@ -44,8 +44,9 @@ public class WebSecurity {
 
 
         http.authorizeRequests(authorize -> authorize
-                .antMatchers("/auth/**").permitAll()
-                .antMatchers("/users/**").access("hasRole('ROLE_USER')")
+                .antMatchers("api/v1//auth/login","api/v1//auth/join").permitAll()
+                .antMatchers("api/v1//auth/**").access("hasRole('ROLE_USER')")
+                .antMatchers("api/v1//users/**").access("hasRole('ROLE_USER')")
         );
 
 

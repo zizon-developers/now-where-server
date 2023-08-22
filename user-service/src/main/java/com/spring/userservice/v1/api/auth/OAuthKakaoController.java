@@ -20,7 +20,7 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("auth")
+@RequestMapping("api/v1/auth")
 public class OAuthKakaoController {
 
     private final OAuthKakaoService oAuthKakaoService;
@@ -77,7 +77,6 @@ public class OAuthKakaoController {
     public ResponseEntity test(@RequestParam String code){
         log.info(code);
 //        oAuthKakaoService.getKakaoAccessToken(code);
-
         return ResponseEntity.ok().build();
     }
 
