@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Optional;
+
 @SpringBootTest
 
 class UserServiceApplicationTests {
@@ -20,24 +22,25 @@ class UserServiceApplicationTests {
     private UserService userService;
 
     @Test
-    @DisplayName("사용자는 이메일을 변경할 수 있다.")
+    @DisplayName("사용자의 이메일과 userId가 같은경우 email을 변경할 수 있다.")
     public void UserServiceApplicationTests() {
         // given
         User user = User.builder()
-                .userId("1")
-                .email("test")
+                .userId("same")
+                .email("same")
                 .name("admin")
                 .password("password")
                 .build();
         userRepository.save(user);
         // when
         userService.updateEmail(OAuthUserDto.builder()
-                                            .userId("1")
+                                            .userId("same")
                                             .email("change")
                                             .build());
 
-        User findUser = userRepository.findByEmail("change").get();
+        Optional<User> findUser = userRepository.findByEmail("change");
+
         // then
-        Assertions.assertEquals(findUser.getEmail(),"change");
+        Assertions.assertEquals(findUser.get().getEmail(),"change");
     }
 }
