@@ -16,4 +16,6 @@ public interface UserService {
     LogoutAccessTokenFromRedis logout(String token);
 
     User login(OAuthUserDto userDto);
+
+    void updateEmail(OAuthUserDto userDto);
 }

@@ -77,6 +77,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User login(OAuthUserDto userDto) {
         String email = userDto.getEmail();
+
         User findUser = userRepository.findByEmail(email).orElseThrow(
                 () -> new UsernameNotFoundException("user not found"));
 
@@ -86,13 +87,22 @@ public class UserServiceImpl implements UserService {
         return findUser;
     }
 
+    @Override
+    @Transactional
+    public void updateEmail(OAuthUserDto userDto) {
+        User findUser = userRepository.findByUserId(userDto.getUserId())
+                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+
+        if (findUser.isUserIdEmailMatching())
+            findUser.updateEmail(userDto.getEmail());
+    }
+
     @Transactional
     public LogoutAccessTokenFromRedis logout(String token) {
 
         String userEmailFromAccessToken = tokenProvider.getUserEmailFromAccessToken(token);
 
-        logoutAccessTokenRedisRepository.findByEmail(userEmailFromAccessToken)
-                                        .ifPresent(ex -> {
+        logoutAccessTokenRedisRepository.findByEmail(userEmailFromAccessToken).ifPresent(ex -> {
                                             throw new LogoutTokenException("이미 logout된 token이 있습니다.");
                                         });
 

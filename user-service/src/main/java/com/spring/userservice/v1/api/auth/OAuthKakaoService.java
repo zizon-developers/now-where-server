@@ -5,8 +5,9 @@ import com.google.gson.JsonParser;
 import com.spring.userservice.v1.api.auth.exception.DuplicateUserException;
 import com.spring.userservice.v1.api.auth.exception.OauthKakaoApiException;
 import com.spring.userservice.v1.api.entity.UserRepository;
-import com.spring.userservice.v1.api.redis.logout.LogoutAccessTokenFromRedis;
-import com.spring.userservice.v1.api.service.UserService;
+import com.spring.userservice.v1.api.jwt.JwtProperties;
+import com.spring.userservice.v1.api.redis.kakao.KakaoTokenFromRedis;
+import com.spring.userservice.v1.api.redis.kakao.KakaoTokenRedisRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
@@ -20,6 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Supplier;
 
 @Service
 @Slf4j
@@ -80,7 +82,7 @@ public class OAuthKakaoService {
         try {
 
             HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+            headers.add(HttpHeaders.AUTHORIZATION,JwtProperties.TOKEN_PREFIX + accessToken);
             headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
@@ -99,20 +101,25 @@ public class OAuthKakaoService {
 
             String id = element.getAsJsonObject().get("id").getAsString();
             String name = element.getAsJsonObject().get("properties").getAsJsonObject().get("nickname").getAsString();
-            //email_needs_agreement = true 면 이메일 동의 항목에 사용자 동의 필요하다 라는 뜻
+
+            //optional 하려고했는데 Json예외 발생함
             boolean hasAgreedToEmails = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email_needs_agreement").getAsBoolean();
-            Optional<String> email = Optional.empty();
+            Optional<String> optEmail = Optional.empty();
             if(!hasAgreedToEmails){
-                email = Optional.of(element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email").getAsString());
+                optEmail = Optional.of(element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email").getAsString());
             }
+
             log.info("id ={}" ,id);
             log.info("name ={}",name);
-            log.info("email ={}" ,email);
+            log.info("email ={}" ,optEmail);
 
+            String email = optEmail.orElse(id);
+
+            //계속 저장하면 안된다. 그리고 추가 동의하기하고 업데이트해서 저장해줘야 userfriends에서 token찾을 때 에러안남
             OAuthUserDto user = OAuthUserDto.builder()
                             .userId(id)
                             .name(name)
-                            .email(email.orElse(id))
+                            .email(email)
                             .build();
 
             return user;
@@ -127,6 +134,7 @@ public class OAuthKakaoService {
 
     public Map<String, Object> getKakaoFriends(String accessToken) {
 
+
         String reqURL = evn.getProperty("spring.security.oauth2.client.provider.kakao.friend-uri");
         ResponseEntity<Map> response = null; //예외처리 할 때 catch에서 사용하려고
 
@@ -135,8 +143,6 @@ public class OAuthKakaoService {
             HttpHeaders headers = new HttpHeaders();
             headers.set(HttpHeaders.AUTHORIZATION, accessToken);
             HttpEntity<String> entity = new HttpEntity<>(headers);
-
-
 
             URI targetUrl = UriComponentsBuilder
                     .fromUriString(reqURL) // 기본 URL

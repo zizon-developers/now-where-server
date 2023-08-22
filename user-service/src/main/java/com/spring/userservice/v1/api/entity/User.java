@@ -41,4 +41,11 @@ public class User {
         this.password = password;
         this.roles = roles;
     }
+
+    public void updateEmail(String email){
+        this.email = email;
+    }
+    public boolean isUserIdEmailMatching(){
+        return email.equals(userId) ? true : false;
+    }
 }
