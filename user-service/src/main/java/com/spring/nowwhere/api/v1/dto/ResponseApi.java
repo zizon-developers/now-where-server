@@ -13,45 +13,54 @@ public class ResponseApi<T> {
 
     @Getter
     @Builder
-    private static class Body<T> {
+    private static class SuccessBody<T> {
 
         private int state;
         private T data;
-        private String massage;
-        private Object error;
+        private String message;
     }
 
-    public ResponseEntity<Body<T>> success(T data, String msg, HttpStatus status) {
-        Body<T> body = Body.<T>builder()
+    public ResponseEntity<SuccessBody<T>> success(T data, String msg, HttpStatus status) {
+        SuccessBody<T> body = SuccessBody.<T>builder()
                 .state(status.value())
                 .data(data)
-                .massage(msg)
-                .error(Collections.emptyList())
+                .message(msg)
                 .build();
         return ResponseEntity.status(status).body(body);
     }
 
-    public ResponseEntity<Body<T>> success(String msg) {
+    public ResponseEntity<SuccessBody<T>> success(String msg) {
         return success(null, msg, HttpStatus.OK);
     }
-    public ResponseEntity<Body<T>> success(T data) {
+    public ResponseEntity<SuccessBody<T>> success(T data) {
         return success(data, null, HttpStatus.OK);
     }
     public ResponseEntity<T> success() {
         return (ResponseEntity<T>) success(null, null, HttpStatus.OK);
     }
 
-    public ResponseEntity<Body<T>> fail(T data, String msg, HttpStatus status) {
-        Body<T> body = Body.<T>builder()
+
+    @Getter
+    @Builder
+    private static class FailBody<T> {
+
+        private int state;
+        private String code;
+        private T data;
+        private String message;
+    }
+
+    public ResponseEntity<FailBody<T>> fail(T data, String code, String msg, HttpStatus status) {
+        FailBody<T> body = FailBody.<T>builder()
                 .state(status.value())
+                .code(code)
                 .data(data)
-                .massage(msg)
-                .error(Collections.emptyList())
+                .message(msg)
                 .build();
         return ResponseEntity.status(status).body(body);
     }
 
-    public ResponseEntity<Body<T>> fail(String msg, HttpStatus status) {
-        return fail(null, msg, status);
+    public ResponseEntity<FailBody<T>> fail(String code, String msg, HttpStatus status) {
+        return fail(null, code, msg, status);
     }
 }

@@ -1,74 +1,87 @@
 package com.spring.nowwhere.api.v1.auth.exception.advice;
 
-import com.spring.nowwhere.api.v1.auth.ErrorResult;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.*;
 import com.spring.nowwhere.api.v1.auth.exception.DuplicateUserException;
 import com.spring.nowwhere.api.v1.auth.exception.OauthKakaoApiException;
+import com.spring.nowwhere.api.v1.dto.ResponseApi;
 import com.spring.nowwhere.api.v1.security.exception.LogoutTokenException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @RestControllerAdvice(basePackages = "com.spring.nowwhere.api.v1.auth")
+@RequiredArgsConstructor
 public class OAuthExceptionManager {
 
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public ErrorResult usernameNotFoundHandler (UsernameNotFoundException e){
-        log.error("[exceptionHandler] ex", e);
-        return new ErrorResult("USER-NOT-EX", e.getMessage());
-    }
+    private final ResponseApi responseApi;
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpClientErrorException.BadRequest.class)
-    public ErrorResult HttpClientErrorExceptionBadRequestHandler (HttpClientErrorException.BadRequest  e){
+    public ResponseEntity HttpClientErrorExceptionBadRequestHandler (HttpClientErrorException.BadRequest  e){
         log.error("[exceptionHandler] ex", e);
-        return new ErrorResult("KAKAO-400-EX", e.getMessage());
+        return responseApi.fail("KAKAO-400-EX", e.getResponseBodyAsString(), HttpStatus.BAD_REQUEST);
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(HttpClientErrorException.Unauthorized.class)
-    public ErrorResult HttpClientErrorExceptionUnauthorizedHandler (HttpClientErrorException.Unauthorized  e){
+    public ResponseEntity HttpClientErrorExceptionUnauthorizedHandler (HttpClientErrorException.Unauthorized  e){
         log.error("[exceptionHandler] ex", e);
-        return new ErrorResult("KAKAO-401-EX", e.getMessage());
+        return responseApi.fail("KAKAO-401-EX", e.getResponseBodyAsString(), HttpStatus.UNAUTHORIZED);
     }
 
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(HttpClientErrorException.Forbidden.class)
-    public ErrorResult HttpClientErrorExceptionForbiddenHandler (HttpClientErrorException.Forbidden  e){
+    public ResponseEntity HttpClientErrorExceptionForbiddenHandler (HttpClientErrorException.Forbidden  e){
         log.error("[exceptionHandler] ex", e);
-        return new ErrorResult("KAKAO-403-EX", e.getMessage());
-    }
-
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ExceptionHandler(DuplicateUserException.class)
-    public ErrorResult duplicateUserExceptionHadnler (DuplicateUserException e){
-        log.error("[exceptionHandler] ex", e);
-        return new ErrorResult("USER-DUPE-EX", e.getMessage());
+        return responseApi.fail("KAKAO-403-EX", e.getResponseBodyAsString(), HttpStatus.FORBIDDEN);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(OauthKakaoApiException.class)
-    public ErrorResult OauthKakaoApiExceptionHadnler (OauthKakaoApiException e){
+    public ResponseEntity OauthKakaoApiExceptionHadnler (OauthKakaoApiException e){
         log.error("[exceptionHandler] ex", e);
-        return new ErrorResult("KAKAO-EX", e.getMessage());
+        return responseApi.fail("K-CONTROLLER-EX", e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity usernameNotFoundHandler (UsernameNotFoundException e){
+        log.error("[exceptionHandler] ex", e);
+        return responseApi.fail("USER-NOT-EX", e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(DuplicateUserException.class)
+    public ResponseEntity duplicateUserExceptionHadnler (DuplicateUserException e){
+        log.error("[exceptionHandler] ex", e);
+        return responseApi.fail("USER-DUPE-EX", e.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(LogoutTokenException.class)
-    public ErrorResult OauthKakaoApiExceptionHadnler (LogoutTokenException e){
+    public ResponseEntity OauthKakaoApiExceptionHadnler (LogoutTokenException e){
         log.error("[exceptionHandler] ex", e);
-        return new ErrorResult("LOGOUT-EX", e.getMessage());
+        return responseApi.fail("LOGOUT-EX", e.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler
-    public ErrorResult exHandler(Exception e) {
+    public ResponseEntity exHandler(Exception e) {
         log.error("[exceptionHandler] ex", e);
-        return new ErrorResult("EX", "내부 오류");
+        return responseApi.fail("HARD-EX", "[server error] "+e.getClass().getName(), HttpStatus.CONFLICT);
     }
 }

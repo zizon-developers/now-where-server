@@ -1,5 +1,6 @@
 package com.spring.nowwhere.api.v1.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.nowwhere.api.v1.entity.User;
 import com.spring.nowwhere.api.v1.entity.UserRepository;
 import com.spring.nowwhere.api.v1.jwt.JwtProperties;
@@ -93,13 +94,16 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
         PrintWriter writer = response.getWriter();
-        //객체로 담아서 JSON 파서해서 사용하자
-        String errorJson =
-                "{" +
-                        "\"uri\":\"" + request.getRequestURI() + "\"," +
-                        "\"code\":\"" + code + "\"," +
-                        "\"message\":\"" + e.getMessage() + "\"" +
-                        "}";
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .uri(request.getRequestURI())
+                .code(code)
+                .message(e.getMessage())
+                .build();
+
+        ObjectMapper mapper = new ObjectMapper();
+        String errorJson = mapper.writeValueAsString(errorResponse);
+
         writer.write(errorJson);
         writer.flush();
     }

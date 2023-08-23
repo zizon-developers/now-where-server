@@ -1,7 +1,8 @@
 package com.spring.nowwhere.api.v1.auth;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.*;
 import com.spring.nowwhere.api.v1.auth.exception.DuplicateUserException;
 import com.spring.nowwhere.api.v1.auth.exception.OauthKakaoApiException;
 import com.spring.nowwhere.api.v1.jwt.JwtProperties;

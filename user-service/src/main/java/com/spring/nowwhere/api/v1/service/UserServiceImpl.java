@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public OAuthUserDto createUser(OAuthUserDto userDto) {
 
-        userRepository.findByEmail(userDto.getEmail())
+        userRepository.findByUserId(userDto.getUserId())
                 .ifPresent(ex -> {
                     throw new DuplicateUserException("There is information registered as a member.");
                 });

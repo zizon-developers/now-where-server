@@ -97,8 +97,8 @@ public class OAuthKakaoController {
         OAuthUserDto kakaoUser = oAuthKakaoService.getKakaoUser(kakaoToken.getAccessToken());
         savedKakaoAccessToken(kakaoToken,kakaoUser.getEmail());
 
+        //이메일 추가 동의로 인해서 변경될 수 있기 때문에 추가
         userService.updateEmail(kakaoUser);
-
         User user = userService.login(kakaoUser);
 
         String accessToken = tokenProvider.generateJwtAccessToken(user);
