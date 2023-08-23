@@ -153,7 +153,7 @@ public class OAuthKakaoService {
                     .queryParam("limit", kaKaoFriendDto.getLimit()
                             .filter(integer -> integer <= 100 && integer > 0).orElse(10))
                     .queryParam("order", kaKaoFriendDto.getOrder())
-                    .queryParam("friend_order", kaKaoFriendDto.getFriend_order())
+                    .queryParam("friend_order", kaKaoFriendDto.getFriendOrder())
                     .build()
                     .encode(StandardCharsets.UTF_8) // 인코딩
                     .toUri();
