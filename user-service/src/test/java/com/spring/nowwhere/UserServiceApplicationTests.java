@@ -23,7 +23,7 @@ class UserServiceApplicationTests {
 
     @Test
     @DisplayName("사용자의 이메일과 userId가 같은경우 email을 변경할 수 있다.")
-    public void UserServiceApplicationTests() {
+    public void updateEmail() {
         // given
         User user = User.builder()
                 .userId("same")
@@ -39,7 +39,6 @@ class UserServiceApplicationTests {
                                             .build());
 
         Optional<User> findUser = userRepository.findByEmail("change");
-
         // then
         Assertions.assertEquals(findUser.get().getEmail(),"change");
     }

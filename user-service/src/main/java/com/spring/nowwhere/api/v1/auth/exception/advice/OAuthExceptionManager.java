@@ -1,6 +1,5 @@
 package com.spring.nowwhere.api.v1.auth.exception.advice;
 
-import com.spring.nowwhere.api.v1.auth.exception.DuplicateUserException;
 import com.spring.nowwhere.api.v1.auth.exception.OauthKakaoApiException;
 import com.spring.nowwhere.api.v1.response.ResponseApi;
 import com.spring.nowwhere.api.v1.security.exception.LogoutTokenException;
@@ -54,13 +53,6 @@ public class OAuthExceptionManager {
     public ResponseEntity usernameNotFoundHandler (UsernameNotFoundException e){
         log.error("[exceptionHandler] ex", e);
         return responseApi.fail("USER-NOT-EX", e.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ExceptionHandler(DuplicateUserException.class)
-    public ResponseEntity duplicateUserExceptionHadnler (DuplicateUserException e){
-        log.error("[exceptionHandler] ex", e);
-        return responseApi.fail("USER-DUPE-EX", e.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ResponseStatus(HttpStatus.CONFLICT)

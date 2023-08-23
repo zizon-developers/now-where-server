@@ -4,7 +4,6 @@ import com.google.gson.*;
 import com.spring.nowwhere.api.v1.auth.dto.KaKaoFriendDto;
 import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
 import com.spring.nowwhere.api.v1.auth.dto.TokenDto;
-import com.spring.nowwhere.api.v1.auth.exception.DuplicateUserException;
 import com.spring.nowwhere.api.v1.auth.exception.OauthKakaoApiException;
 import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
 import lombok.RequiredArgsConstructor;
@@ -69,10 +68,6 @@ public class OAuthKakaoService {
             throw e;
         } catch (Exception e) {
             log.error("error",e);
-            /**
-             * 400 Bad Request: "{"error":"invalid_grant","error_description":"authorization code not found for code=ogATdbLnCaE8xIiVDWl5A3x9ymgEXzlSYEq406SuTFRNCTqiuscWSFZngTXnxXCoIc07ygo9dRoAAAGKFt8jag","error_code":"KOE320"}"
-             * 예외처리하기
-             */
             throw e;
         }
     }
@@ -115,8 +110,6 @@ public class OAuthKakaoService {
             log.info("email ={}" ,optEmail);
 
             String email = optEmail.orElse(id);
-
-            //계속 저장하면 안된다. 그리고 추가 동의하기하고 업데이트해서 저장해줘야 userfriends에서 token찾을 때 에러안남
             OAuthUserDto user = OAuthUserDto.builder()
                             .userId(id)
                             .name(name)
@@ -124,9 +117,6 @@ public class OAuthKakaoService {
                             .build();
 
             return user;
-
-        } catch (DuplicateUserException ex){
-            throw ex;
         } catch (BadRequest | Unauthorized | Forbidden e){
             throw e;
         } catch (Exception e) {

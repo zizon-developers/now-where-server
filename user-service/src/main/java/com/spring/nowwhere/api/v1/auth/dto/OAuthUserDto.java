@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Schema(description = "카카오 계정 응답DTO")
+@Schema(description = "카카오 계정 응답DTO", nullable = true)
 public class OAuthUserDto{
 
     @Schema(description = "카카오 계정 이메일(이메일 동의X -> 고유ID 값으로 대체됩니다. 추가 동의시 변경됩니다.)")

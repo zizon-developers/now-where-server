@@ -26,8 +26,10 @@ import org.springdoc.core.annotations.RouterOperation;
 import org.springdoc.core.annotations.RouterOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -48,56 +50,26 @@ public class OAuthKakaoController {
     private final KakaoTokenRedisRepository kakaoTokenRedisRepository;
     private final ResponseApi responseApi;
     
-
-    @PostMapping("/join")
-    @Operation(summary = "login", description = "카카오 계정을 통해서 회원가입할 수 있다.")
-    public ResponseEntity<OAuthUserDto> registerWithKakaoAccount (@RequestBody OAuthCodeRequest OAuthCodeRequest) {
-
-        log.info("mycode={}", OAuthCodeRequest.getCode());
-        TokenDto kakaoToken = oAuthKakaoService.getKakaoToken(OAuthCodeRequest.getCode());
-        OAuthUserDto kakaoUser = oAuthKakaoService.getKakaoUser(kakaoToken.getAccessToken());
-
-        OAuthUserDto user = userService.createUser(kakaoUser);
-        return responseApi.success(user, "회원가입 성공", HttpStatus.CREATED);
-    }
-
     @PostMapping("/login")
-    @Operation(summary = "login", description = "카카오 계정을 통해서 로그인할 수 있다.")
+    @Operation(summary = "login", description = "카카오 계정을 통해서 로그인할 수 있으며 서버에 회원가입이 안되어 있으면 회원가입도 완료된다.")
     public ResponseEntity<OAuthUserDto> loginWithKakaoAccount (@RequestBody OAuthCodeRequest OAuthCodeRequest,
                                                                HttpServletResponse response){
 
-        log.info("mycode={}", OAuthCodeRequest.getCode());
         TokenDto kakaoToken = oAuthKakaoService.getKakaoToken(OAuthCodeRequest.getCode());
         OAuthUserDto kakaoUser = oAuthKakaoService.getKakaoUser(kakaoToken.getAccessToken());
         savedKakaoAccessToken(kakaoToken,kakaoUser.getEmail());
 
-        User user = userService.login(kakaoUser);
+        OAuthUserDto oAuthUserDto = userService.checkAndRegisterUser(kakaoUser);
+        User user = userService.login(oAuthUserDto);
 
         String accessToken = tokenProvider.generateJwtAccessToken(user);
         String refreshToken = tokenProvider.generateJwtRefreshToken(user);
         response.addHeader(JwtProperties.ACCESS_TOKEN, accessToken);
-        response.addHeader(JwtProperties.REFRESH_TOKEN, refreshToken);
-        return responseApi.success(user);
-    }
-    private void savedKakaoAccessToken(TokenDto tokenDto, String email) {
+        response.addCookie(createCookie(refreshToken));
 
-        kakaoTokenRedisRepository.findByEmail(email).ifPresent(
-                token -> {
-                    kakaoTokenRedisRepository.delete(token);
-                });
-        kakaoTokenRedisRepository.save(KakaoTokenFromRedis
-                .createKakaoTokenFromRedis(JwtProperties.TOKEN_PREFIX + tokenDto.getAccessToken(),
-                                            email, createExpireTimeOfKakao()));
-    }
-    private static long createExpireTimeOfKakao(){
-        //카카오 accessToken 만료시간 12시간
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.HOUR, 11);
-        c.add(Calendar.MINUTE, 55);
-        return c.getTime().getTime();
+        return responseApi.success(oAuthUserDto, "로그인 성공", HttpStatus.OK);
     }
 
-    //추가 동의할 때 이메일 다르면 바꿔주어야 한다.
     @PostMapping("/consent")
     @Operation(summary = "추가 동의 받기",
             description = "카카오 친구를 조회하기 위해서는 추가 동의가 필요하다. 이메일도 동의할 경우 userEmail 정보가 변경된다.")
@@ -109,15 +81,42 @@ public class OAuthKakaoController {
         savedKakaoAccessToken(kakaoToken,kakaoUser.getEmail());
 
         //이메일 추가 동의로 인해서 변경될 수 있기 때문에 추가
-        userService.updateEmail(kakaoUser);
-        User user = userService.login(kakaoUser);
+        User user = userService.updateEmail(kakaoUser);
 
         String accessToken = tokenProvider.generateJwtAccessToken(user);
         String refreshToken = tokenProvider.generateJwtRefreshToken(user);
         response.addHeader(JwtProperties.ACCESS_TOKEN, accessToken);
-        response.addHeader(JwtProperties.REFRESH_TOKEN, refreshToken);
+        response.addCookie(createCookie(refreshToken));
 
         return responseApi.success(kakaoUser);
+    }
+
+    private Cookie createCookie(String refreshToken) {
+        Cookie cookie = new Cookie(JwtProperties.REFRESH_TOKEN, refreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60 * 24);
+
+        return cookie;
+    }
+    private void savedKakaoAccessToken(TokenDto tokenDto, String email) {
+
+        kakaoTokenRedisRepository.findByEmail(email).ifPresent(
+                token -> {
+                    kakaoTokenRedisRepository.delete(token);
+                });
+        kakaoTokenRedisRepository.save(KakaoTokenFromRedis
+                .createKakaoTokenFromRedis(JwtProperties.TOKEN_PREFIX + tokenDto.getAccessToken(),
+                                            email, createExpireTimeOfKakao()));
+    }
+
+    private static long createExpireTimeOfKakao(){
+        //카카오 accessToken 만료시간 12시간
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.HOUR, 11);
+        c.add(Calendar.MINUTE, 55);
+        return c.getTime().getTime();
     }
 
     @PostMapping("/logout")
@@ -140,7 +139,6 @@ public class OAuthKakaoController {
         String token = getTokenByReqeust(request);
         String email = tokenProvider.getUserEmailFromAccessToken(token);
 
-        //다음에 예외처리 refresh token으로 재발급 or 다시 login처리
         KakaoTokenFromRedis kakaoTokenFromRedis = kakaoTokenRedisRepository.findByEmail(email)
                 .orElseThrow(() -> new OauthKakaoApiException("kakao accessToken이 없습니다."));
         String kakaoToken = kakaoTokenFromRedis.getId();

@@ -4,7 +4,6 @@ import com.spring.nowwhere.api.v1.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.user.entity.User;
 import com.spring.nowwhere.api.v1.user.entity.UserRole;
 import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
-import com.spring.nowwhere.api.v1.auth.exception.DuplicateUserException;
 import com.spring.nowwhere.api.v1.user.repository.UserRepository;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
 import com.spring.nowwhere.api.v1.redis.logout.LogoutAccessTokenFromRedis;
@@ -17,10 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,30 +29,6 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
     private final LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
-
-    //auth
-    @Transactional
-    public OAuthUserDto createUser(OAuthUserDto userDto) {
-
-        userRepository.findByUserId(userDto.getUserId())
-                .ifPresent(ex -> {
-                    throw new DuplicateUserException("There is information registered as a member.");
-                });
-
-        List<UserRole> roles = new ArrayList<>();
-        roles.add(UserRole.ROLE_USER);
-
-        User user = User.builder()
-                .userId(userDto.getUserId())
-                .name(userDto.getName())
-                .email(userDto.getEmail())
-                .password(passwordEncoder.encode(UUID.randomUUID().toString()))
-                .roles(roles)
-                .build();
-        userRepository.save(user);
-
-        return OAuthUserDto.of(user);
-    }
 
     @Override
     public UserDto getUserByUserId(String userId) {
@@ -76,25 +48,46 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User login(OAuthUserDto userDto) {
-        String email = userDto.getEmail();
 
-        User findUser = userRepository.findByEmail(email).orElseThrow(
+        User findUser = userRepository.findByUserId(userDto.getUserId()).orElseThrow(
                 () -> new UsernameNotFoundException("user not found"));
 
-        logoutAccessTokenRedisRepository.findByEmail(email)
+        logoutAccessTokenRedisRepository.findByEmail(userDto.getEmail())
                 .ifPresent(logoutToken -> logoutAccessTokenRedisRepository.delete(logoutToken));
+        return findUser;
+    }
+
+    //친구목록 조회에서 예외 발생시 호출되며 로그인상태라서 따로토큰 제거X 로직도 이게 맞음
+    @Override
+    @Transactional
+    public User updateEmail(OAuthUserDto userDto) {
+        User findUser = userRepository.findByUserId(userDto.getUserId())
+                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+
+        if (findUser.isUserIdEmailMatching())
+            findUser.updateEmail(userDto.getEmail());
 
         return findUser;
     }
 
     @Override
     @Transactional
-    public void updateEmail(OAuthUserDto userDto) {
-        User findUser = userRepository.findByUserId(userDto.getUserId())
-                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+    public OAuthUserDto checkAndRegisterUser(OAuthUserDto userDto) {
+        boolean isRegisterUser = userRepository.findByUserId(userDto.getUserId()).isPresent();
+        if (isRegisterUser) return userDto;
 
-        if (findUser.isUserIdEmailMatching())
-            findUser.updateEmail(userDto.getEmail());
+        List<UserRole> roles = new ArrayList<>();
+        roles.add(UserRole.ROLE_USER);
+
+        User user = User.builder()
+                .userId(userDto.getUserId())
+                .name(userDto.getName())
+                .email(userDto.getEmail())
+                .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                .roles(roles)
+                .build();
+        userRepository.save(user);
+        return OAuthUserDto.of(user);
     }
 
     @Transactional
@@ -112,5 +105,4 @@ public class UserServiceImpl implements UserService {
 
         return logoutAccessTokenRedisRepository.save(logoutAccessToken);
     }
-
 }
