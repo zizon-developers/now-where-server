@@ -1,6 +1,7 @@
 package com.spring.nowwhere.api.v1.auth;
 
 import com.google.gson.*;
+import com.spring.nowwhere.api.v1.auth.dto.KaKaoFriendDto;
 import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
 import com.spring.nowwhere.api.v1.auth.dto.TokenDto;
 import com.spring.nowwhere.api.v1.auth.exception.DuplicateUserException;
@@ -134,7 +135,7 @@ public class OAuthKakaoService {
         }
     }
 
-    public Map<String, Object> getKakaoFriends(String accessToken) {
+    public Map<String, Object> getKakaoFriends(String accessToken, KaKaoFriendDto kaKaoFriendDto) {
 
 
         String reqURL = evn.getProperty("spring.security.oauth2.client.provider.kakao.friend-uri");
@@ -148,7 +149,11 @@ public class OAuthKakaoService {
 
             URI targetUrl = UriComponentsBuilder
                     .fromUriString(reqURL) // 기본 URL
-                    .queryParam("limit", 15)
+                    .queryParam("offset", kaKaoFriendDto.getOffset())
+                    .queryParam("limit", kaKaoFriendDto.getLimit()
+                            .filter(integer -> integer <= 100 && integer > 0).orElse(10))
+                    .queryParam("order", kaKaoFriendDto.getOrder())
+                    .queryParam("friend_order", kaKaoFriendDto.getFriend_order())
                     .build()
                     .encode(StandardCharsets.UTF_8) // 인코딩
                     .toUri();

@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,7 +29,6 @@ public class WebSecurity {
     private final Environment env;
     private final LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
 
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
@@ -43,6 +43,7 @@ public class WebSecurity {
 
         http.authorizeRequests(authorize -> authorize
                         .antMatchers("api/v1/auth/login", "api/v1//auth/join").permitAll()
+                        .antMatchers("/**").permitAll()
                         .antMatchers("api/v1/auth/**").access("hasRole('ROLE_USER')")
                         .antMatchers("api/v1/user/**").access("hasRole('ROLE_USER')")
                         .anyRequest().authenticated())
@@ -50,6 +51,16 @@ public class WebSecurity {
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint());
 
         return http.build();
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer(){
+        return web -> web.ignoring().antMatchers("/h2-console/**",
+                                                                "/favicon.ico",
+                                                                "/error",
+                                                                "/swagger-ui/**",
+                                                                "/swagger-resources/**",
+                                                                "/v3/api-docs/**");
     }
 
     public class MyCustomDsl extends AbstractHttpConfigurer<MyCustomDsl, HttpSecurity> {

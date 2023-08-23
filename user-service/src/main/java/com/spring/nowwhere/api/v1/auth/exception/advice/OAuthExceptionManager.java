@@ -74,6 +74,6 @@ public class OAuthExceptionManager {
     @ExceptionHandler
     public ResponseEntity exHandler(Exception e) {
         log.error("[exceptionHandler] ex", e);
-        return responseApi.fail("HARD-EX", "[server error] "+e.getClass().getName(), HttpStatus.CONFLICT);
+        return responseApi.fail("HARD-EX", "[server error] " + e.getMessage(), HttpStatus.CONFLICT);
     }
 }

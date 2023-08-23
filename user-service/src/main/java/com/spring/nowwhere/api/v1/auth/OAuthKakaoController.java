@@ -14,18 +14,26 @@ import com.spring.nowwhere.api.v1.redis.kakao.KakaoTokenRedisRepository;
 import com.spring.nowwhere.api.v1.redis.logout.LogoutAccessTokenFromRedis;
 import com.spring.nowwhere.api.v1.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.RouterOperation;
+import org.springdoc.core.annotations.RouterOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.Calendar;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Tag(name = "OAuth", description = "카카오 API")
@@ -124,9 +132,26 @@ public class OAuthKakaoController {
     }
 
     @GetMapping("/kakao/friends")
-    @Operation(security = {@SecurityRequirement(name = "bearer-key")},
-            summary = "find kakaoFriends", description = "사용자가 추가 동의를 한 경우 사용자의 카카오톡 친구를 조회할 수 있다.")
-    public ResponseEntity<Map> getKakaoFriends(@RequestParam KaKaoFriendDto kaKaoFriendDto,
+    @RouterOperation(method = RequestMethod.GET, operation = @Operation(security = {@SecurityRequirement(name = "bearer-key")},
+            summary = "find kakaoFriends", description = "사용자가 추가 동의를 한 경우 사용자의 카카오톡 친구를 조회할 수 있다."
+//            ,
+//            parameters = {
+//                @Parameter( in = ParameterIn.PATH,
+//                        description = "친구 목록 시작 지점(기본값: 0)", name = "offset", schema = @Schema(type = "Integer")),
+//                @Parameter( in = ParameterIn.PATH,
+//                        description = "한 페이지에 가져올 친구 최대 수(기본값: 10, 최대: 100)",
+//                        name = "limit", schema = @Schema(type = "Integer")),
+//                @Parameter( in = ParameterIn.PATH,
+//                        description = "친구 목록 정렬 순서 오름차순(asc) 또는 내림차순(desc)(기본값 asc)",
+//                        name = "order", schema = @Schema(type = "String")),
+//                @Parameter( in = ParameterIn.PATH,
+//                        description = "favorite: 즐겨찾기 친구 우선 정렬, nickname: 닉네임 순서 정렬로 기준 설정(기본값 favorite)",
+//                        name = "friend_order", schema = @Schema(type = "favorite"))
+//            }
+            ))
+//    @ApiImplicitParam(name = "postId", value = "조회할 게시물 ID", required = true, dataType = "long")
+    public ResponseEntity<Map> getKakaoFriends(
+            @Valid @RequestBody(required = false) Optional<KaKaoFriendDto> parameterDto,
                                                HttpServletRequest request) {
 
         String token = getTokenByReqeust(request);
@@ -135,8 +160,16 @@ public class OAuthKakaoController {
         //다음에 예외처리 refresh token으로 재발급 or 다시 login처리
         KakaoTokenFromRedis kakaoTokenFromRedis = kakaoTokenRedisRepository.findByEmail(email)
                 .orElseThrow(() -> new OauthKakaoApiException("kakao accessToken이 없습니다."));
+        String kakaoToken = kakaoTokenFromRedis.getId();
 
-        return responseApi.success(oAuthKakaoService.getKakaoFriends(kakaoTokenFromRedis.getId()));
+        KaKaoFriendDto kaKaoFriendDto = parameterDto.orElse(KaKaoFriendDto.builder()
+                .offset(0)
+                .limit(10)
+                .order("asc")
+                .friend_order("favorite")
+                .build());
+
+        return responseApi.success(oAuthKakaoService.getKakaoFriends(kakaoToken, kaKaoFriendDto));
     }
 
     private static String getTokenByReqeust(HttpServletRequest request) {
