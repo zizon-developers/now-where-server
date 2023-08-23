@@ -70,7 +70,7 @@ public class OAuthKakaoController {
         return responseApi.success(oAuthUserDto, "로그인 성공", HttpStatus.OK);
     }
 
-    @PostMapping("/consent")
+    @PostMapping("/grant-permission")
     @Operation(summary = "추가 동의 받기",
             description = "카카오 친구를 조회하기 위해서는 추가 동의가 필요하다. 이메일도 동의할 경우 userEmail 정보가 변경된다.")
     public ResponseEntity<OAuthUserDto> additionalUserConsent(@RequestBody OAuthCodeRequest OAuthCodeRequest,
@@ -130,7 +130,7 @@ public class OAuthKakaoController {
         return responseApi.success(logoutToken);
     }
 
-    @GetMapping("/kakao/friends")
+    @GetMapping("/friends")
     @Operation(security = {@SecurityRequirement(name = "bearer-key")},
             summary = "find kakao friends", description = "사용자가 추가 동의를 한 경우 사용자의 카카오톡 친구를 조회할 수 있다.")
     public ResponseEntity<Map> getKakaoFriends(@RequestBody(required = false) Optional<KaKaoFriendDto> kaKaoFriendDto,
@@ -158,10 +158,10 @@ public class OAuthKakaoController {
                 .replace(JwtProperties.TOKEN_PREFIX, "");
     }
 
-    @GetMapping("/callback/kakao")
-    public ResponseEntity test(@RequestParam String code){
-        log.info(code);
-        return ResponseEntity.ok().build();
-    }
+//    @GetMapping("/callback/kakao")
+//    public ResponseEntity test(@RequestParam String code){
+//        log.info(code);
+//        return ResponseEntity.ok().build();
+//    }
 
 }
