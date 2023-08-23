@@ -1,4 +1,4 @@
-package com.spring.nowwhere.api.v1.jwt;
+package com.spring.nowwhere.api.v1.security.jwt;
 
 public interface JwtProperties {
 

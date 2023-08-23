@@ -1,4 +1,4 @@
-package com.spring.nowwhere.api.v1.entity;
+package com.spring.nowwhere.api.v1.user.entity;
 
 import lombok.AccessLevel;
 import lombok.Builder;

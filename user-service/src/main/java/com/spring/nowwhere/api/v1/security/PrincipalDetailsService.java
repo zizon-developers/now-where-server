@@ -1,7 +1,7 @@
 package com.spring.nowwhere.api.v1.security;
 
-import com.spring.nowwhere.api.v1.entity.User;
-import com.spring.nowwhere.api.v1.entity.UserRepository;
+import com.spring.nowwhere.api.v1.user.entity.User;
+import com.spring.nowwhere.api.v1.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;

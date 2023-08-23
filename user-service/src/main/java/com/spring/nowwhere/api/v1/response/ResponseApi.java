@@ -1,4 +1,4 @@
-package com.spring.nowwhere.api.v1.dto;
+package com.spring.nowwhere.api.v1.response;
 
 import lombok.Builder;
 import lombok.Getter;

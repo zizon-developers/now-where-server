@@ -1,6 +1,6 @@
-package com.spring.nowwhere.api.v1.jwt;
+package com.spring.nowwhere.api.v1.security.jwt;
 
-import com.spring.nowwhere.api.v1.entity.User;
+import com.spring.nowwhere.api.v1.user.entity.User;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;

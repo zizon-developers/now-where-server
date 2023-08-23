@@ -1,12 +1,12 @@
-package com.spring.nowwhere.api.v1.service;
+package com.spring.nowwhere.api.v1.user.service;
 
-import com.spring.nowwhere.api.v1.dto.UserDto;
-import com.spring.nowwhere.api.v1.entity.User;
-import com.spring.nowwhere.api.v1.entity.UserRole;
-import com.spring.nowwhere.api.v1.auth.OAuthUserDto;
+import com.spring.nowwhere.api.v1.user.dto.UserDto;
+import com.spring.nowwhere.api.v1.user.entity.User;
+import com.spring.nowwhere.api.v1.user.entity.UserRole;
+import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
 import com.spring.nowwhere.api.v1.auth.exception.DuplicateUserException;
-import com.spring.nowwhere.api.v1.entity.UserRepository;
-import com.spring.nowwhere.api.v1.jwt.TokenProvider;
+import com.spring.nowwhere.api.v1.user.repository.UserRepository;
+import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
 import com.spring.nowwhere.api.v1.redis.logout.LogoutAccessTokenFromRedis;
 import com.spring.nowwhere.api.v1.redis.logout.LogoutAccessTokenRedisRepository;
 import com.spring.nowwhere.api.v1.security.exception.LogoutTokenException;

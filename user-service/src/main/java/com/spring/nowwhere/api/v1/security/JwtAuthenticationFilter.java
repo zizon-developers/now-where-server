@@ -1,8 +1,8 @@
 package com.spring.nowwhere.api.v1.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring.nowwhere.api.v1.vo.RequestLogin;
-import com.spring.nowwhere.api.v1.jwt.TokenProvider;
+import com.spring.nowwhere.api.v1.user.dto.RequestLogin;
+import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,7 +35,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
                                                 HttpServletResponse response) throws AuthenticationException {
-        //POST요청은 request 파라미터로 전달받을 수 없어서 inputStream으로 처리
+        //POST요청은 request 파라미터로 전달받을 수 없어서 inputStream으로 처리 /login
         try {
             RequestLogin creds = new ObjectMapper().readValue(request.getInputStream(), RequestLogin.class);
 

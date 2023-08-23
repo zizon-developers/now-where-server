@@ -1,13 +1,8 @@
 package com.spring.nowwhere.api.v1.auth.exception.advice;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.*;
 import com.spring.nowwhere.api.v1.auth.exception.DuplicateUserException;
 import com.spring.nowwhere.api.v1.auth.exception.OauthKakaoApiException;
-import com.spring.nowwhere.api.v1.dto.ResponseApi;
+import com.spring.nowwhere.api.v1.response.ResponseApi;
 import com.spring.nowwhere.api.v1.security.exception.LogoutTokenException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +13,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice(basePackages = "com.spring.nowwhere.api.v1.auth")

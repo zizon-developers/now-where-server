@@ -1,11 +1,11 @@
 package com.spring.nowwhere.api.v1.auth;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
+import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
+import com.spring.nowwhere.api.v1.auth.dto.TokenDto;
 import com.spring.nowwhere.api.v1.auth.exception.DuplicateUserException;
 import com.spring.nowwhere.api.v1.auth.exception.OauthKakaoApiException;
-import com.spring.nowwhere.api.v1.jwt.JwtProperties;
+import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
@@ -13,7 +13,6 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 

@@ -1,9 +1,9 @@
 package com.spring.nowwhere;
 
-import com.spring.nowwhere.api.v1.auth.OAuthUserDto;
-import com.spring.nowwhere.api.v1.entity.User;
-import com.spring.nowwhere.api.v1.entity.UserRepository;
-import com.spring.nowwhere.api.v1.service.UserService;
+import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
+import com.spring.nowwhere.api.v1.user.entity.User;
+import com.spring.nowwhere.api.v1.user.repository.UserRepository;
+import com.spring.nowwhere.api.v1.user.service.UserService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
