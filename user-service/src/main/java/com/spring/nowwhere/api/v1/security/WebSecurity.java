@@ -42,11 +42,12 @@ public class WebSecurity {
 
 
         http.authorizeRequests(authorize -> authorize
-                .antMatchers("api/v1//auth/login","api/v1//auth/join").permitAll()
-                .antMatchers("api/v1//auth/**").access("hasRole('ROLE_USER')")
-                .antMatchers("api/v1//users/**").access("hasRole('ROLE_USER')")
-        );
-
+                        .antMatchers("api/v1/auth/login", "api/v1//auth/join").permitAll()
+                        .antMatchers("api/v1/auth/**").access("hasRole('ROLE_USER')")
+                        .antMatchers("api/v1/user/**").access("hasRole('ROLE_USER')")
+                        .anyRequest().authenticated())
+                .exceptionHandling()
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint());
 
         return http.build();
     }
@@ -70,14 +71,14 @@ public class WebSecurity {
     }
 
     @Bean
-    public AuthorizationFilter getAuthorizationFilter() throws Exception {
-        return new AuthorizationFilter(authenticationManager(), userRepository, tokenProvider(), logoutAccessTokenRedisRepository);
+    public JwtAuthorizationFilter getAuthorizationFilter() throws Exception {
+        return new JwtAuthorizationFilter(authenticationManager(), userRepository, tokenProvider(), logoutAccessTokenRedisRepository);
     }
 
     @Bean
-    public AuthenticationFilter getAuthenticationFiler() throws Exception {
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager(), env, tokenProvider());
-        return authenticationFilter;
+    public JwtAuthenticationFilter getAuthenticationFiler() throws Exception {
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager(), env, tokenProvider());
+        return jwtAuthenticationFilter;
     }
 
 
@@ -91,5 +92,10 @@ public class WebSecurity {
     @Bean
     TokenProvider tokenProvider(){
         return new TokenProvider(env);
+    }
+
+    @Bean
+    JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint(){
+        return new JwtAuthenticationEntryPoint();
     }
 }

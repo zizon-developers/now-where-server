@@ -19,13 +19,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 @Slf4j
-public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private TokenProvider tokenProvider;
     private Environment env;
 
-    public AuthenticationFilter(AuthenticationManager authenticationManager,
-                                Environment env,
-                                TokenProvider tokenProvider) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager,
+                                   Environment env,
+                                   TokenProvider tokenProvider) {
         super.setAuthenticationManager(authenticationManager);
         this.tokenProvider = tokenProvider;
         this.env = env;

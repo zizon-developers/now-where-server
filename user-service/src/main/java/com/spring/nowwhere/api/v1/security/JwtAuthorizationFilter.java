@@ -25,20 +25,17 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-// 인가
-// 권한이나 인증이 필요한 특정 주소를 요청했을 때 BasicAuthenticationFilter를 무조건 타게 되어있다.
-// 만약에 권한이 인증이 필요한 주소가 아니라면 이필터를 안탄다.
 @Slf4j
-public class AuthorizationFilter extends BasicAuthenticationFilter {
+public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private UserRepository userRepository;
     private TokenProvider tokenProvider;
     private LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
 
-    public AuthorizationFilter(AuthenticationManager authenticationManager,
-                               UserRepository userRepository,
-                               TokenProvider tokenProvider,
-                               LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository) {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager,
+                                  UserRepository userRepository,
+                                  TokenProvider tokenProvider,
+                                  LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository) {
         super(authenticationManager);
         this.userRepository = userRepository;
         this.tokenProvider = tokenProvider;
@@ -50,7 +47,6 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         String header = request.getHeader(JwtProperties.ACCESS_HEADER_STRING);
-        //헤더가 있는지 확인
         if (header == null || !header.startsWith(JwtProperties.TOKEN_PREFIX)) {
             chain.doFilter(request, response);
             return;
@@ -80,7 +76,6 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
             chain.doFilter(request, response);
 
         } catch (ExpiredJwtException e) {
-            // JWT 토큰이 만료된 경우
             handleAuthenticationExceptionMessage(request, response, e, HttpStatus.UNAUTHORIZED.value(), "TOKEN-TIMEOUT-EX");
         } catch (LogoutTokenException e) {
             handleAuthenticationExceptionMessage(request, response, e, HttpStatus.UNAUTHORIZED.value(), "LOGOUT-EX");
