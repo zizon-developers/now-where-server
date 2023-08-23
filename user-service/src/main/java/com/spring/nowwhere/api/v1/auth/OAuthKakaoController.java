@@ -10,6 +10,9 @@ import com.spring.nowwhere.api.v1.redis.kakao.KakaoTokenRedisRepository;
 import com.spring.nowwhere.api.v1.redis.logout.LogoutAccessTokenFromRedis;
 import com.spring.nowwhere.api.v1.redis.logout.LogoutAccessTokenRedisRepository;
 import com.spring.nowwhere.api.v1.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,6 +25,7 @@ import java.util.Calendar;
 import java.util.Map;
 
 @Slf4j
+@Tag(name = "OAuth", description = "카카오 API")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("api/v1/auth")
@@ -36,6 +40,7 @@ public class OAuthKakaoController {
     
 
     @PostMapping("/join")
+    @Operation(summary = "login", description = "카카오 계정을 통해서 회원가입할 수 있다.")
     public ResponseEntity<OAuthUserDto> registerWithKakaoAccount (@RequestBody OAuthCodeRequest OAuthCodeRequest) {
 
         log.info("mycode={}", OAuthCodeRequest.getCode());
@@ -47,6 +52,7 @@ public class OAuthKakaoController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "login", description = "카카오 계정을 통해서 로그인할 수 있다.")
     public ResponseEntity<OAuthUserDto> loginWithKakaoAccount (@RequestBody OAuthCodeRequest OAuthCodeRequest,
                                                                HttpServletResponse response){
 
@@ -83,6 +89,7 @@ public class OAuthKakaoController {
 
     //추가 동의할 때 이메일 다르면 바꿔주어야 한다.
     @PostMapping("/consent")
+    @Operation(summary = "additionalUserConsent", description = "카카오 친구를 조회하기 위해서는 추가 동의가 필요하다.")
     public ResponseEntity<OAuthUserDto> additionalUserConsent(@RequestBody OAuthCodeRequest OAuthCodeRequest,
                                                               HttpServletResponse response){
         log.info("mycode={}", OAuthCodeRequest.getCode());
@@ -103,6 +110,8 @@ public class OAuthKakaoController {
     }
 
     @PostMapping("/logout")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
+            summary = "logout", description = "로그인을 성공한 사용자는 로그아웃을 할 수 있다.")
     public ResponseEntity<LogoutAccessTokenFromRedis> logout(HttpServletRequest request){
 
         String token = getTokenByReqeust(request);
@@ -112,6 +121,8 @@ public class OAuthKakaoController {
     }
 
     @GetMapping("/kakao/friends")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
+            summary = "find kakaoFriends", description = "사용자가 추가 동의를 한 경우 사용자의 카카오톡 친구를 조회할 수 있다.")
     public ResponseEntity<Map> getKakaoFriends(HttpServletRequest request) {
         String token = getTokenByReqeust(request);
         String email = tokenProvider.getUserEmailFromAccessToken(token);

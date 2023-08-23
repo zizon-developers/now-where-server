@@ -81,8 +81,8 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
         } catch (ExpiredJwtException e) {
             // JWT 토큰이 만료된 경우
             handleAuthenticationExceptionMessage(request, response, e, HttpStatus.UNAUTHORIZED.value(), "TOKEN-TIMEOUT-EX");
-//        } catch (LogoutTokenException e) {
-//            handleAuthenticationExceptionMessage(request, response, e, HttpStatus.UNAUTHORIZED.value(), "LOGOUT-EX");
+        } catch (LogoutTokenException e) {
+            handleAuthenticationExceptionMessage(request, response, e, HttpStatus.UNAUTHORIZED.value(), "LOGOUT-EX");
         } catch (Exception e) {
             handleAuthenticationExceptionMessage(request, response, e, HttpStatus.FORBIDDEN.value(), "ANY-EX");
         }
@@ -93,6 +93,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
         PrintWriter writer = response.getWriter();
+        //객체로 담아서 JSON 파서해서 사용하자
         String errorJson =
                 "{" +
                         "\"uri\":\"" + request.getRequestURI() + "\"," +
