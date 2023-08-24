@@ -1,5 +1,8 @@
 package com.spring.nowwhere.api.v1.user.controller;
 
+import com.spring.nowwhere.api.v1.bet.Bet;
+import com.spring.nowwhere.api.v1.bet.BetService;
+import com.spring.nowwhere.api.v1.bet.RequestBetDto;
 import com.spring.nowwhere.api.v1.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.user.dto.UserResponse;
 import com.spring.nowwhere.api.v1.user.service.UserService;
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final BetService betService;
 
     @GetMapping("")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
@@ -38,5 +42,15 @@ public class UserController {
     public ResponseEntity<UserResponse> getUser(@PathVariable String userId){
         UserDto findUser = userService.getUserByUserId(userId);
         return ResponseEntity.ok(UserResponse.of(findUser));
+    }
+
+    @PostMapping("/{userId}/bets")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
+            summary = "get user", description = "특정 사용자를 조회할 수 있다.")
+    public ResponseEntity createBet(@PathVariable String userId,
+                                    RequestBetDto requestBetDto){
+        Bet bet = betService.createBet(requestBetDto);
+
+        return null;
     }
 }

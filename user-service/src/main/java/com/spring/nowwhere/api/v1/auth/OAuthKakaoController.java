@@ -163,10 +163,21 @@ public class OAuthKakaoController {
                 .replace(JwtProperties.TOKEN_PREFIX, "");
     }
 
-//    @GetMapping("/callback/kakao")
-//    public ResponseEntity test(@RequestParam String code){
-//        log.info(code);
-//        return ResponseEntity.ok().build();
+    @GetMapping("/callback/kakao")
+    public ResponseEntity test(@RequestParam String code){
+        log.info(code);
+        return ResponseEntity.ok().build();
+    }
+//    @GetMapping("/payment/kakao")
+//    public Object requestKakaoPayPayment(HttpServletRequest request){
+//        String token = getTokenByReqeust(request);
+//        String email = tokenProvider.getUserEmailFromAccessToken(token);
+//
+//        KakaoTokenFromRedis kakaoTokenFromRedis = kakaoTokenRedisRepository.findByEmail(email)
+//                .orElseThrow(() -> new OauthKakaoApiException("kakao accessToken이 없습니다."));
+//
+//        String kakaoToken = kakaoTokenFromRedis.getId();
+//
+//        return oAuthKakaoService.createKakaoPayPayment("Ej8w4tsnb", 1, kakaoToken);
 //    }
-
 }

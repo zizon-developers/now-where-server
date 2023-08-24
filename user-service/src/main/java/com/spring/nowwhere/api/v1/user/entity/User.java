@@ -24,9 +24,7 @@ public class User {
     private String name;
     @Column(nullable = false, unique = true)
     private String userId;
-    @Column(nullable = false)
     private String password;
-
     @Column
     @Enumerated(value = EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)

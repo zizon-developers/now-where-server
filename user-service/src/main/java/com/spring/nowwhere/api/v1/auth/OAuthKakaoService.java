@@ -5,6 +5,8 @@ import com.spring.nowwhere.api.v1.auth.dto.KaKaoFriendDto;
 import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
 import com.spring.nowwhere.api.v1.auth.dto.TokenDto;
 import com.spring.nowwhere.api.v1.auth.exception.OauthKakaoApiException;
+import com.spring.nowwhere.api.v1.redis.kakao.KakaoTokenFromRedis;
+import com.spring.nowwhere.api.v1.redis.kakao.KakaoTokenRedisRepository;
 import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +28,7 @@ import static org.springframework.web.client.HttpClientErrorException.*;
 @Slf4j
 @RequiredArgsConstructor
 public class OAuthKakaoService {
+    private final KakaoTokenRedisRepository kakaoTokenRedisRepository;
     private final RestTemplate restTemplate;
     private final Environment evn;
 
@@ -50,8 +53,8 @@ public class OAuthKakaoService {
 
 
             response = restTemplate.exchange(reqURL, HttpMethod.POST, entity, Map.class);
-            log.info("status code ={}",response.getStatusCode());
-            log.info("bode ={}",response.getBody());
+            log.info("status code ={}", response.getStatusCode());
+            log.info("bode ={}", response.getBody());
 
             if (response.getStatusCode() != HttpStatus.OK)
                 throw new OauthKakaoApiException("Failed to retrieve Kakao friends. Status code: " + response.getStatusCode());
@@ -59,15 +62,15 @@ public class OAuthKakaoService {
             Map responseBody = response.getBody();
             accessToken = (String) responseBody.get("access_token");
             refreshToken = (String) responseBody.get("refresh_token");
-            log.info("access ={}",accessToken);
-            log.info("refresh ={}",refreshToken);
+            log.info("access ={}", accessToken);
+            log.info("refresh ={}", refreshToken);
 
             return new TokenDto(accessToken, refreshToken);
 
-        } catch (BadRequest | Unauthorized | Forbidden e){
+        } catch (BadRequest | Unauthorized | Forbidden e) {
             throw e;
         } catch (Exception e) {
-            log.error("error",e);
+            log.error("error", e);
             throw e;
         }
     }
@@ -84,12 +87,12 @@ public class OAuthKakaoService {
 
             response = restTemplate.exchange(reqURL, HttpMethod.POST, entity, String.class);
 
-            log.info("status ={}",response.getStatusCode());
+            log.info("status ={}", response.getStatusCode());
             if (response.getStatusCode() != HttpStatus.OK)
                 throw new OauthKakaoApiException("Failed to retrieve Kakao friends. Status code: " + response.getStatusCode());
 
             String responseBody = response.getBody();
-            log.info("body ={}",responseBody);
+            log.info("body ={}", responseBody);
 
 
             //Gson 라이브러리로 JSON파싱
@@ -101,26 +104,26 @@ public class OAuthKakaoService {
             //optional 하려고했는데 Json예외 발생함
             boolean hasAgreedToEmails = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email_needs_agreement").getAsBoolean();
             Optional<String> optEmail = Optional.empty();
-            if(!hasAgreedToEmails){
+            if (!hasAgreedToEmails) {
                 optEmail = Optional.of(element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email").getAsString());
             }
 
-            log.info("id ={}" ,id);
-            log.info("name ={}",name);
-            log.info("email ={}" ,optEmail);
+            log.info("id ={}", id);
+            log.info("name ={}", name);
+            log.info("email ={}", optEmail);
 
             String email = optEmail.orElse(id);
             OAuthUserDto user = OAuthUserDto.builder()
-                            .userId(id)
-                            .name(name)
-                            .email(email)
-                            .build();
+                    .userId(id)
+                    .name(name)
+                    .email(email)
+                    .build();
 
             return user;
-        } catch (BadRequest | Unauthorized | Forbidden e){
+        } catch (BadRequest | Unauthorized | Forbidden e) {
             throw e;
         } catch (Exception e) {
-            log.error("error",e);
+            log.error("error", e);
             throw e;
         }
     }
@@ -155,11 +158,41 @@ public class OAuthKakaoService {
             } else {
                 throw new OauthKakaoApiException("Failed to retrieve Kakao friends. Status code: " + response.getStatusCode());
             }
-        }catch (BadRequest | Unauthorized | Forbidden e){
+        } catch (BadRequest | Unauthorized | Forbidden e) {
             throw e;
-        } catch (Exception e){
-            log.error("error",e);
+        } catch (Exception e) {
+            log.error("error", e);
             throw e;
         }
+    }
+
+    public ResponseEntity<Object> createKakaoPayPaymentURL(String userId, int amount,String accessToken) {
+
+        String reqURL = String.format("https://qr.kakaopay.com/%s%s", userId, toHexValue(amount));
+
+        ResponseEntity<Object> response = null;
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.AUTHORIZATION, JwtProperties.TOKEN_PREFIX + accessToken);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            response = restTemplate.exchange(reqURL, HttpMethod.POST, entity, Object.class);
+
+            log.info("status ={}", response.getStatusCode());
+            if (response.getStatusCode() != HttpStatus.OK)
+                throw new OauthKakaoApiException("Failed to retrieve Kakao friends. Status code: " + response.getStatusCode());
+
+
+        } catch (BadRequest | Unauthorized | Forbidden e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("error", e);
+            throw e;
+        }
+        return response;
+    }
+    private String toHexValue(int value){
+        return Integer.toHexString((value * 524288));
     }
 }
