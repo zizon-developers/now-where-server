@@ -8,10 +8,7 @@ import org.springframework.core.env.Environment;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 public class TokenProvider {
@@ -108,9 +105,17 @@ public class TokenProvider {
         Claims claims = getClaimsFormToken(token, env.getProperty("token.access-secret"));
         return (String) claims.get("email");
     }
+    public String getUserEmailFromRefreshToken(String token) {
+        Claims claims = getClaimsFormToken(token, env.getProperty("token.refresh-secret"));
+        return (String) claims.get("email");
+    }
 
-    public Date getExpireTimeFromToken(String token){
+    public Date getExpireTimeFromAccessToken(String token){
         Claims claims = getClaimsFormToken(token, env.getProperty("token.access-secret"));
+        return claims.getExpiration();
+    }
+    public Date getExpireTimeFromRefreshToken(String token){
+        Claims claims = getClaimsFormToken(token, env.getProperty("token.refresh-secret"));
         return claims.getExpiration();
     }
 }

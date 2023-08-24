@@ -1,5 +1,9 @@
 package com.spring.nowwhere.api.v1.user.service;
 
+import com.spring.nowwhere.api.v1.auth.dto.TokenDto;
+import com.spring.nowwhere.api.v1.auth.exception.RefreshTokenNotFoundException;
+import com.spring.nowwhere.api.v1.redis.refresh.RefreshTokenFromRedis;
+import com.spring.nowwhere.api.v1.redis.refresh.RefreshTokenRedisRepository;
 import com.spring.nowwhere.api.v1.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.user.entity.User;
 import com.spring.nowwhere.api.v1.user.entity.UserRole;
@@ -29,6 +33,7 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
     private final LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
+    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
     @Override
     public UserDto getUserByUserId(String userId) {
@@ -47,14 +52,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User login(OAuthUserDto userDto) {
+    @Transactional
+    public TokenDto login(OAuthUserDto userDto) {
 
         User findUser = userRepository.findByUserId(userDto.getUserId()).orElseThrow(
                 () -> new UsernameNotFoundException("user not found"));
 
+        String accessToken = tokenProvider.generateJwtAccessToken(findUser);
+        String refreshToken = tokenProvider.generateJwtRefreshToken(findUser);
+
+
         logoutAccessTokenRedisRepository.findByEmail(userDto.getEmail())
                 .ifPresent(logoutToken -> logoutAccessTokenRedisRepository.delete(logoutToken));
-        return findUser;
+
+        refreshTokenRedisRepository.save(RefreshTokenFromRedis.builder()
+                .id(refreshToken)
+                .email(findUser.getEmail())
+                .expiration(tokenProvider.getExpireTimeFromRefreshToken(refreshToken).getTime())
+                .build());
+
+        return new TokenDto(accessToken, refreshToken);
     }
 
     //친구목록 조회에서 예외 발생시 호출되며 로그인상태라서 따로토큰 제거X 로직도 이게 맞음
@@ -90,18 +107,31 @@ public class UserServiceImpl implements UserService {
         return OAuthUserDto.of(user);
     }
 
+    @Override
+    public User reissue(String email) {
+
+        refreshTokenRedisRepository.findByEmail(email)
+                .orElseThrow(() -> new RefreshTokenNotFoundException("refresh token Not Found"));
+
+        User findUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+        return findUser;
+    }
+
     @Transactional
     public LogoutAccessTokenFromRedis logout(String token) {
 
-        String userEmailFromAccessToken = tokenProvider.getUserEmailFromAccessToken(token);
+        String findEmail = tokenProvider.getUserEmailFromAccessToken(token);
 
-        logoutAccessTokenRedisRepository.findByEmail(userEmailFromAccessToken).ifPresent(ex -> {
-                                            throw new LogoutTokenException("이미 logout된 token이 있습니다.");
-                                        });
+        logoutAccessTokenRedisRepository.findByEmail(findEmail).ifPresent(ex -> {
+                                            throw new LogoutTokenException("이미 logout된 token이 있습니다.");});
 
-        Date expireTimeFromAccessToken = tokenProvider.getExpireTimeFromToken(token);
+        Date expireTimeFromAccessToken = tokenProvider.getExpireTimeFromAccessToken(token);
         LogoutAccessTokenFromRedis logoutAccessToken = LogoutAccessTokenFromRedis.createLogoutAccessToken(token,
-                userEmailFromAccessToken, expireTimeFromAccessToken.getTime());
+                findEmail, expireTimeFromAccessToken.getTime());
+
+        refreshTokenRedisRepository.findByEmail(findEmail)
+                .ifPresent(refreshToken -> refreshTokenRedisRepository.delete(refreshToken));
 
         return logoutAccessTokenRedisRepository.save(logoutAccessToken);
     }

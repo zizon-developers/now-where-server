@@ -6,5 +6,5 @@ public interface JwtProperties {
     String REFRESH_TOKEN = "Refresh-Token";
 
     String TOKEN_PREFIX = "Bearer ";
-    String ACCESS_HEADER_STRING = "Authorization";
+    String AUTHORIZATION = "Authorization";
 }

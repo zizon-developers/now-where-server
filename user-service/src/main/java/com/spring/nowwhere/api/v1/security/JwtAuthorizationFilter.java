@@ -46,7 +46,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        String header = request.getHeader(JwtProperties.ACCESS_HEADER_STRING);
+        String header = request.getHeader(JwtProperties.AUTHORIZATION);
+
         if (header == null || !header.startsWith(JwtProperties.TOKEN_PREFIX)) {
             chain.doFilter(request, response);
             return;
@@ -54,15 +55,21 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         log.info("header:{}", header);
         String token = header.replace(JwtProperties.TOKEN_PREFIX, "");
 
-
+        String requestURI = request.getRequestURI();
         String email = "";
         try {
-            email = tokenProvider.getUserEmailFromAccessToken(token);
+
+            if (requestURI.equals("/api/v1/auth/reissue")) {
+                email = tokenProvider.getUserEmailFromRefreshToken(token);
+            } else {
+                email = tokenProvider.getUserEmailFromAccessToken(token);
+            }
+
+
             if (logoutAccessTokenRedisRepository.findByEmail(email).isPresent()){
                 throw new LogoutTokenException("Logout된 토큰 입니다.");
             }
 
-            // 이메일이 유효하면, 다음 필터로 진행
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("token에 해당하는 유저가 없습니다."));
 

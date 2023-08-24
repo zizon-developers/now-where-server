@@ -1,5 +1,6 @@
 package com.spring.nowwhere.api.v1.auth.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter

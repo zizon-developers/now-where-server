@@ -1,6 +1,7 @@
 package com.spring.nowwhere.api.v1.auth.exception.advice;
 
 import com.spring.nowwhere.api.v1.auth.exception.OauthKakaoApiException;
+import com.spring.nowwhere.api.v1.auth.exception.RefreshTokenNotFoundException;
 import com.spring.nowwhere.api.v1.response.ResponseApi;
 import com.spring.nowwhere.api.v1.security.exception.LogoutTokenException;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,13 @@ public class OAuthExceptionManager {
     public ResponseEntity OauthKakaoApiExceptionHadnler (OauthKakaoApiException e){
         log.error("[exceptionHandler] ex", e);
         return responseApi.fail("K-CONTROLLER-EX", e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(RefreshTokenNotFoundException.class)
+    public ResponseEntity RefreshTokenNotFoundExceptionHandler (RefreshTokenNotFoundException  e){
+        log.error("[exceptionHandler] ex", e);
+        return responseApi.fail("REFRESH-TOKEN-NOT-EX", e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)

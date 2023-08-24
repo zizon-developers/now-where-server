@@ -5,7 +5,9 @@ import com.spring.nowwhere.api.v1.auth.dto.OAuthCodeRequest;
 import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
 import com.spring.nowwhere.api.v1.auth.dto.TokenDto;
 import com.spring.nowwhere.api.v1.auth.exception.OauthKakaoApiException;
+import com.spring.nowwhere.api.v1.redis.refresh.RefreshTokenRedisRepository;
 import com.spring.nowwhere.api.v1.response.ResponseApi;
+import com.spring.nowwhere.api.v1.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.user.entity.User;
 import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
@@ -14,25 +16,17 @@ import com.spring.nowwhere.api.v1.redis.kakao.KakaoTokenRedisRepository;
 import com.spring.nowwhere.api.v1.redis.logout.LogoutAccessTokenFromRedis;
 import com.spring.nowwhere.api.v1.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springdoc.core.annotations.RouterOperation;
-import org.springdoc.core.annotations.RouterOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.Optional;
@@ -60,12 +54,10 @@ public class OAuthKakaoController {
         savedKakaoAccessToken(kakaoToken,kakaoUser.getEmail());
 
         OAuthUserDto oAuthUserDto = userService.checkAndRegisterUser(kakaoUser);
-        User user = userService.login(oAuthUserDto);
+        TokenDto tokenDto = userService.login(oAuthUserDto);
 
-        String accessToken = tokenProvider.generateJwtAccessToken(user);
-        String refreshToken = tokenProvider.generateJwtRefreshToken(user);
-        response.addHeader(JwtProperties.ACCESS_TOKEN, accessToken);
-        response.addCookie(createCookie(refreshToken));
+        response.addHeader(JwtProperties.ACCESS_TOKEN, tokenDto.getAccessToken());
+        response.addCookie(createCookie(tokenDto.getRefreshToken()));
 
         return responseApi.success(oAuthUserDto, "로그인 성공", HttpStatus.OK);
     }
@@ -84,10 +76,7 @@ public class OAuthKakaoController {
         User user = userService.updateEmail(kakaoUser);
 
         String accessToken = tokenProvider.generateJwtAccessToken(user);
-        String refreshToken = tokenProvider.generateJwtRefreshToken(user);
         response.addHeader(JwtProperties.ACCESS_TOKEN, accessToken);
-        response.addCookie(createCookie(refreshToken));
-
         return responseApi.success(kakaoUser);
     }
 
@@ -121,13 +110,29 @@ public class OAuthKakaoController {
 
     @PostMapping("/logout")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
-            summary = "logout", description = "로그인을 성공한 사용자는 로그아웃을 할 수 있다.")
+            summary = "logout", description = "로그인을 성공한 사용자는 로그아웃을 할 수 있다.(refresh token도 삭제)")
     public ResponseEntity<LogoutAccessTokenFromRedis> logout(HttpServletRequest request){
 
         String token = getTokenByReqeust(request);
         LogoutAccessTokenFromRedis logoutToken = userService.logout(token);
 
         return responseApi.success(logoutToken);
+    }
+
+    @GetMapping("/reissue")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key (refresh token)") },
+            summary = "reissue", description = "refresh token을 이용해서 access token을 재발행 가능하다. (user정보 넘겨줄 수 있는지 FE랑 이야기)")
+    public ResponseEntity<OAuthUserDto> reissue(HttpServletRequest request,
+                           HttpServletResponse response){
+
+        String refreshToken = getTokenByReqeust(request);
+        String email = tokenProvider.getUserEmailFromRefreshToken(refreshToken);
+
+        User user = userService.reissue(email);
+        String accessToken = tokenProvider.generateJwtAccessToken(user);
+        response.addHeader(JwtProperties.ACCESS_TOKEN, accessToken);
+
+        return responseApi.success(OAuthUserDto.of(user), "access token 재발행 성공", HttpStatus.OK);
     }
 
     @GetMapping("/friends")
@@ -154,7 +159,7 @@ public class OAuthKakaoController {
     }
 
     private static String getTokenByReqeust(HttpServletRequest request) {
-        return request.getHeader(JwtProperties.ACCESS_HEADER_STRING)
+        return request.getHeader(JwtProperties.AUTHORIZATION)
                 .replace(JwtProperties.TOKEN_PREFIX, "");
     }
 
