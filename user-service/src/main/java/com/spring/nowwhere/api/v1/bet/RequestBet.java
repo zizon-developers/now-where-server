@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Schema(description = "내기를 생성하기 위한 요청DTO")
-public class RequestBetDto {
+public class RequestBet {
 
     @Schema(description = "내기를 요청받을 사용자ID")
     private String receiverId;

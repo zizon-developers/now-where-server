@@ -2,7 +2,9 @@ package com.spring.nowwhere.api.v1.user.controller;
 
 import com.spring.nowwhere.api.v1.bet.Bet;
 import com.spring.nowwhere.api.v1.bet.BetService;
-import com.spring.nowwhere.api.v1.bet.RequestBetDto;
+import com.spring.nowwhere.api.v1.bet.RequestBet;
+import com.spring.nowwhere.api.v1.bet.ResponseBet;
+import com.spring.nowwhere.api.v1.response.ResponseApi;
 import com.spring.nowwhere.api.v1.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.user.dto.UserResponse;
 import com.spring.nowwhere.api.v1.user.service.UserService;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 public class UserController {
     private final UserService userService;
     private final BetService betService;
+    private final ResponseApi responseApi;
 
     @GetMapping("")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
@@ -46,11 +49,11 @@ public class UserController {
 
     @PostMapping("/{userId}/bets")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
-            summary = "get user", description = "특정 사용자를 조회할 수 있다.")
-    public ResponseEntity createBet(@PathVariable String userId,
-                                    RequestBetDto requestBetDto){
-        Bet bet = betService.createBet(requestBetDto);
+            summary = "create bet", description = "특정 사용자에게 내기를 요청할 수 있다.")
+    public ResponseEntity<ResponseBet> createBet(@PathVariable String userId,
+                                                 RequestBet requestBet){
 
-        return null;
+        ResponseBet responseBet = betService.createBet(userId, requestBet);
+        return responseApi.success(responseBet, "내기 저장에 성공했습니다.", HttpStatus.CREATED);
     }
 }
