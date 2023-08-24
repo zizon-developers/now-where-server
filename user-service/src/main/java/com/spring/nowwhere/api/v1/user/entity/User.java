@@ -17,6 +17,7 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
     @Column(nullable = false, length = 50, unique = true)
     private String email;
@@ -25,7 +26,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String userId;
     private String password;
-    @Column
+
     @Enumerated(value = EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
     private List<UserRole> roles = new ArrayList<>();

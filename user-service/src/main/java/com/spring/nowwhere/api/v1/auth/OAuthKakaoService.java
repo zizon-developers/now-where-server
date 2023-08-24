@@ -168,8 +168,7 @@ public class OAuthKakaoService {
 
     public ResponseEntity<Object> createKakaoPayPaymentURL(String userId, int amount,String accessToken) {
 
-        String reqURL = String.format("https://qr.kakaopay.com/%s%s", userId, toHexValue(amount));
-
+        String reqURL = String.format(evn.getProperty("spring.security.oauth2.client.provider.kakao.pay-uri"), userId, toHexValue(amount));
         ResponseEntity<Object> response = null;
         try {
             HttpHeaders headers = new HttpHeaders();

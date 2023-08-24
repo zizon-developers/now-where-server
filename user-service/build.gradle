@@ -48,6 +48,9 @@ dependencies {
     implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '3.1.4'
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation ('it.ozimov:embedded-redis:0.7.3') {
+        exclude group: 'org.slf4j', module: 'slf4j-simple'
+    }
 
 
     //resttemplate timeout을 위한 의존성
