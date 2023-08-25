@@ -11,4 +11,9 @@ public class RequestBet {
     private String receiverId;
     @Schema(description = "내기 금액을 위한 필드", minimum = "1")
     private int amount;
+
+    public RequestBet(String receiverId, int amount) {
+        this.receiverId = receiverId;
+        this.amount = amount;
+    }
 }
