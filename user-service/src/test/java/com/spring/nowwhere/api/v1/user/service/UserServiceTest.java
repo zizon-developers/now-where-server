@@ -1,18 +1,27 @@
 package com.spring.nowwhere.api.v1.user.service;
 
 import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
+import com.spring.nowwhere.api.v1.auth.exception.RefreshTokenNotFoundException;
+import com.spring.nowwhere.api.v1.redis.logout.LogoutAccessTokenFromRedis;
+import com.spring.nowwhere.api.v1.redis.logout.LogoutAccessTokenRedisRepository;
+import com.spring.nowwhere.api.v1.redis.refresh.RefreshTokenFromRedis;
+import com.spring.nowwhere.api.v1.redis.refresh.RefreshTokenRedisRepository;
+import com.spring.nowwhere.api.v1.security.exception.LogoutTokenException;
+import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
 import com.spring.nowwhere.api.v1.user.entity.User;
 import com.spring.nowwhere.api.v1.user.repository.UserRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 class UserServiceTest {
@@ -20,10 +29,18 @@ class UserServiceTest {
     private UserRepository userRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private RefreshTokenRedisRepository refreshTokenRedisRepository;
+    @Autowired
+    private LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
+    @Autowired
+    private TokenProvider tokenProvider;
 
     @AfterEach
     void tearDown(){
         userRepository.deleteAll();
+        refreshTokenRedisRepository.deleteAll();
+        logoutAccessTokenRedisRepository.deleteAll();
     }
 
     @Test
@@ -62,5 +79,128 @@ class UserServiceTest {
         assertThat(oAuthUserDto.getUserId()).isEqualTo(user.getUserId());
         assertThat(oAuthUserDto.getEmail()).isEqualTo(user.getEmail());
         assertThat(oAuthUserDto.getName()).isEqualTo(user.getName());
+    }
+
+    @DisplayName("사용자 로그인 시나리오")
+    @TestFactory
+    Collection<DynamicTest> loginDynamicTest() {
+        // given
+        return List.of(
+                DynamicTest.dynamicTest("사용자는 로그인할 수 있다.",()->{
+                    //given
+                    String email = "email";
+                    User user = User.builder()
+                            .userId("userId")
+                            .email(email)
+                            .name("name").build();
+                    userRepository.save(user);
+
+                    LogoutAccessTokenFromRedis logoutAccessTokenFromRedis =
+                            logoutAccessTokenRedisRepository.save(LogoutAccessTokenFromRedis
+                                    .createLogoutAccessToken("accessToken", email, 100000L));
+                    // when
+                    userService.login(OAuthUserDto.of(user));
+                    // then
+                    Optional<RefreshTokenFromRedis> refreshToken = refreshTokenRedisRepository.findByEmail(email);
+                    Optional<LogoutAccessTokenFromRedis> findLogoutToken
+                            = logoutAccessTokenRedisRepository.findByEmail(email);
+
+                    assertThat(findLogoutToken.isEmpty()).isTrue();
+                    assertThat(refreshToken.isPresent()).isTrue();
+                    assertThat(refreshToken.get().getEmail()).isEqualTo(user.getEmail());
+                }),
+                DynamicTest.dynamicTest("DB에 user정보가 없다면 로그인할 수 없다.",()->{
+                    //when //then
+                    assertThatThrownBy(() -> userService.login(OAuthUserDto.of(User.builder().email("ex").build())))
+                            .isInstanceOf(UsernameNotFoundException.class)
+                            .hasMessage("user not found");
+                })
+        );
+    }
+    
+    @DisplayName("사용자 로그아웃 시나리오")
+    @TestFactory
+    Collection<DynamicTest> logoutDynamicTest() {
+        // given
+        String email = "email";
+
+        User user = User.builder()
+                .userId("userId")
+                .email(email)
+                .name("name").build();
+        userRepository.save(user);
+
+        return List.of(
+                DynamicTest.dynamicTest("사용자는 로그아웃할 수 있다.",()->{
+                    //given
+                    RefreshTokenFromRedis refreshTokenFromRedis = RefreshTokenFromRedis
+                            .createRefreshToken("refreshToken", email, 1000000L);
+                    refreshTokenRedisRepository.save(refreshTokenFromRedis);
+
+                    //when
+                    String token = tokenProvider.generateJwtAccessToken(user);
+                    userService.logout(token);
+
+                    // then
+                    Optional<RefreshTokenFromRedis> refreshToken =
+                            refreshTokenRedisRepository.findByEmail(email);
+                    Optional<LogoutAccessTokenFromRedis> logoutAccessToken =
+                            logoutAccessTokenRedisRepository.findByEmail(email);
+
+                    assertThat(logoutAccessToken.isPresent()).isTrue();
+                    assertThat(refreshToken.isEmpty()).isTrue();
+                    assertThat(logoutAccessToken.get().getEmail()).isEqualTo(user.getEmail());
+
+                }),
+                DynamicTest.dynamicTest("Redis에 로그아웃 정보가 있으면 로그아웃을 재 시도할 수 없다.",()->{
+                    //given
+                    String token = tokenProvider.generateJwtAccessToken(user);
+                    logoutAccessTokenRedisRepository.save(LogoutAccessTokenFromRedis
+                            .builder().id(token)
+                            .email(email)
+                            .expiration(1000000L).build());
+                    //when //then
+                    assertThatThrownBy(() -> userService.logout(token))
+                            .isInstanceOf(LogoutTokenException.class)
+                            .hasMessage("이미 logout된 token이 있습니다.");
+                })
+        );
+    }
+
+    @DisplayName("refresh 토큰을 받기전 사용자 시나리오")
+    @TestFactory
+    Collection<DynamicTest> reissueWithUserVerification() {
+        // given
+        String email = "email";
+        User user = User.builder()
+                .userId("userId")
+                .email(email)
+                .name("name").build();
+        userRepository.save(user);
+
+        return List.of(
+                DynamicTest.dynamicTest("회원이 로그인에 성공한 경우 검증에 성공한다.", () -> {
+                    //given
+                    userService.login(OAuthUserDto.of(user));
+                    //when
+                    User findUser = userService.reissueWithUserVerification(email);
+                    //then
+                    assertAll(
+                            () -> assertEquals(user.getUserId(), findUser.getUserId()),
+                            () -> assertEquals(user.getEmail(), findUser.getEmail()),
+                            () -> assertEquals(user.getName(), findUser.getName())
+                    );
+                }),
+                DynamicTest.dynamicTest("refresh token이 만료된 유저는 검증에 실패한다.", () -> {
+                    //given
+                    refreshTokenRedisRepository.findByEmail(email)
+                            .ifPresent(token -> refreshTokenRedisRepository.delete(token));
+                    //when //then
+                    assertThatThrownBy(() -> userService.reissueWithUserVerification(email))
+                            .isInstanceOf(RefreshTokenNotFoundException.class)
+                            .hasMessage("refresh token Not Found");
+
+                })
+        );
     }
 }

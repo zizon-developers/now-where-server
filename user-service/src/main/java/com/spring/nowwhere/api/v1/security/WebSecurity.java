@@ -41,7 +41,7 @@ public class WebSecurity {
                 .apply(new MyCustomDsl());
 
         http.authorizeRequests(authorize -> authorize
-                        .antMatchers("/**").permitAll()
+//                        .antMatchers("/**").permitAll()
                         .antMatchers("api/v1/auth/login", "api/v1/auth/join").permitAll()
                         .antMatchers("api/v1/auth/**").access("hasRole('ROLE_USER')")
                         .antMatchers("api/v1/user/**").access("hasRole('ROLE_USER')")

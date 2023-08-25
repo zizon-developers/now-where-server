@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User reissue(String email) {
+    public User reissueWithUserVerification(String email) {
 
         refreshTokenRedisRepository.findByEmail(email)
                 .orElseThrow(() -> new RefreshTokenNotFoundException("refresh token Not Found"));

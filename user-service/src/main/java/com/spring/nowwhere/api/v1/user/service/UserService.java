@@ -20,5 +20,5 @@ public interface UserService {
 
     OAuthUserDto checkAndRegisterUser(OAuthUserDto userDto);
 
-    User reissue(String email);
+    User reissueWithUserVerification(String email); //
 }

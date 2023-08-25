@@ -11,8 +11,6 @@ import javax.persistence.Id;
 
 @Getter
 @RedisHash("refreshToken")
-@AllArgsConstructor
-@Builder
 public class RefreshTokenFromRedis {
     @Id
     private String id;
@@ -22,6 +20,13 @@ public class RefreshTokenFromRedis {
 
     @TimeToLive
     private Long expiration;
+
+    @Builder
+    private RefreshTokenFromRedis(String id, String email, Long expiration) {
+        this.id = id;
+        this.email = email;
+        this.expiration = expiration;
+    }
 
     public static RefreshTokenFromRedis createRefreshToken(String refreshToken, String email,
                                                            Long remainingMilliSeconds){

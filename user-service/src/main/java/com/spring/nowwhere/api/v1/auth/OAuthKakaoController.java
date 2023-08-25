@@ -5,9 +5,7 @@ import com.spring.nowwhere.api.v1.auth.dto.OAuthCodeRequest;
 import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
 import com.spring.nowwhere.api.v1.auth.dto.TokenDto;
 import com.spring.nowwhere.api.v1.auth.exception.OauthKakaoApiException;
-import com.spring.nowwhere.api.v1.redis.refresh.RefreshTokenRedisRepository;
 import com.spring.nowwhere.api.v1.response.ResponseApi;
-import com.spring.nowwhere.api.v1.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.user.entity.User;
 import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
@@ -128,7 +126,7 @@ public class OAuthKakaoController {
         String refreshToken = getTokenByReqeust(request);
         String email = tokenProvider.getUserEmailFromRefreshToken(refreshToken);
 
-        User user = userService.reissue(email);
+        User user = userService.reissueWithUserVerification(email);
         String accessToken = tokenProvider.generateJwtAccessToken(user);
         response.addHeader(JwtProperties.ACCESS_TOKEN, accessToken);
 
@@ -163,11 +161,11 @@ public class OAuthKakaoController {
                 .replace(JwtProperties.TOKEN_PREFIX, "");
     }
 
-    @GetMapping("/callback/kakao")
-    public ResponseEntity test(@RequestParam String code){
-        log.info(code);
-        return ResponseEntity.ok().build();
-    }
+//    @GetMapping("/callback/kakao")
+//    public ResponseEntity test(@RequestParam String code){
+//        log.info(code);
+//        return ResponseEntity.ok().build();
+//    }
 //    @GetMapping("/payment/kakao")
 //    public Object requestKakaoPayPayment(HttpServletRequest request){
 //        String token = getTokenByReqeust(request);
