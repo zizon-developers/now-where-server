@@ -55,6 +55,15 @@ public class UserController {
         return responseApi.success(UserResponse.of(findUser), "닉네임 변경 성공", HttpStatus.OK);
     }
 
+    @PostMapping("/{userId}/name")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
+            summary = "update remittanceId", description = "특정 사용자의 송금ID를 변경할 수 있다.")
+    public ResponseEntity<UserResponse> updateRemittanceId(@PathVariable("userId") String userId,
+                                                   @RequestParam("payId") String payId){
+        UserDto findUser = userService.updateRemittanceId(userId, payId);
+        return responseApi.success(UserResponse.of(findUser), "송금ID 변경 성공", HttpStatus.OK);
+    }
+
 //    @PostMapping("/{userId}/bets")
 //    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
 //            summary = "create bet", description = "특정 사용자에게 내기를 요청할 수 있다.")
