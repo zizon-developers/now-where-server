@@ -1,12 +1,17 @@
 package com.spring.nowwhere.api.v1.user.controller;
 
+import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
 import com.spring.nowwhere.api.v1.bet.Bet;
 //import com.spring.nowwhere.api.v1.bet.BetService;
 import com.spring.nowwhere.api.v1.bet.RequestBet;
 import com.spring.nowwhere.api.v1.bet.ResponseBet;
+import com.spring.nowwhere.api.v1.redis.logout.LogoutAccessTokenFromRedis;
 import com.spring.nowwhere.api.v1.response.ResponseApi;
+import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
+import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
 import com.spring.nowwhere.api.v1.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.user.dto.UserResponse;
+import com.spring.nowwhere.api.v1.user.entity.User;
 import com.spring.nowwhere.api.v1.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -15,6 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +32,38 @@ public class UserController {
     private final UserService userService;
 //    private final BetService betService;
     private final ResponseApi responseApi;
+    private final TokenProvider tokenProvider;
+
+    @PostMapping("/logout")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
+            summary = "logout", description = "로그인을 성공한 사용자는 로그아웃을 할 수 있다.(refresh token도 삭제)")
+    public ResponseEntity<UserResponse> logout(HttpServletRequest request){
+
+        String token = getTokenByReqeust(request);
+        userService.logout(token);
+        return responseApi.success("logout 되었습니다.");
+    }
+
+    @GetMapping("/reissue")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key (refresh token)") },
+            summary = "reissue", description = "refresh token을 이용해서 access token을 재발행 가능하다. (user정보 넘겨줄 수 있는지 FE랑 이야기)")
+    public ResponseEntity<UserResponse> reissue(HttpServletRequest request,
+                                                HttpServletResponse response){
+
+        String refreshToken = getTokenByReqeust(request);
+        String email = tokenProvider.getUserEmailFromRefreshToken(refreshToken);
+
+        User user = userService.reissueWithUserVerification(email);
+        String accessToken = tokenProvider.generateJwtAccessToken(user);
+        response.addHeader(JwtProperties.ACCESS_TOKEN, accessToken);
+
+        return responseApi.success(UserResponse.of(user), "access token 재발행 성공", HttpStatus.OK);
+    }
+
+    private static String getTokenByReqeust(HttpServletRequest request) {
+        return request.getHeader(JwtProperties.AUTHORIZATION)
+                .replace(JwtProperties.TOKEN_PREFIX, "");
+    }
 
     @GetMapping("")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },

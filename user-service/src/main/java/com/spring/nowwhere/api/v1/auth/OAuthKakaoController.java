@@ -106,32 +106,7 @@ public class OAuthKakaoController {
         return c.getTime().getTime();
     }
 
-    @PostMapping("/logout")
-    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
-            summary = "logout", description = "로그인을 성공한 사용자는 로그아웃을 할 수 있다.(refresh token도 삭제)")
-    public ResponseEntity<LogoutAccessTokenFromRedis> logout(HttpServletRequest request){
 
-        String token = getTokenByReqeust(request);
-        LogoutAccessTokenFromRedis logoutToken = userService.logout(token);
-
-        return responseApi.success(logoutToken);
-    }
-
-    @GetMapping("/reissue")
-    @Operation(security = { @SecurityRequirement(name = "bearer-key (refresh token)") },
-            summary = "reissue", description = "refresh token을 이용해서 access token을 재발행 가능하다. (user정보 넘겨줄 수 있는지 FE랑 이야기)")
-    public ResponseEntity<OAuthUserDto> reissue(HttpServletRequest request,
-                           HttpServletResponse response){
-
-        String refreshToken = getTokenByReqeust(request);
-        String email = tokenProvider.getUserEmailFromRefreshToken(refreshToken);
-
-        User user = userService.reissueWithUserVerification(email);
-        String accessToken = tokenProvider.generateJwtAccessToken(user);
-        response.addHeader(JwtProperties.ACCESS_TOKEN, accessToken);
-
-        return responseApi.success(OAuthUserDto.of(user), "access token 재발행 성공", HttpStatus.OK);
-    }
 
     @GetMapping("/friends")
     @Operation(security = {@SecurityRequirement(name = "bearer-key")},
@@ -155,12 +130,10 @@ public class OAuthKakaoController {
 
         return responseApi.success(oAuthKakaoService.getKakaoFriends(kakaoToken, setKaKaoFriendDto));
     }
-
     private static String getTokenByReqeust(HttpServletRequest request) {
         return request.getHeader(JwtProperties.AUTHORIZATION)
                 .replace(JwtProperties.TOKEN_PREFIX, "");
     }
-
     @GetMapping("/callback/kakao")
     public ResponseEntity test(@RequestParam String code){
         log.info(code);

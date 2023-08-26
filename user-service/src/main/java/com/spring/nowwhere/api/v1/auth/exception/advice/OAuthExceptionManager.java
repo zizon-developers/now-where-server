@@ -1,7 +1,6 @@
 package com.spring.nowwhere.api.v1.auth.exception.advice;
 
 import com.spring.nowwhere.api.v1.auth.exception.OauthKakaoApiException;
-import com.spring.nowwhere.api.v1.auth.exception.RefreshTokenNotFoundException;
 import com.spring.nowwhere.api.v1.response.ResponseApi;
 import com.spring.nowwhere.api.v1.security.exception.LogoutTokenException;
 import lombok.RequiredArgsConstructor;
@@ -25,35 +24,29 @@ public class OAuthExceptionManager {
     @ExceptionHandler(HttpClientErrorException.BadRequest.class)
     public ResponseEntity HttpClientErrorExceptionBadRequestHandler (HttpClientErrorException.BadRequest  e){
         log.error("[exceptionHandler] ex", e);
-        return responseApi.fail("KAKAO-400-EX", e.getResponseBodyAsString(), HttpStatus.BAD_REQUEST);
+        return responseApi.fail("KAKAO-400-EX", "code를 확인해주세요", HttpStatus.BAD_REQUEST);
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(HttpClientErrorException.Unauthorized.class)
     public ResponseEntity HttpClientErrorExceptionUnauthorizedHandler (HttpClientErrorException.Unauthorized  e){
         log.error("[exceptionHandler] ex", e);
-        return responseApi.fail("KAKAO-401-EX", e.getResponseBodyAsString(), HttpStatus.UNAUTHORIZED);
+        return responseApi.fail("KAKAO-401-EX", "kakao 토큰이 유효하지 않습니다.", HttpStatus.UNAUTHORIZED);
     }
 
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(HttpClientErrorException.Forbidden.class)
     public ResponseEntity HttpClientErrorExceptionForbiddenHandler (HttpClientErrorException.Forbidden  e){
         log.error("[exceptionHandler] ex", e);
-        return responseApi.fail("KAKAO-403-EX", e.getResponseBodyAsString(), HttpStatus.FORBIDDEN);
+        return responseApi.fail("KAKAO-403-EX", "필수 동의 항목을 추가해주세요 ", HttpStatus.FORBIDDEN);
     }
+
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(OauthKakaoApiException.class)
     public ResponseEntity OauthKakaoApiExceptionHadnler (OauthKakaoApiException e){
         log.error("[exceptionHandler] ex", e);
         return responseApi.fail("K-CONTROLLER-EX", e.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(RefreshTokenNotFoundException.class)
-    public ResponseEntity RefreshTokenNotFoundExceptionHandler (RefreshTokenNotFoundException  e){
-        log.error("[exceptionHandler] ex", e);
-        return responseApi.fail("REFRESH-TOKEN-NOT-EX", e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)

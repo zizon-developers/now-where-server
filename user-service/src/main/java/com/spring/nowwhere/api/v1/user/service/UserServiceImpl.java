@@ -152,7 +152,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional
-    public LogoutAccessTokenFromRedis logout(String token) {
+    public void logout(String token) {
 
         String findEmail = tokenProvider.getUserEmailFromAccessToken(token);
 
@@ -166,6 +166,6 @@ public class UserServiceImpl implements UserService {
         refreshTokenRedisRepository.findByEmail(findEmail)
                 .ifPresent(refreshToken -> refreshTokenRedisRepository.delete(refreshToken));
 
-        return logoutAccessTokenRedisRepository.save(logoutAccessToken);
+        logoutAccessTokenRedisRepository.save(logoutAccessToken);
     }
 }

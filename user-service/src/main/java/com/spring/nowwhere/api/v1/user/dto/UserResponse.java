@@ -1,6 +1,7 @@
 package com.spring.nowwhere.api.v1.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.spring.nowwhere.api.v1.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -23,6 +24,13 @@ public class UserResponse {
                 .email(userDto.getEmail())
                 .name(userDto.getName())
                 .checkId(userDto.getCheckId())
+                .build();
+    }
+    public static UserResponse of(User user){
+        return UserResponse.builder()
+                .email(user.getEmail())
+                .name(user.getName())
+                .checkId(user.getCheckId())
                 .build();
     }
 }

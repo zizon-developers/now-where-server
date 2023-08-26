@@ -12,7 +12,7 @@ public interface UserService {
     UserDto getUserByCheckId(String checkId);
     List<UserDto> getUserByAll();
 
-    LogoutAccessTokenFromRedis logout(String token);
+    void logout(String token);
 
     TokenDto login(OAuthUserDto userDto);
 
