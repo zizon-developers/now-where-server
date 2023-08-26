@@ -1,7 +1,7 @@
-package com.spring.nowwhere.api.v1.user.dto;
+package com.spring.nowwhere.api.v1.entity.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.spring.nowwhere.api.v1.user.entity.User;
+import com.spring.nowwhere.api.v1.entity.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 

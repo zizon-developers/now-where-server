@@ -1,10 +1,7 @@
-package com.spring.nowwhere.api.v1.user.repository;
+package com.spring.nowwhere.api.v1.entity.user.repository;
 
-import com.spring.nowwhere.api.v1.user.entity.User;
-import io.swagger.v3.oas.annotations.Parameter;
+import com.spring.nowwhere.api.v1.entity.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;

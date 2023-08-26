@@ -1,10 +1,10 @@
-package com.spring.nowwhere.api.v1.user.controller.advice;
+package com.spring.nowwhere.api.v1.entity.user.controller.advice;
 
 import com.spring.nowwhere.api.v1.auth.exception.RefreshTokenNotFoundException;
+import com.spring.nowwhere.api.v1.entity.user.exception.DuplicateRemittanceIdException;
+import com.spring.nowwhere.api.v1.entity.user.exception.DuplicateUsernameException;
 import com.spring.nowwhere.api.v1.response.ResponseApi;
 import com.spring.nowwhere.api.v1.security.exception.LogoutTokenException;
-import com.spring.nowwhere.api.v1.user.exception.DuplicateRemittanceIdException;
-import com.spring.nowwhere.api.v1.user.exception.DuplicateUsernameException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
-@RestControllerAdvice(basePackages = "com.spring.nowwhere.api.v1.user")
+@RestControllerAdvice(basePackages = "com.spring.nowwhere.api.v1.entity.user")
 @RequiredArgsConstructor
 public class UserExceptionManager {
 

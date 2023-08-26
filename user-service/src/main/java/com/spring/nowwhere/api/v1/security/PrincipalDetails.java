@@ -1,6 +1,6 @@
 package com.spring.nowwhere.api.v1.security;
 
-import com.spring.nowwhere.api.v1.user.entity.User;
+import com.spring.nowwhere.api.v1.entity.user.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

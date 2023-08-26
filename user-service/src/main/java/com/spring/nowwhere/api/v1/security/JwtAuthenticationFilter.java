@@ -1,7 +1,7 @@
 package com.spring.nowwhere.api.v1.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring.nowwhere.api.v1.user.dto.RequestLogin;
+import com.spring.nowwhere.api.v1.entity.user.dto.RequestLogin;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;

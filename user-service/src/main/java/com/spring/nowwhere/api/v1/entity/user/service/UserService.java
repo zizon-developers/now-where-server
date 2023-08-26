@@ -1,10 +1,9 @@
-package com.spring.nowwhere.api.v1.user.service;
+package com.spring.nowwhere.api.v1.entity.user.service;
 
 import com.spring.nowwhere.api.v1.auth.dto.TokenDto;
-import com.spring.nowwhere.api.v1.user.dto.UserDto;
-import com.spring.nowwhere.api.v1.user.entity.User;
+import com.spring.nowwhere.api.v1.entity.user.dto.UserDto;
+import com.spring.nowwhere.api.v1.entity.user.entity.User;
 import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
-import com.spring.nowwhere.api.v1.redis.logout.LogoutAccessTokenFromRedis;
 
 import java.util.List;
 

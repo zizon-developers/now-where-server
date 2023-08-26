@@ -1,4 +1,4 @@
-package com.spring.nowwhere.api.v1.bet;
+package com.spring.nowwhere.api.v1.entity.bet;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,7 +30,6 @@ public class ResponseBet {
         return ResponseBet.builder()
                 .bettorId(bet.getBettor().getId())
                 .receiverId(bet.getReceiver().getId())
-                .amount(bet.getAmount())
                 .status(bet.getStatus())
                 .build();
     }

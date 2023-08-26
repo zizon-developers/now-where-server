@@ -1,4 +1,4 @@
-package com.spring.nowwhere.api.v1.user.dto;
+package com.spring.nowwhere.api.v1.entity.user.dto;
 
 import lombok.Data;
 

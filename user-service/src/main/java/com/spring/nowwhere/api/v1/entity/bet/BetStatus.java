@@ -1,4 +1,4 @@
-package com.spring.nowwhere.api.v1.bet;
+package com.spring.nowwhere.api.v1.entity.bet;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

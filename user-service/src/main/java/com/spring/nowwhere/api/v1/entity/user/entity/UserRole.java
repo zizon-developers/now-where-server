@@ -1,4 +1,4 @@
-package com.spring.nowwhere.api.v1.user.entity;
+package com.spring.nowwhere.api.v1.entity.user.entity;
 
 public enum UserRole {
     ROLE_GUEST,

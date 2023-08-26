@@ -1,18 +1,13 @@
-package com.spring.nowwhere.api.v1.user.controller;
+package com.spring.nowwhere.api.v1.entity.user.controller;
 
-import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
-import com.spring.nowwhere.api.v1.bet.Bet;
 //import com.spring.nowwhere.api.v1.bet.BetService;
-import com.spring.nowwhere.api.v1.bet.RequestBet;
-import com.spring.nowwhere.api.v1.bet.ResponseBet;
-import com.spring.nowwhere.api.v1.redis.logout.LogoutAccessTokenFromRedis;
+import com.spring.nowwhere.api.v1.entity.user.dto.UserDto;
+import com.spring.nowwhere.api.v1.entity.user.dto.UserResponse;
+import com.spring.nowwhere.api.v1.entity.user.entity.User;
 import com.spring.nowwhere.api.v1.response.ResponseApi;
 import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
-import com.spring.nowwhere.api.v1.user.dto.UserDto;
-import com.spring.nowwhere.api.v1.user.dto.UserResponse;
-import com.spring.nowwhere.api.v1.user.entity.User;
-import com.spring.nowwhere.api.v1.user.service.UserService;
+import com.spring.nowwhere.api.v1.entity.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;

@@ -1,12 +1,11 @@
-package com.spring.nowwhere.api.v1.bet;
+package com.spring.nowwhere.api.v1.entity.bet;
 
-import com.spring.nowwhere.api.v1.user.entity.User;
+import com.spring.nowwhere.api.v1.entity.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 
 public interface BetRepository extends JpaRepository<Bet, Long> {

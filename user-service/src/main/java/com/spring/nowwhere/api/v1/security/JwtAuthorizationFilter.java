@@ -1,8 +1,8 @@
 package com.spring.nowwhere.api.v1.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring.nowwhere.api.v1.user.entity.User;
-import com.spring.nowwhere.api.v1.user.repository.UserRepository;
+import com.spring.nowwhere.api.v1.entity.user.entity.User;
+import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
 import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
 import com.spring.nowwhere.api.v1.redis.logout.LogoutAccessTokenRedisRepository;

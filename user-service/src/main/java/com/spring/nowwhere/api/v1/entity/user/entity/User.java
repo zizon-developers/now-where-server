@@ -1,10 +1,10 @@
-package com.spring.nowwhere.api.v1.user.entity;
+package com.spring.nowwhere.api.v1.entity.user.entity;
 
+import com.spring.nowwhere.api.v1.entity.BaseDate;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.Objects;
 @Getter
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class User extends BaseDate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

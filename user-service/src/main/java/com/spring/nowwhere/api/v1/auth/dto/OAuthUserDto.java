@@ -1,7 +1,6 @@
 package com.spring.nowwhere.api.v1.auth.dto;
 
-import com.spring.nowwhere.api.v1.user.dto.UserDto;
-import com.spring.nowwhere.api.v1.user.entity.User;
+import com.spring.nowwhere.api.v1.entity.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;

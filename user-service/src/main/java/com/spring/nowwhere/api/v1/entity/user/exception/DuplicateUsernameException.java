@@ -1,4 +1,4 @@
-package com.spring.nowwhere.api.v1.user.exception;
+package com.spring.nowwhere.api.v1.entity.user.exception;
 
 public class DuplicateUsernameException extends RuntimeException{
     public DuplicateUsernameException() {
