@@ -103,6 +103,7 @@ public class UserServiceImpl implements UserService {
                 .name(userDto.getName())
                 .email(userDto.getEmail())
                 .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                .profileImg(userDto.getProfileImg())
                 .roles(roles)
                 .build();
         userRepository.save(user);

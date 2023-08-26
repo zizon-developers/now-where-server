@@ -17,11 +17,14 @@ public class OAuthUserDto{
     @Schema(description = "카카오 계정 고유 ID값")
     private String checkId;
 
+    @Schema(description = "카카오 계정 프로필 이미지")
+    private String profileImg;
     @Builder
-    private OAuthUserDto(String email, String name, String checkId) {
+    private OAuthUserDto(String email, String name, String checkId, String profileImg) {
         this.email = email;
         this.name = name;
         this.checkId = checkId;
+        this.profileImg = profileImg;
     }
 
     public static OAuthUserDto of(User user) {
@@ -29,6 +32,7 @@ public class OAuthUserDto{
                 .email(user.getEmail())
                 .name(user.getName())
                 .checkId(user.getCheckId())
+                .profileImg(user.getProfileImg())
                 .build();
     }
 }

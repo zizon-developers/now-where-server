@@ -55,7 +55,7 @@ public class UserController {
         return responseApi.success(UserResponse.of(findUser), "닉네임 변경 성공", HttpStatus.OK);
     }
 
-    @PostMapping("/{userId}/name")
+    @PostMapping("/{userId}/pay")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
             summary = "update remittanceId", description = "특정 사용자의 송금ID를 변경할 수 있다.")
     public ResponseEntity<UserResponse> updateRemittanceId(@PathVariable("userId") String userId,

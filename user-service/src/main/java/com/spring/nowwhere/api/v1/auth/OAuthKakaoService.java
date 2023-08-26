@@ -100,6 +100,7 @@ public class OAuthKakaoService {
 
             String id = element.getAsJsonObject().get("id").getAsString();
             String name = element.getAsJsonObject().get("properties").getAsJsonObject().get("nickname").getAsString();
+            String profileImg = element.getAsJsonObject().get("properties").getAsJsonObject().get("thumbnail_image").getAsString();
 
             //optional 하려고했는데 Json예외 발생함
             boolean hasAgreedToEmails = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email_needs_agreement").getAsBoolean();
@@ -117,6 +118,7 @@ public class OAuthKakaoService {
                     .checkId(id)
                     .name(name)
                     .email(email)
+                    .profileImg(profileImg)
                     .build();
 
             return user;

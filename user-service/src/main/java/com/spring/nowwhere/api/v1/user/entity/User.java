@@ -27,9 +27,10 @@ public class User {
     @Column(nullable = false, length = 50, unique = true)
     private String name;
 
+    @Column
+    private String profileImg;
     @Column(nullable = false, unique = true)
     private String checkId;
-
     @Column(unique = true)
     private String remittanceId;
     private String password;
@@ -38,12 +39,13 @@ public class User {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<UserRole> roles = new ArrayList<>();
     @Builder
-    private User(String email, String name,
+    private User(String email, String name, String profileImg,
                 String checkId, String remittanceId,
                 String password, List<UserRole> roles) {
 
         this.email = email;
         this.name = name;
+        this.profileImg = profileImg;
         this.checkId = checkId;
         this.remittanceId = remittanceId;
         this.password = password;
