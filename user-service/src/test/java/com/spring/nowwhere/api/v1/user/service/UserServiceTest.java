@@ -9,6 +9,8 @@ import com.spring.nowwhere.api.v1.redis.refresh.RefreshTokenRedisRepository;
 import com.spring.nowwhere.api.v1.security.exception.LogoutTokenException;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
 import com.spring.nowwhere.api.v1.user.entity.User;
+import com.spring.nowwhere.api.v1.user.exception.DuplicateRemittanceIdException;
+import com.spring.nowwhere.api.v1.user.exception.DuplicateUsernameException;
 import com.spring.nowwhere.api.v1.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,11 +46,11 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("사용자의 이메일과 userId가 같은경우 email을 변경할 수 있다.")
+    @DisplayName("사용자의 이메일과 checkId가 같은경우 email을 변경할 수 있다.")
     public void updateEmail() {
         // given
         User user = User.builder()
-                .userId("same")
+                .checkId("same")
                 .email("same")
                 .name("admin")
                 .password("password")
@@ -56,7 +58,7 @@ class UserServiceTest {
         userRepository.save(user);
         // when
         userService.updateEmail(OAuthUserDto.builder()
-                .userId("same")
+                .checkId("same")
                 .email("change")
                 .build());
 
@@ -70,13 +72,13 @@ class UserServiceTest {
     public void checkAndRegisterUser() {
         // when
         OAuthUserDto oAuthUserDto = userService.checkAndRegisterUser(OAuthUserDto.builder()
-                .userId("testId")
+                .checkId("testId")
                 .email("test@naver.com")
                 .name("test").build());
 
-        User user = userRepository.findByUserId(oAuthUserDto.getUserId()).get();
+        User user = userRepository.findByCheckId(oAuthUserDto.getCheckId()).get();
         // then
-        assertThat(oAuthUserDto.getUserId()).isEqualTo(user.getUserId());
+        assertThat(oAuthUserDto.getCheckId()).isEqualTo(user.getCheckId());
         assertThat(oAuthUserDto.getEmail()).isEqualTo(user.getEmail());
         assertThat(oAuthUserDto.getName()).isEqualTo(user.getName());
     }
@@ -90,7 +92,7 @@ class UserServiceTest {
                     //given
                     String email = "email";
                     User user = User.builder()
-                            .userId("userId")
+                            .checkId("userId")
                             .email(email)
                             .name("name").build();
                     userRepository.save(user);
@@ -125,7 +127,7 @@ class UserServiceTest {
         String email = "email";
 
         User user = User.builder()
-                .userId("userId")
+                .checkId("userId")
                 .email(email)
                 .name("name").build();
         userRepository.save(user);
@@ -173,7 +175,7 @@ class UserServiceTest {
         // given
         String email = "email";
         User user = User.builder()
-                .userId("userId")
+                .checkId("userId")
                 .email(email)
                 .name("name").build();
         userRepository.save(user);
@@ -186,7 +188,7 @@ class UserServiceTest {
                     User findUser = userService.reissueWithUserVerification(email);
                     //then
                     assertAll(
-                            () -> assertEquals(user.getUserId(), findUser.getUserId()),
+                            () -> assertEquals(user.getCheckId(), findUser.getCheckId()),
                             () -> assertEquals(user.getEmail(), findUser.getEmail()),
                             () -> assertEquals(user.getName(), findUser.getName())
                     );
@@ -200,6 +202,88 @@ class UserServiceTest {
                             .isInstanceOf(RefreshTokenNotFoundException.class)
                             .hasMessage("refresh token Not Found");
 
+                })
+        );
+    }
+
+    @DisplayName("사용자 닉네임 변경 시나리오")
+    @TestFactory
+    Collection<DynamicTest> updateName() {
+        // given
+        User user1 = User.builder()
+                .checkId("test")
+                .email("test@test.com")
+                .name("test")
+                .build();
+
+        User user2 = User.builder()
+                .checkId("exception")
+                .email("exception@test.com")
+                .name("ex").build();
+
+        userRepository.saveAll(List.of(user1,user2));
+
+        return List.of(
+                DynamicTest.dynamicTest("사용자는 닉네임을 변경할 수 있다.", () -> {
+                    //when
+                    String updateName = "updateName";
+                    userService.updateName(user1.getCheckId(), updateName);
+                    //then
+                    User findUser = userRepository.findByName(updateName).get();
+                    assertAll(
+                            () -> assertEquals(findUser.getCheckId(), user1.getCheckId()),
+                            () -> assertEquals(findUser.getEmail(), user1.getEmail()),
+                            () -> assertEquals(findUser.getName(), updateName)
+                    );
+                }),
+                DynamicTest.dynamicTest("변경할 이름이 중복된 경우 예외가 발생한다.", () -> {
+                    //when //then
+                    String updateName = "ex";
+                    assertThatThrownBy(() -> userService.updateName(user1.getCheckId(),updateName))
+                            .isInstanceOf(DuplicateUsernameException.class)
+                            .hasMessage(updateName + "은 중복된 이름입니다.");
+                })
+        );
+    }
+    @DisplayName("사용자 송금ID 변경 시나리오")
+    @TestFactory
+    Collection<DynamicTest> updateRemittanceId() {
+        // given
+        User user1 = User.builder()
+                .checkId("test")
+                .email("test@test.com")
+                .name("test")
+                .remittanceId(null)
+                .build();
+
+        User user2 = User.builder()
+                .checkId("exceptionId")
+                .email("exception@test.com")
+                .name("exception")
+                .remittanceId("ex")
+                .build();
+
+        userRepository.saveAll(List.of(user1,user2));
+
+        return List.of(
+                DynamicTest.dynamicTest("사용자는 송금ID 변경할 수 있다.", () -> {
+                    //when
+                    String updateRemittanceId = "remittanceId";
+                    userService.updateRemittanceId(user1.getCheckId(), updateRemittanceId);
+                    //then
+                    User findUser = userRepository.findByName(updateRemittanceId).get();
+                    assertAll(
+                            () -> assertEquals(findUser.getCheckId(), user1.getCheckId()),
+                            () -> assertEquals(findUser.getEmail(), user1.getEmail()),
+                            () -> assertEquals(findUser.getName(), updateRemittanceId)
+                    );
+                }),
+                DynamicTest.dynamicTest("변경할 송금ID가 중복된 경우 예외가 발생한다.", () -> {
+                    //when //then
+                    String updateName = "ex";
+                    assertThatThrownBy(() -> userService.updateRemittanceId(user1.getCheckId(),updateName))
+                            .isInstanceOf(DuplicateRemittanceIdException.class)
+                            .hasMessage(updateName + "은 중복된 송금ID입니다.");
                 })
         );
     }

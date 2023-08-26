@@ -8,6 +8,8 @@ import com.spring.nowwhere.api.v1.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.user.entity.User;
 import com.spring.nowwhere.api.v1.user.entity.UserRole;
 import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
+import com.spring.nowwhere.api.v1.user.exception.DuplicateRemittanceIdException;
+import com.spring.nowwhere.api.v1.user.exception.DuplicateUsernameException;
 import com.spring.nowwhere.api.v1.user.repository.UserRepository;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
 import com.spring.nowwhere.api.v1.redis.logout.LogoutAccessTokenFromRedis;
@@ -36,9 +38,9 @@ public class UserServiceImpl implements UserService {
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
     @Override
-    public UserDto getUserByUserId(String userId) {
-        User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new UsernameNotFoundException(userId));
+    public UserDto getUserByCheckId(String checkId) {
+        User user = userRepository.findByCheckId(checkId)
+                .orElseThrow(() -> new UsernameNotFoundException(checkId));
 
         return UserDto.of(user);
     }
@@ -55,7 +57,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public TokenDto login(OAuthUserDto userDto) {
 
-        User findUser = userRepository.findByUserId(userDto.getUserId()).orElseThrow(
+        User findUser = userRepository.findByCheckId(userDto.getCheckId()).orElseThrow(
                 () -> new UsernameNotFoundException("user not found"));
 
         String accessToken = tokenProvider.generateJwtAccessToken(findUser);
@@ -78,7 +80,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User updateEmail(OAuthUserDto userDto) {
-        User findUser = userRepository.findByUserId(userDto.getUserId())
+        User findUser = userRepository.findByCheckId(userDto.getCheckId())
                 .orElseThrow(() -> new UsernameNotFoundException("user not found"));
 
         if (findUser.isUserIdEmailMatching())
@@ -90,14 +92,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public OAuthUserDto checkAndRegisterUser(OAuthUserDto userDto) {
-        boolean isRegisterUser = userRepository.findByUserId(userDto.getUserId()).isPresent();
+        boolean isRegisterUser = userRepository.findByCheckId(userDto.getCheckId()).isPresent();
         if (isRegisterUser) return userDto;
 
         List<UserRole> roles = new ArrayList<>();
         roles.add(UserRole.ROLE_USER);
 
         User user = User.builder()
-                .userId(userDto.getUserId())
+                .checkId(userDto.getCheckId())
                 .name(userDto.getName())
                 .email(userDto.getEmail())
                 .password(passwordEncoder.encode(UUID.randomUUID().toString()))
@@ -116,6 +118,36 @@ public class UserServiceImpl implements UserService {
         User findUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("user not found"));
         return findUser;
+    }
+
+    @Override
+    @Transactional
+    public UserDto updateName(String checkId, String updateName) {
+
+        User findUser = userRepository.findByCheckId(checkId)
+                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+
+        userRepository.findByName(updateName)
+                        .ifPresent(ex -> {
+                            throw new DuplicateUsernameException(updateName + "은 중복된 이름입니다.");});
+        findUser.updateName(updateName);
+
+        return UserDto.of(findUser);
+    }
+
+    @Override
+    @Transactional
+    public UserDto updateRemittanceId(String checkId, String remittanceId) {
+
+        User findUser = userRepository.findByCheckId(checkId)
+                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+
+        userRepository.findByRemittanceId(remittanceId)
+                        .ifPresent(ex -> {
+                            throw new DuplicateRemittanceIdException(remittanceId + "은 중복된 송금ID입니다.");});
+        findUser.updateName(remittanceId);
+
+        return UserDto.of(findUser);
     }
 
     @Transactional

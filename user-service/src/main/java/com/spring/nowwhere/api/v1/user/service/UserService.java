@@ -9,7 +9,7 @@ import com.spring.nowwhere.api.v1.redis.logout.LogoutAccessTokenFromRedis;
 import java.util.List;
 
 public interface UserService {
-    UserDto getUserByUserId(String userId);
+    UserDto getUserByCheckId(String checkId);
     List<UserDto> getUserByAll();
 
     LogoutAccessTokenFromRedis logout(String token);
@@ -21,4 +21,8 @@ public interface UserService {
     OAuthUserDto checkAndRegisterUser(OAuthUserDto userDto);
 
     User reissueWithUserVerification(String email); //
+
+    UserDto updateName(String checkId, String name);
+
+    UserDto updateRemittanceId(String checkId, String remittanceId);
 }

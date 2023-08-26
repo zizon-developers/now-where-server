@@ -1,5 +1,6 @@
 package com.spring.nowwhere.api.v1.auth.dto;
 
+import com.spring.nowwhere.api.v1.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -14,20 +15,20 @@ public class OAuthUserDto{
     @Schema(description = "카카오 계정 닉네임")
     private String name;
     @Schema(description = "카카오 계정 고유 ID값")
-    private String userId;
+    private String checkId;
 
     @Builder
-    private OAuthUserDto(String email, String name, String userId) {
+    private OAuthUserDto(String email, String name, String checkId) {
         this.email = email;
         this.name = name;
-        this.userId = userId;
+        this.checkId = checkId;
     }
 
     public static OAuthUserDto of(User user) {
         return OAuthUserDto.builder()
                 .email(user.getEmail())
                 .name(user.getName())
-                .userId(user.getUserId())
+                .checkId(user.getCheckId())
                 .build();
     }
 }

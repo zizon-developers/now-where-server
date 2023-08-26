@@ -114,7 +114,7 @@ public class OAuthKakaoService {
 
             String email = optEmail.orElse(id);
             OAuthUserDto user = OAuthUserDto.builder()
-                    .userId(id)
+                    .checkId(id)
                     .name(name)
                     .email(email)
                     .build();

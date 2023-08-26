@@ -8,20 +8,20 @@ import lombok.Getter;
 public class UserDto {
     private String email;
     private String name;
-    private String userId;
+    private String checkId;
 
     @Builder
     private UserDto(String email, String name, String userId) {
         this.email = email;
         this.name = name;
-        this.userId = userId;
+        this.checkId = userId;
     }
 
     public static UserDto of(User user){
         return UserDto.builder()
                 .email(user.getEmail())
                 .name(user.getName())
-                .userId(user.getUserId())
+                .userId(user.getCheckId())
                 .build();
     }
 }

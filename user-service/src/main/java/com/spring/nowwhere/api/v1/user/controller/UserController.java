@@ -1,7 +1,7 @@
 package com.spring.nowwhere.api.v1.user.controller;
 
 import com.spring.nowwhere.api.v1.bet.Bet;
-import com.spring.nowwhere.api.v1.bet.BetService;
+//import com.spring.nowwhere.api.v1.bet.BetService;
 import com.spring.nowwhere.api.v1.bet.RequestBet;
 import com.spring.nowwhere.api.v1.bet.ResponseBet;
 import com.spring.nowwhere.api.v1.response.ResponseApi;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final BetService betService;
+//    private final BetService betService;
     private final ResponseApi responseApi;
 
     @GetMapping("")
@@ -42,18 +42,26 @@ public class UserController {
     @GetMapping("/{userId}")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
             summary = "get user", description = "특정 사용자를 조회할 수 있다.")
-    public ResponseEntity<UserResponse> getUser(@PathVariable String userId){
-        UserDto findUser = userService.getUserByUserId(userId);
+    public ResponseEntity<UserResponse> getUser(@PathVariable String checkId){
+        UserDto findUser = userService.getUserByCheckId(checkId);
         return ResponseEntity.ok(UserResponse.of(findUser));
     }
-
-    @PostMapping("/{userId}/bets")
+    @PostMapping("/{userId}/name")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
-            summary = "create bet", description = "특정 사용자에게 내기를 요청할 수 있다.")
-    public ResponseEntity<ResponseBet> createBet(@PathVariable String userId,
-                                                 RequestBet requestBet){
-
-        ResponseBet responseBet = betService.createBet(userId, requestBet);
-        return responseApi.success(responseBet, "내기 저장에 성공했습니다.", HttpStatus.CREATED);
+            summary = "update name", description = "특정 사용자를 이름을 변경할 수 있다.")
+    public ResponseEntity<UserResponse> updateName(@PathVariable("userId") String userId,
+                                                   @RequestParam("name") String name){
+        UserDto findUser = userService.updateName(userId, name);
+        return responseApi.success(UserResponse.of(findUser), "닉네임 변경 성공", HttpStatus.OK);
     }
+
+//    @PostMapping("/{userId}/bets")
+//    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
+//            summary = "create bet", description = "특정 사용자에게 내기를 요청할 수 있다.")
+//    public ResponseEntity<ResponseBet> createBet(@PathVariable String userId,
+//                                                 RequestBet requestBet){
+//
+//        ResponseBet responseBet = betService.createBet(userId, requestBet);
+//        return responseApi.success(responseBet, "내기 저장에 성공했습니다.", HttpStatus.CREATED);
+//    }
 }

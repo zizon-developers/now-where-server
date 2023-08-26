@@ -9,20 +9,20 @@ import lombok.Getter;
 public class UserResponse {
     private String email;
     private String name;
-    private String userId;
+    private String checkId;
 
     @Builder
-    private UserResponse(String email, String name, String userId) {
+    private UserResponse(String email, String name, String checkId) {
         this.email = email;
         this.name = name;
-        this.userId = userId;
+        this.checkId = checkId;
     }
 
     public static UserResponse of(UserDto userDto){
         return UserResponse.builder()
                 .email(userDto.getEmail())
                 .name(userDto.getName())
-                .userId(userDto.getUserId())
+                .checkId(userDto.getCheckId())
                 .build();
     }
 }

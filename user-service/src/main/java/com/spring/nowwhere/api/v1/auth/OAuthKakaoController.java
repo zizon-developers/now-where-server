@@ -161,11 +161,11 @@ public class OAuthKakaoController {
                 .replace(JwtProperties.TOKEN_PREFIX, "");
     }
 
-//    @GetMapping("/callback/kakao")
-//    public ResponseEntity test(@RequestParam String code){
-//        log.info(code);
-//        return ResponseEntity.ok().build();
-//    }
+    @GetMapping("/callback/kakao")
+    public ResponseEntity test(@RequestParam String code){
+        log.info(code);
+        return ResponseEntity.ok().build();
+    }
 //    @GetMapping("/payment/kakao")
 //    public Object requestKakaoPayPayment(HttpServletRequest request){
 //        String token = getTokenByReqeust(request);
