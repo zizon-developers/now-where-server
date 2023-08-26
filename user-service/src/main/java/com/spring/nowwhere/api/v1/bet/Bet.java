@@ -23,7 +23,6 @@ public class Bet {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn()
     private User receiver;
-
     private int amount;
 
     @Enumerated(EnumType.STRING)

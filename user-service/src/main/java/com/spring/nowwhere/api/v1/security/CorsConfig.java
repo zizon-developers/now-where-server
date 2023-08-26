@@ -17,6 +17,7 @@ public class CorsConfig {
 //        config.addAllowedOrigin("*"); // 모든 ip에 응답을 허용
         config.addAllowedOriginPattern("*"); // 모든 ip에 응답을 허용
         config.addAllowedHeader("*"); // 모든 header에 응답을 허용
+        config.addExposedHeader("*");
         config.addAllowedMethod("*"); //post, put같은 메서드 다허용
 
         source.registerCorsConfiguration("/api/**", config); //해당 url은 이 config를 따른다.

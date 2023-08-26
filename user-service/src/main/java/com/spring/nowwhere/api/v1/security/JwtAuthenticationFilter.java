@@ -5,6 +5,7 @@ import com.spring.nowwhere.api.v1.user.dto.RequestLogin;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -61,7 +62,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String token = tokenProvider.generateJwtAccessToken(principalDetails.getUser());
 
-        response.addHeader("token",token);
+        response.addHeader(HttpHeaders.AUTHORIZATION, token);
         response.addHeader("userId", principalDetails.getUser().getId()+"");
     }
 }

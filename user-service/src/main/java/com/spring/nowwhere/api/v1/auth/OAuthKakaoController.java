@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +55,7 @@ public class OAuthKakaoController {
         OAuthUserDto oAuthUserDto = userService.checkAndRegisterUser(kakaoUser);
         TokenDto tokenDto = userService.login(oAuthUserDto);
 
-        response.addHeader(JwtProperties.ACCESS_TOKEN, tokenDto.getAccessToken());
+        response.addHeader(HttpHeaders.AUTHORIZATION, tokenDto.getAccessToken());
         response.addCookie(createCookie(tokenDto.getRefreshToken()));
 
         return responseApi.success(oAuthUserDto, "로그인 성공", HttpStatus.OK);
