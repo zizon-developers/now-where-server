@@ -23,39 +23,39 @@ class UserRepositoryTest {
     void tearDown(){
         userRepository.deleteAllInBatch();
     }
-//    @Test
-//    @DisplayName("두명의 사용자ID를 통해서 해당하는 두명의 사용자를 조회할 수 있다.")
-//    public void findBettorAndReceiver() {
-//        // given
-//        User bettor = User.builder()
-//                .email("bettor@test.com")
-//                .userId("bettorId")
-//                .name("bettor")
-//                .build();
-//
-//        User receiver = User.builder()
-//                .email("receiver@test.com")
-//                .userId("receiverId")
-//                .name("receiver")
-//                .build();
-//
-//        User test = User.builder()
-//                .email("test@test.com")
-//                .userId("testId")
-//                .name("test")
-//                .build();
-//
-//        userRepository.saveAll(List.of(bettor,receiver,test));
-//        // when
-//        List<User> findUsers = userRepository.findBettorAndReceiver("bettorId", "receiverId");
-//        // then
-//        Assertions.assertThat(findUsers).hasSize(2)
-//                .extracting("email","userId","name")
-//                .containsExactly( //순서 보장되어야함
-//                        tuple("bettor@test.com","bettorId","bettor"),
-//                        tuple("receiver@test.com","receiverId","receiver")
-//                );
-//    }
+    @Test
+    @DisplayName("두명의 checkID를 통해서 해당하는 두명의 사용자를 조회할 수 있으며 bettor, receiver 순으로 조회된다.")
+    public void findBettorAndReceiver() {
+        // given
+        User bettor = User.builder()
+                .email("bettor@test.com")
+                .checkId("bettorId")
+                .name("bettor")
+                .build();
+
+        User receiver = User.builder()
+                .email("receiver@test.com")
+                .checkId("receiverId")
+                .name("receiver")
+                .build();
+
+        User test = User.builder()
+                .email("test@test.com")
+                .checkId("testId")
+                .name("test")
+                .build();
+
+        userRepository.saveAll(List.of(bettor,receiver,test));
+        // when
+        List<User> findUsers = userRepository.findBettorAndReceiver("bettorId", "receiverId");
+        // then
+        Assertions.assertThat(findUsers).hasSize(2)
+                .extracting("email","checkId","name")
+                .containsExactly( //순서 보장되어야함
+                        tuple("bettor@test.com","bettorId","bettor"),
+                        tuple("receiver@test.com","receiverId","receiver")
+                );
+    }
 
     @Test
     @DisplayName("checkId로 특정 사용자를 조회할 수 있다.")

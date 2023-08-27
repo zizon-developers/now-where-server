@@ -25,15 +25,25 @@ public class Bet extends BaseDate {
     private User receiver;
 
     @Enumerated(EnumType.STRING)
-    private BetStatus status;
+    private BetStatus betStatus;
     @Embedded
     private BetInfo betInfo;
 
+    @Enumerated(EnumType.STRING)
+    private BetResult betResult;
     @Builder
-    private Bet(User bettor, User receiver, BetStatus status, BetInfo betInfo) {
+    private Bet(User bettor, User receiver, BetStatus betStatus, BetInfo betInfo) {
         this.bettor = bettor;
         this.receiver = receiver;
-        this.status = status;
+        this.betStatus = betStatus;
         this.betInfo = betInfo;
+    }
+    public void updateBetResult(BetResult betResult){
+        if ("완료상태".equals(betStatus.getText())){
+            this.betResult = betResult;
+        }
+    }
+    public void updateBetStatus(BetStatus betStatus){
+        this.betStatus = betStatus;
     }
 }

@@ -1,5 +1,6 @@
 package com.spring.nowwhere.api.v1.entity.bet;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,11 +14,15 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BetInfo {
-    private LocalDateTime startTime; //시작 시간
-    private LocalDateTime endTime; //종료 시간
+    @Schema(description = "내기 시작시간")
+    private LocalDateTime startTime;
+    @Schema(description = "내기 종료시간")
+    private LocalDateTime endTime;
+    @Schema(description = "내기 금액")
     private int amount;
+    @Schema(description = "내기 약속장소")
     @Embedded
-    private Location appointmentLocation; //약속 장소
+    private Location appointmentLocation;
 
     @Builder
     private BetInfo(LocalDateTime startTime, LocalDateTime endTime, int amount, Location appointmentLocation) {

@@ -1,6 +1,7 @@
 package com.spring.nowwhere.api.v1.entity.bet;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
@@ -9,11 +10,13 @@ public class RequestBet {
 
     @Schema(description = "내기를 요청받을 사용자ID")
     private String receiverId;
-    @Schema(description = "내기 금액을 위한 필드", minimum = "1")
-    private int amount;
 
-    public RequestBet(String receiverId, int amount) {
+    @Schema(description = "내기 정보들")
+    private BetInfo betInfo;
+
+    @Builder
+    private RequestBet(String receiverId, BetInfo betInfo) {
         this.receiverId = receiverId;
-        this.amount = amount;
+        this.betInfo = betInfo;
     }
 }

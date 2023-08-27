@@ -1,6 +1,8 @@
 package com.spring.nowwhere.api.v1.entity.user.controller;
 
-//import com.spring.nowwhere.api.v1.bet.BetService;
+import com.spring.nowwhere.api.v1.entity.bet.BetService;
+import com.spring.nowwhere.api.v1.entity.bet.RequestBet;
+import com.spring.nowwhere.api.v1.entity.bet.ResponseBet;
 import com.spring.nowwhere.api.v1.entity.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.entity.user.dto.UserResponse;
 import com.spring.nowwhere.api.v1.entity.user.entity.User;
@@ -25,7 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-//    private final BetService betService;
+    private final BetService betService;
     private final ResponseApi responseApi;
     private final TokenProvider tokenProvider;
 
@@ -98,13 +100,13 @@ public class UserController {
         return responseApi.success(UserResponse.of(findUser), "송금ID 변경 성공", HttpStatus.OK);
     }
 
-//    @PostMapping("/{userId}/bets")
-//    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
-//            summary = "create bet", description = "특정 사용자에게 내기를 요청할 수 있다.")
-//    public ResponseEntity<ResponseBet> createBet(@PathVariable String userId,
-//                                                 RequestBet requestBet){
-//
-//        ResponseBet responseBet = betService.createBet(userId, requestBet);
-//        return responseApi.success(responseBet, "내기 저장에 성공했습니다.", HttpStatus.CREATED);
-//    }
+    @PostMapping("/{userId}/bets")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
+            summary = "create bet", description = "특정 사용자에게 내기를 요청할 수 있다.")
+    public ResponseEntity<ResponseBet> createBet(@PathVariable String userId,
+                                                 RequestBet requestBet){
+
+        ResponseBet responseBet = betService.createBet(userId, requestBet);
+        return responseApi.success(responseBet, "내기 저장에 성공했습니다.", HttpStatus.CREATED);
+    }
 }

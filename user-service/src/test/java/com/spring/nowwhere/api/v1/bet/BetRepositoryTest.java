@@ -1,63 +1,79 @@
-//package com.spring.nowwhere.api.v1.bet;
-//
-//import com.spring.nowwhere.api.v1.user.entity.User;
-//import com.spring.nowwhere.api.v1.user.repository.UserRepository;
-//import org.assertj.core.api.Assertions;
-//import org.junit.jupiter.api.AfterEach;
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.context.SpringBootTest;
-//
-//import java.util.List;
-//
-//import static org.assertj.core.groups.Tuple.*;
-//
-//@SpringBootTest
-//class BetRepositoryTest {
-//    @Autowired
-//    private UserRepository userRepository;
-//    @Autowired
-//    private BetRepository betRepository;
-//
-//    @AfterEach
-//    void tearDown(){
-//        betRepository.deleteAllInBatch();
-//        userRepository.deleteAllInBatch();
-//    }
-//
-//    @Test
-//    @DisplayName("사용자 두명의 내기를 저장할 수 있다")
-//    public void save() {
-//        // given
-//        User bettor = User.builder()
-//                .email("bettor@test.com")
-//                .userId("bettor")
-//                .name("bettor")
-//                .build();
-//
-//        User receiver = User.builder()
-//                .email("receiver@test.com")
-//                .userId("receiver")
-//                .name("receiver")
-//                .build();
-//
-//        userRepository.saveAll(List.of(bettor,receiver));
-//        // when
-//        Bet bet = Bet.builder()
-//                .bettor(bettor)
-//                .receiver(receiver)
-//                .amount(4500)
-//                .status(BetStatus.PENDING)
-//                .build();
-//        Bet saved = betRepository.save(bet);
-//        // then
-//        Assertions.assertThat(saved.getBettor()).isEqualTo(bettor);
-//        Assertions.assertThat(saved.getReceiver()).isEqualTo(receiver);
-//        Assertions.assertThat(saved.getAmount()).isEqualTo(4500);
-//        Assertions.assertThat(saved.getStatus()).isEqualTo(BetStatus.PENDING);
-//    }
-//
+package com.spring.nowwhere.api.v1.bet;
+
+import com.spring.nowwhere.api.v1.entity.bet.*;
+import com.spring.nowwhere.api.v1.entity.user.entity.User;
+import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.assertj.core.groups.Tuple.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@SpringBootTest
+class BetRepositoryTest {
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private BetRepository betRepository;
+
+    @AfterEach
+    void tearDown(){
+        betRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
+    }
+
+    @Test
+    @DisplayName("사용자 두명의 내기를 저장할 수 있다")
+    public void save() {
+        // given
+        User bettor = User.builder()
+                .checkId("bettorId")
+                .email("bettor@test.com")
+                .name("bettor")
+                .build();
+
+        User receiver = User.builder()
+                .checkId("receiverId")
+                .email("receiver@test.com")
+                .name("receiver").build();
+        userRepository.saveAll(List.of(bettor, receiver));
+
+        Location location = new Location(454, 589);
+        Bet bet = Bet.builder()
+                .bettor(bettor)
+                .receiver(receiver)
+                .betStatus(BetStatus.PENDING)
+                .betInfo(BetInfo.builder()
+                        .amount(4500)
+                        .startTime(LocalDateTime.of(2021, 2, 3, 1, 2, 3))
+                        .endTime(LocalDateTime.of(2021, 2, 5, 1, 2, 3))
+                        .appointmentLocation(location)
+                        .build())
+                .build();
+
+        Bet saved = betRepository.save(bet);
+        // then
+        assertAll(
+                () -> assertEquals(saved.getBettor(), bettor),
+                () -> assertEquals(saved.getReceiver(), receiver),
+                () -> assertEquals(saved.getBetStatus(), BetStatus.PENDING),
+
+                () -> assertEquals(saved.getBetInfo().getAmount(), 4500),
+                () -> assertEquals(saved.getBetInfo().getStartTime(), LocalDateTime.of(2021, 2, 3, 1, 2, 3)),
+                () -> assertEquals(saved.getBetInfo().getEndTime(), LocalDateTime.of(2021, 2, 5, 1, 2, 3)),
+                () -> assertEquals(saved.getBetInfo().getAppointmentLocation(), location)
+
+        );
+    }
+
 //    @Test
 //    @DisplayName("사용자가 신청한 내기를 모두 조회할 수 있다.")
 //    public void findBetByBettor() {
@@ -106,4 +122,4 @@
 //                        tuple(5500,BetStatus.ONGOING,bettor,receiver)
 //                );
 //    }
-//}
+}
