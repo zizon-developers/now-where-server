@@ -1,6 +1,7 @@
 package com.spring.nowwhere.api.v1.entity.user.controller.advice;
 
 import com.spring.nowwhere.api.v1.auth.exception.RefreshTokenNotFoundException;
+import com.spring.nowwhere.api.v1.entity.bet.TimeValidationException;
 import com.spring.nowwhere.api.v1.entity.user.exception.DuplicateRemittanceIdException;
 import com.spring.nowwhere.api.v1.entity.user.exception.DuplicateUsernameException;
 import com.spring.nowwhere.api.v1.response.ResponseApi;
@@ -26,6 +27,12 @@ public class UserExceptionManager {
     public ResponseEntity usernameNotFoundHandler (UsernameNotFoundException e){
         log.error("[exceptionHandler] ex", e);
         return responseApi.fail("USER-NOT-EX", e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(TimeValidationException.class)
+    public ResponseEntity timeValidationExceptionHandler (TimeValidationException e){
+        log.error("[exceptionHandler] ex", e);
+        return responseApi.fail("BET-TIME-EX", e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

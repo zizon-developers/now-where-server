@@ -39,7 +39,7 @@ public class Bet extends BaseDate {
         this.betInfo = betInfo;
     }
     public void updateBetResult(BetResult betResult){
-        if ("완료상태".equals(betStatus.getText())){
+        if (BetStatus.COMPLETED.equals(betStatus)){
             this.betResult = betResult;
         }
     }

@@ -34,8 +34,7 @@ public class UserController {
     @PostMapping("/logout")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
             summary = "logout", description = "로그인을 성공한 사용자는 로그아웃을 할 수 있다.(refresh token도 삭제)")
-    public ResponseEntity<UserResponse> logout(HttpServletRequest request){
-
+    public ResponseEntity logout(HttpServletRequest request){
         String token = getTokenByReqeust(request);
         userService.logout(token);
         return responseApi.success("logout 되었습니다.");
@@ -44,7 +43,7 @@ public class UserController {
     @GetMapping("/reissue")
     @Operation(security = { @SecurityRequirement(name = "bearer-key (refresh token)") },
             summary = "reissue", description = "refresh token을 이용해서 access token을 재발행 가능하다. (user정보 넘겨줄 수 있는지 FE랑 이야기)")
-    public ResponseEntity<UserResponse> reissue(HttpServletRequest request,
+    public ResponseEntity reissue(HttpServletRequest request,
                                                 HttpServletResponse response){
 
         String refreshToken = getTokenByReqeust(request);
@@ -54,7 +53,7 @@ public class UserController {
         String accessToken = tokenProvider.generateJwtAccessToken(user);
         response.addHeader(JwtProperties.ACCESS_TOKEN, accessToken);
 
-        return responseApi.success(UserResponse.of(user), "access token 재발행 성공", HttpStatus.OK);
+        return responseApi.success("access token 재발급 되었습니다.");
     }
 
     private static String getTokenByReqeust(HttpServletRequest request) {
@@ -75,11 +74,14 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @GetMapping("/{userId}")
+    //내기 횟수, 내기로 번 돈추가하기
+    @GetMapping("/me")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
             summary = "get user", description = "특정 사용자를 조회할 수 있다.")
-    public ResponseEntity<UserResponse> getUser(@PathVariable String checkId){
-        UserDto findUser = userService.getUserByCheckId(checkId);
+    public ResponseEntity<UserResponse> getUser(HttpServletRequest request){
+        String token = getTokenByReqeust(request);
+        String email = tokenProvider.getUserEmailFromAccessToken(token);
+        UserDto findUser = userService.getUserBettingInfo(email);
         return ResponseEntity.ok(UserResponse.of(findUser));
     }
     @PostMapping("/{userId}/name")

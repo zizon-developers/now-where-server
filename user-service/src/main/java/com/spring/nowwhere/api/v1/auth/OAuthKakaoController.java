@@ -44,7 +44,7 @@ public class OAuthKakaoController {
     
     @PostMapping("/login")
     @Operation(summary = "login", description = "카카오 계정을 통해서 로그인할 수 있으며 서버에 회원가입이 안되어 있으면 회원가입도 완료된다.")
-    public ResponseEntity<OAuthUserDto> loginWithKakaoAccount (@RequestBody OAuthCodeRequest OAuthCodeRequest,
+    public ResponseEntity loginWithKakaoAccount (@RequestBody OAuthCodeRequest OAuthCodeRequest,
                                                                HttpServletResponse response){
 
         TokenDto kakaoToken = oAuthKakaoService.getKakaoToken(OAuthCodeRequest.getCode());
@@ -56,8 +56,7 @@ public class OAuthKakaoController {
 
         response.addHeader(HttpHeaders.AUTHORIZATION, tokenDto.getAccessToken());
         response.addCookie(createCookie(tokenDto.getRefreshToken()));
-
-        return responseApi.success(oAuthUserDto, "로그인 성공", HttpStatus.OK);
+        return responseApi.success("로그인 성공");
     }
 
     @PostMapping("/grant-permission")
@@ -75,7 +74,7 @@ public class OAuthKakaoController {
 
         String accessToken = tokenProvider.generateJwtAccessToken(user);
         response.addHeader(JwtProperties.ACCESS_TOKEN, accessToken);
-        return responseApi.success(kakaoUser);
+        return responseApi.success("추가 동의하기에 성공했습니다.");
     }
 
     private Cookie createCookie(String refreshToken) {

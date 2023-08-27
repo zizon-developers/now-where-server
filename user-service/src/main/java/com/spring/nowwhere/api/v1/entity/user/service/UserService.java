@@ -8,7 +8,6 @@ import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
 import java.util.List;
 
 public interface UserService {
-    UserDto getUserByCheckId(String checkId);
     List<UserDto> getUserByAll();
 
     void logout(String token);
@@ -24,4 +23,6 @@ public interface UserService {
     UserDto updateName(String checkId, String name);
 
     UserDto updateRemittanceId(String checkId, String remittanceId);
+
+    UserDto getUserBettingInfo(String email);
 }

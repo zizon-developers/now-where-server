@@ -38,9 +38,9 @@ public class UserServiceImpl implements UserService {
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
     @Override
-    public UserDto getUserByCheckId(String checkId) {
-        User user = userRepository.findByCheckId(checkId)
-                .orElseThrow(() -> new UsernameNotFoundException(checkId));
+    public UserDto getUserBettingInfo(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(email));
 
         return UserDto.of(user);
     }
