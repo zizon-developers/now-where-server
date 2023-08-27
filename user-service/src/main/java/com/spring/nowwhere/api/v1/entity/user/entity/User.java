@@ -34,6 +34,7 @@ public class User extends BaseDate {
     private String remittanceId;
     private String password;
 
+
     @Enumerated(value = EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
     private List<UserRole> roles = new ArrayList<>();
