@@ -55,7 +55,7 @@ public class User extends BaseDate {
     public void updateName(String name){
         this.name = name;
     }
-    public void remittanceId(String remittanceId){
+    public void updateRemittanceId(String remittanceId){
         this.remittanceId = remittanceId;
     }
     public void updateEmail(String email){

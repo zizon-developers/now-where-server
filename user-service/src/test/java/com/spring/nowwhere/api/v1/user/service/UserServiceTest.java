@@ -272,11 +272,11 @@ class UserServiceTest {
                     String updateRemittanceId = "remittanceId";
                     userService.updateRemittanceId(user1.getCheckId(), updateRemittanceId);
                     //then
-                    User findUser = userRepository.findByName(updateRemittanceId).get();
+                    User findUser = userRepository.findByRemittanceId(updateRemittanceId).get();
                     assertAll(
                             () -> assertEquals(findUser.getCheckId(), user1.getCheckId()),
                             () -> assertEquals(findUser.getEmail(), user1.getEmail()),
-                            () -> assertEquals(findUser.getName(), updateRemittanceId)
+                            () -> assertEquals(findUser.getRemittanceId(), updateRemittanceId)
                     );
                 }),
                 DynamicTest.dynamicTest("변경할 송금ID가 중복된 경우 예외가 발생한다.", () -> {

@@ -146,7 +146,7 @@ public class UserServiceImpl implements UserService {
         userRepository.findByRemittanceId(remittanceId)
                         .ifPresent(ex -> {
                             throw new DuplicateRemittanceIdException(remittanceId + "은 중복된 송금ID입니다.");});
-        findUser.updateName(remittanceId);
+        findUser.updateRemittanceId(remittanceId);
 
         return UserDto.of(findUser);
     }
