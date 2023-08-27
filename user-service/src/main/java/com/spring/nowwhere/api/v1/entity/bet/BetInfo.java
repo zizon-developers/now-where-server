@@ -18,7 +18,7 @@ public class BetInfo {
     private LocalDateTime startTime;
     @Schema(description = "내기 종료시간")
     private LocalDateTime endTime;
-    @Schema(description = "내기 금액")
+    @Schema(description = "내기 금액", minimum = "0")
     private int amount;
     @Schema(description = "내기 약속장소")
     @Embedded

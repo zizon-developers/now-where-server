@@ -1,8 +1,8 @@
 package com.spring.nowwhere.api.v1.entity.user.controller;
 
 import com.spring.nowwhere.api.v1.entity.bet.BetService;
-import com.spring.nowwhere.api.v1.entity.bet.RequestBet;
-import com.spring.nowwhere.api.v1.entity.bet.ResponseBet;
+import com.spring.nowwhere.api.v1.entity.bet.dto.RequestBet;
+import com.spring.nowwhere.api.v1.entity.bet.dto.ResponseBet;
 import com.spring.nowwhere.api.v1.entity.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.entity.user.dto.UserResponse;
 import com.spring.nowwhere.api.v1.entity.user.entity.User;

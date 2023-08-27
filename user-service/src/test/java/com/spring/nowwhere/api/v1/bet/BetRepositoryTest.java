@@ -74,6 +74,55 @@ class BetRepositoryTest {
         );
     }
 
+    @Test
+    @DisplayName("완료된 내기가 아닌 목록들중에 시작시간과 종료시간에 포함되는 내기 목록을 조회할 수 있다.")
+    public void findUncompletedBetsInTimeRange() {
+        // given
+        User bettor = User.builder()
+                .checkId("bettorId")
+                .email("bettor@test.com")
+                .name("bettor")
+                .build();
+
+        User receiver = User.builder()
+                .checkId("receiverId")
+                .email("receiver@test.com")
+                .name("receiver").build();
+        userRepository.saveAll(List.of(bettor, receiver));
+
+        Location location = new Location(454, 589);
+        Bet bet1 = Bet.builder()
+                .bettor(bettor)
+                .receiver(receiver)
+                .betStatus(BetStatus.PENDING)
+                .betInfo(BetInfo.builder()
+                        .amount(4500)
+                        .startTime(LocalDateTime.of(2021, 2, 5, 23, 50))
+                        .endTime(LocalDateTime.of(2021, 2, 5, 23, 59))
+                        .appointmentLocation(location)
+                        .build())
+                .build();
+
+        Bet bet2 = Bet.builder()
+                .bettor(bettor)
+                .receiver(receiver)
+                .betStatus(BetStatus.PENDING)
+                .betInfo(BetInfo.builder()
+                        .amount(4500)
+                        .startTime(LocalDateTime.of(2021, 2, 6, 00, 00))
+                        .endTime(LocalDateTime.of(2021, 2, 6, 00, 10))
+                        .appointmentLocation(location)
+                        .build())
+                .build();
+        betRepository.saveAll(List.of(bet1, bet2));
+        // when
+        LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 55);
+        LocalDateTime endTime = LocalDateTime.of(2021, 2, 6, 00, 7);
+        List<Bet> bets = betRepository.findUncompletedBetsInTimeRange(bettor, startTime, endTime, BetStatus.COMPLETED);
+        // then
+        assertEquals(bets.size(), 2);
+    }
+
 //    @Test
 //    @DisplayName("사용자가 신청한 내기를 모두 조회할 수 있다.")
 //    public void findBetByBettor() {

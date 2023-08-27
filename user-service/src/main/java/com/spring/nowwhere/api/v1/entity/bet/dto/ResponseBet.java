@@ -1,6 +1,9 @@
-package com.spring.nowwhere.api.v1.entity.bet;
+package com.spring.nowwhere.api.v1.entity.bet.dto;
 
 
+import com.spring.nowwhere.api.v1.entity.bet.Bet;
+import com.spring.nowwhere.api.v1.entity.bet.BetInfo;
+import com.spring.nowwhere.api.v1.entity.bet.BetStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;

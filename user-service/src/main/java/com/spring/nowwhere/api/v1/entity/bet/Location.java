@@ -2,11 +2,13 @@ package com.spring.nowwhere.api.v1.entity.bet;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Embeddable;
 
 @Embeddable
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(description = "위치 정보DTO")
 public class Location {
