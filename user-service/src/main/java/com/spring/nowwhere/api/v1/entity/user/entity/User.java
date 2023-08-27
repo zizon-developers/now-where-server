@@ -26,7 +26,6 @@ public class User extends BaseDate {
     private String email;
     @Column(nullable = false, length = 50, unique = true)
     private String name;
-
     @Column
     private String profileImg;
     @Column(nullable = false, unique = true)

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Embeddable
 @Getter
@@ -30,5 +31,18 @@ public class BetInfo {
         this.endTime = endTime;
         this.amount = amount;
         this.appointmentLocation = appointmentLocation;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BetInfo betInfo = (BetInfo) o;
+        return amount == betInfo.amount && Objects.equals(startTime, betInfo.startTime) && Objects.equals(endTime, betInfo.endTime) && Objects.equals(appointmentLocation, betInfo.appointmentLocation);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(startTime, endTime, amount, appointmentLocation);
     }
 }

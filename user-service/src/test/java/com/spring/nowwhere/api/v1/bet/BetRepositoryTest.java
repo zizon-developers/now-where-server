@@ -91,36 +91,52 @@ class BetRepositoryTest {
         userRepository.saveAll(List.of(bettor, receiver));
 
         Location location = new Location(454, 589);
+
+        BetInfo betInfo1 = BetInfo.builder()
+                .amount(4500)
+                .startTime(LocalDateTime.of(2021, 2, 5, 23, 50))
+                .endTime(LocalDateTime.of(2021, 2, 5, 23, 59))
+                .appointmentLocation(location)
+                .build();
+        BetInfo betInfo2 = BetInfo.builder()
+                .amount(4500)
+                .startTime(LocalDateTime.of(2021, 2, 6, 00, 00))
+                .endTime(LocalDateTime.of(2021, 2, 6, 00, 10))
+                .appointmentLocation(location)
+                .build();
+
         Bet bet1 = Bet.builder()
                 .bettor(bettor)
                 .receiver(receiver)
                 .betStatus(BetStatus.PENDING)
-                .betInfo(BetInfo.builder()
-                        .amount(4500)
-                        .startTime(LocalDateTime.of(2021, 2, 5, 23, 50))
-                        .endTime(LocalDateTime.of(2021, 2, 5, 23, 59))
-                        .appointmentLocation(location)
-                        .build())
+                .betInfo(betInfo1)
                 .build();
 
         Bet bet2 = Bet.builder()
                 .bettor(bettor)
                 .receiver(receiver)
                 .betStatus(BetStatus.PENDING)
-                .betInfo(BetInfo.builder()
-                        .amount(4500)
-                        .startTime(LocalDateTime.of(2021, 2, 6, 00, 00))
-                        .endTime(LocalDateTime.of(2021, 2, 6, 00, 10))
-                        .appointmentLocation(location)
-                        .build())
+                .betInfo(betInfo2)
                 .build();
-        betRepository.saveAll(List.of(bet1, bet2));
+
+        Bet bet3 = Bet.builder()
+                .bettor(bettor)
+                .receiver(receiver)
+                .betStatus(BetStatus.COMPLETED)
+                .betInfo(betInfo2)
+                .build();
+        betRepository.saveAll(List.of(bet1, bet2, bet3));
         // when
         LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 55);
         LocalDateTime endTime = LocalDateTime.of(2021, 2, 6, 00, 7);
         List<Bet> bets = betRepository.findUncompletedBetsInTimeRange(bettor, startTime, endTime, BetStatus.COMPLETED);
         // then
-        assertEquals(bets.size(), 2);
+        Assertions.assertThat(bets).hasSize(2)
+                .extracting("bettor","receiver","betStatus","betResult","BetInfo")
+                .containsExactlyInAnyOrder(
+                        tuple(bettor,receiver,BetStatus.PENDING,null,betInfo1),
+                        tuple(bettor,receiver,BetStatus.PENDING,null,betInfo2)
+                );
     }
 
 //    @Test

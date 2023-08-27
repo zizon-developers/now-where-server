@@ -56,6 +56,6 @@ public class BetService {
                                     .minusMinutes(5);
 
         if (duration.toMinutes() < 0)
-            throw new TimeValidationException("내기에 대한 시작시간과 끝나는 시간의 차이는 5분 이상이어야 합니다.");
+            throw new TimeValidationException("내기의 시작시간과 끝나는 시간의 차이는 5분 이상이어야 합니다.");
     }
 }
