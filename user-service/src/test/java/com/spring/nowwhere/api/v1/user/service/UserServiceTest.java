@@ -72,10 +72,8 @@ class UserServiceTest {
     @DisplayName("유저 정보가 DB에 없을 경우 DB에 저장된다.")
     public void checkAndRegisterUser() {
         // when
-        OAuthUserDto oAuthUserDto = userService.checkAndRegisterUser(OAuthUserDto.builder()
-                .checkId("testId")
-                .email("test@naver.com")
-                .name("test").build());
+        OAuthUserDto oAuthUserDto = userService.checkAndRegisterUser(OAuthUserDto.builder().checkId("testId")
+                                                                        .email("test@naver.com").name("test").build());
 
         User user = userRepository.findByCheckId(oAuthUserDto.getCheckId()).get();
         // then
@@ -91,11 +89,8 @@ class UserServiceTest {
         return List.of(
                 DynamicTest.dynamicTest("사용자는 로그인할 수 있다.",()->{
                     //given
-                    String email = "email";
-                    User user = User.builder()
-                            .checkId("userId")
-                            .email(email)
-                            .name("name").build();
+                    String email = "user@test.com";
+                    User user = createUser("user");
                     userRepository.save(user);
 
                     LogoutAccessTokenFromRedis logoutAccessTokenFromRedis =
@@ -125,12 +120,8 @@ class UserServiceTest {
     @TestFactory
     Collection<DynamicTest> logoutDynamicTest() {
         // given
-        String email = "email";
-
-        User user = User.builder()
-                .checkId("userId")
-                .email(email)
-                .name("name").build();
+        String email = "user@test.com";
+        User user = createUser("user");
         userRepository.save(user);
 
         return List.of(
@@ -174,11 +165,8 @@ class UserServiceTest {
     @TestFactory
     Collection<DynamicTest> reissueWithUserVerification() {
         // given
-        String email = "email";
-        User user = User.builder()
-                .checkId("userId")
-                .email(email)
-                .name("name").build();
+        String email = "user@test.com";
+        User user = createUser("user");
         userRepository.save(user);
 
         return List.of(
@@ -211,18 +199,9 @@ class UserServiceTest {
     @TestFactory
     Collection<DynamicTest> updateName() {
         // given
-        User user1 = User.builder()
-                .checkId("test")
-                .email("test@test.com")
-                .name("test")
-                .build();
-
-        User user2 = User.builder()
-                .checkId("exception")
-                .email("exception@test.com")
-                .name("ex").build();
-
-        userRepository.saveAll(List.of(user1,user2));
+        User user1 = createUser("user");
+        User user2 = createUser("exception");
+        userRepository.saveAll(List.of(user1, user2));
 
         return List.of(
                 DynamicTest.dynamicTest("사용자는 닉네임을 변경할 수 있다.", () -> {
@@ -239,7 +218,7 @@ class UserServiceTest {
                 }),
                 DynamicTest.dynamicTest("변경할 이름이 중복된 경우 예외가 발생한다.", () -> {
                     //when //then
-                    String updateName = "ex";
+                    String updateName = "exception";
                     assertThatThrownBy(() -> userService.updateName(user1.getCheckId(),updateName))
                             .isInstanceOf(DuplicateUsernameException.class)
                             .hasMessage(updateName + "은 중복된 이름입니다.");
@@ -250,26 +229,14 @@ class UserServiceTest {
     @TestFactory
     Collection<DynamicTest> updateRemittanceId() {
         // given
-        User user1 = User.builder()
-                .checkId("test")
-                .email("test@test.com")
-                .name("test")
-                .remittanceId(null)
-                .build();
-
-        User user2 = User.builder()
-                .checkId("exceptionId")
-                .email("exception@test.com")
-                .name("exception")
-                .remittanceId("ex")
-                .build();
-
-        userRepository.saveAll(List.of(user1,user2));
+        User user1 = createUser("user");
+        User user2 = createUser("exception");
+        userRepository.saveAll(List.of(user1, user2));
 
         return List.of(
                 DynamicTest.dynamicTest("사용자는 송금ID 변경할 수 있다.", () -> {
                     //when
-                    String updateRemittanceId = "remittanceId";
+                    String updateRemittanceId = "newRemittanceId";
                     userService.updateRemittanceId(user1.getCheckId(), updateRemittanceId);
                     //then
                     User findUser = userRepository.findByRemittanceId(updateRemittanceId).get();
@@ -281,11 +248,20 @@ class UserServiceTest {
                 }),
                 DynamicTest.dynamicTest("변경할 송금ID가 중복된 경우 예외가 발생한다.", () -> {
                     //when //then
-                    String updateName = "ex";
-                    assertThatThrownBy(() -> userService.updateRemittanceId(user1.getCheckId(),updateName))
+                    String updateRemittanceId = "exceptionPayId";
+                    assertThatThrownBy(() -> userService.updateRemittanceId(user1.getCheckId(),updateRemittanceId))
                             .isInstanceOf(DuplicateRemittanceIdException.class)
-                            .hasMessage(updateName + "은 중복된 송금ID입니다.");
+                            .hasMessage(updateRemittanceId + "은 중복된 송금ID입니다.");
                 })
         );
+    }
+    private User createUser(String name) {
+        User test = User.builder()
+                .email(name+"@test.com")
+                .checkId(name+"Id")
+                .name(name)
+                .remittanceId(name+"PayId")
+                .build();
+        return test;
     }
 }
