@@ -1,11 +1,8 @@
 package com.spring.nowwhere.api.v1.entity.user.controller;
 
-import com.spring.nowwhere.api.v1.entity.bet.BetService;
-import com.spring.nowwhere.api.v1.entity.bet.dto.RequestBet;
-import com.spring.nowwhere.api.v1.entity.bet.dto.ResponseBet;
 import com.spring.nowwhere.api.v1.entity.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.entity.user.dto.UserResponse;
-import com.spring.nowwhere.api.v1.entity.user.entity.User;
+import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.response.ResponseApi;
 import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
@@ -27,7 +24,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final BetService betService;
     private final ResponseApi responseApi;
     private final TokenProvider tokenProvider;
 
@@ -40,7 +36,7 @@ public class UserController {
         return responseApi.success("logout 되었습니다.");
     }
 
-    @GetMapping("/reissue")
+    @PostMapping("/access-token")
     @Operation(security = { @SecurityRequirement(name = "bearer-key (refresh token)") },
             summary = "reissue", description = "refresh token을 이용해서 access token을 재발행 가능하다. (user정보 넘겨줄 수 있는지 FE랑 이야기)")
     public ResponseEntity reissue(HttpServletRequest request,
@@ -93,22 +89,12 @@ public class UserController {
         return responseApi.success(UserResponse.of(findUser), "닉네임 변경 성공", HttpStatus.OK);
     }
 
-    @PostMapping("/{userId}/pay")
+    @PostMapping("/{userId}/pay_id")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
             summary = "update remittanceId", description = "특정 사용자의 송금ID를 변경할 수 있다.")
     public ResponseEntity<UserResponse> updateRemittanceId(@PathVariable("userId") String userId,
                                                    @RequestParam("payId") String payId){
         UserDto findUser = userService.updateRemittanceId(userId, payId);
         return responseApi.success(UserResponse.of(findUser), "송금ID 변경 성공", HttpStatus.OK);
-    }
-
-    @PostMapping("/{userId}/bets")
-    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
-            summary = "create bet", description = "특정 사용자에게 내기를 요청할 수 있다.")
-    public ResponseEntity<ResponseBet> createBet(@PathVariable String userId,
-                                                 RequestBet requestBet){
-
-        ResponseBet responseBet = betService.createBet(userId, requestBet);
-        return responseApi.success(responseBet, "내기 저장에 성공했습니다.", HttpStatus.CREATED);
     }
 }

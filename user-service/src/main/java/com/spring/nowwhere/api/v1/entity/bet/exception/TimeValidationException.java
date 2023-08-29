@@ -1,4 +1,4 @@
-package com.spring.nowwhere.api.v1.entity.bet;
+package com.spring.nowwhere.api.v1.entity.bet.exception;
 
 public class TimeValidationException extends RuntimeException {
     public TimeValidationException() {

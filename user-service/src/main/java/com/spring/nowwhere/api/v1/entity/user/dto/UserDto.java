@@ -1,6 +1,6 @@
 package com.spring.nowwhere.api.v1.entity.user.dto;
 
-import com.spring.nowwhere.api.v1.entity.user.entity.User;
+import com.spring.nowwhere.api.v1.entity.user.User;
 import lombok.Builder;
 import lombok.Getter;
 

@@ -133,24 +133,25 @@ public class OAuthKakaoService {
     public Map<String, Object> getKakaoFriends(String accessToken, KaKaoFriendDto kaKaoFriendDto) {
 
 
-        String reqURL = evn.getProperty("spring.security.oauth2.client.provider.kakao.friend-uri");
-        ResponseEntity<Map> response = null; //예외처리 할 때 catch에서 사용하려고
+
 
         try {
+            String reqURL = evn.getProperty("spring.security.oauth2.client.provider.kakao.friend-uri");
+            ResponseEntity<Map> response = null; //예외처리 할 때 catch에서 사용하려고
+
             log.info(accessToken);
             HttpHeaders headers = new HttpHeaders();
             headers.set(HttpHeaders.AUTHORIZATION, accessToken);
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            URI targetUrl = UriComponentsBuilder
-                    .fromUriString(reqURL) // 기본 URL
+            URI targetUrl = UriComponentsBuilder.fromUriString(reqURL)
                     .queryParam("offset", kaKaoFriendDto.getOffset())
-                    .queryParam("limit", kaKaoFriendDto.getLimit()
-                            .filter(integer -> integer <= 100 && integer > 0).orElse(10))
+                    .queryParam("limit", kaKaoFriendDto
+                            .getLimit().filter(integer -> integer <= 100 && integer > 0)
+                            .orElse(10))
                     .queryParam("order", kaKaoFriendDto.getOrder())
                     .queryParam("friend_order", kaKaoFriendDto.getFriendOrder())
-                    .build()
-                    .encode(StandardCharsets.UTF_8) // 인코딩
+                    .build().encode(StandardCharsets.UTF_8)
                     .toUri();
 
             response = restTemplate.exchange(targetUrl, HttpMethod.GET, entity, Map.class);

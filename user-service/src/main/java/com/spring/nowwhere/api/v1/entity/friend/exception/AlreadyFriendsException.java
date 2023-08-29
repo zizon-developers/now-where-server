@@ -1,4 +1,4 @@
-package com.spring.nowwhere.api.v1.entity.user;
+package com.spring.nowwhere.api.v1.entity.friend.exception;
 
 public class AlreadyFriendsException extends RuntimeException{
     public AlreadyFriendsException() {

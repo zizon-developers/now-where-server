@@ -1,6 +1,6 @@
 package com.spring.nowwhere.api.v1.user.repository;
 
-import com.spring.nowwhere.api.v1.entity.user.entity.User;
+import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;

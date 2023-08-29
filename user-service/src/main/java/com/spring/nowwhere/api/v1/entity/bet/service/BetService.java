@@ -1,8 +1,13 @@
-package com.spring.nowwhere.api.v1.entity.bet;
+package com.spring.nowwhere.api.v1.entity.bet.service;
 
+import com.spring.nowwhere.api.v1.entity.bet.Bet;
+import com.spring.nowwhere.api.v1.entity.bet.BetInfo;
+import com.spring.nowwhere.api.v1.entity.bet.BetStatus;
+import com.spring.nowwhere.api.v1.entity.bet.exception.TimeValidationException;
 import com.spring.nowwhere.api.v1.entity.bet.dto.RequestBet;
 import com.spring.nowwhere.api.v1.entity.bet.dto.ResponseBet;
-import com.spring.nowwhere.api.v1.entity.user.entity.User;
+import com.spring.nowwhere.api.v1.entity.bet.repository.BetRepository;
+import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

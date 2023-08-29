@@ -1,5 +1,6 @@
 package com.spring.nowwhere.api.v1.entity.bet;
 
+import com.spring.nowwhere.api.v1.entity.bet.repository.BetRepository;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;

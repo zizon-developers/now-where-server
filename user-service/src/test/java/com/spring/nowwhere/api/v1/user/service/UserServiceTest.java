@@ -9,7 +9,7 @@ import com.spring.nowwhere.api.v1.redis.refresh.RefreshTokenFromRedis;
 import com.spring.nowwhere.api.v1.redis.refresh.RefreshTokenRedisRepository;
 import com.spring.nowwhere.api.v1.security.exception.LogoutTokenException;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
-import com.spring.nowwhere.api.v1.entity.user.entity.User;
+import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.entity.user.exception.DuplicateRemittanceIdException;
 import com.spring.nowwhere.api.v1.entity.user.exception.DuplicateUsernameException;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;

@@ -1,8 +1,7 @@
-package com.spring.nowwhere.api.v1.entity.user.entity;
+package com.spring.nowwhere.api.v1.entity.friend;
 
 import com.spring.nowwhere.api.v1.entity.BaseDate;
-import com.spring.nowwhere.api.v1.entity.bet.BetStatus;
-import com.spring.nowwhere.api.v1.entity.user.FriendStatus;
+import com.spring.nowwhere.api.v1.entity.user.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

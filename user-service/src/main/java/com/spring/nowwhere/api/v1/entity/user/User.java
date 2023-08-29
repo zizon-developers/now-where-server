@@ -1,4 +1,4 @@
-package com.spring.nowwhere.api.v1.entity.user.entity;
+package com.spring.nowwhere.api.v1.entity.user;
 
 import com.spring.nowwhere.api.v1.entity.BaseDate;
 import lombok.AccessLevel;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 
-@Entity
+@Entity //회원 탈퇴시 따로 친구목록 다 지워야된다. cascade 옵션 사용안하니까
 @Getter
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -34,9 +34,8 @@ public class User extends BaseDate {
     private String remittanceId;
     private String password;
 
-
     @Enumerated(value = EnumType.STRING)
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     private List<UserRole> roles = new ArrayList<>();
     @Builder
     private User(String email, String name, String profileImg,

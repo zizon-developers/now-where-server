@@ -1,7 +1,7 @@
 package com.spring.nowwhere.api.v1.entity.user.controller.advice;
 
 import com.spring.nowwhere.api.v1.auth.exception.RefreshTokenNotFoundException;
-import com.spring.nowwhere.api.v1.entity.bet.TimeValidationException;
+import com.spring.nowwhere.api.v1.entity.bet.exception.TimeValidationException;
 import com.spring.nowwhere.api.v1.entity.user.exception.DuplicateRemittanceIdException;
 import com.spring.nowwhere.api.v1.entity.user.exception.DuplicateUsernameException;
 import com.spring.nowwhere.api.v1.response.ResponseApi;

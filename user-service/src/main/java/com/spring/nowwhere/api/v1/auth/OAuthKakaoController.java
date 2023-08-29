@@ -6,7 +6,7 @@ import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
 import com.spring.nowwhere.api.v1.auth.dto.TokenDto;
 import com.spring.nowwhere.api.v1.auth.exception.OauthKakaoApiException;
 import com.spring.nowwhere.api.v1.response.ResponseApi;
-import com.spring.nowwhere.api.v1.entity.user.entity.User;
+import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
 import com.spring.nowwhere.api.v1.redis.kakao.KakaoTokenFromRedis;
@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

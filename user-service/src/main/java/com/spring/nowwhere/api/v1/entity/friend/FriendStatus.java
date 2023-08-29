@@ -1,4 +1,4 @@
-package com.spring.nowwhere.api.v1.entity.user;
+package com.spring.nowwhere.api.v1.entity.friend;
 
 import lombok.RequiredArgsConstructor;
 

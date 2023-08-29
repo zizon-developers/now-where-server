@@ -2,7 +2,7 @@ package com.spring.nowwhere.api.v1.entity.user.service;
 
 import com.spring.nowwhere.api.v1.auth.dto.TokenDto;
 import com.spring.nowwhere.api.v1.entity.user.dto.UserDto;
-import com.spring.nowwhere.api.v1.entity.user.entity.User;
+import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
 
 import java.util.List;
