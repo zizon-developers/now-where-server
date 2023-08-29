@@ -16,8 +16,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findAll();
 
-    @Query("SELECT u FROM User u WHERE u.checkId IN (:bettorId, :receiverId)" +
-            "ORDER BY FIELD(u.checkId, :bettorId, :receiverId)")
-    List<User> findBettorAndReceiver(@Param("bettorId") String bettorId,
+    @Query("SELECT u FROM User u WHERE u.checkId IN (:senderId, :receiverId)" +
+            "ORDER BY FIELD(u.checkId, :senderId, :receiverId)")
+    List<User> findSenderAndReceiver(@Param("senderId") String senderId,
                                      @Param("receiverId") String receiverId);
 }

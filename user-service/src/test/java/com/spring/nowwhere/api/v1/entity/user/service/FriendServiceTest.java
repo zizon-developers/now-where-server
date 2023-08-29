@@ -47,9 +47,9 @@ class FriendServiceTest {
                         User receiver3 = receivers.get(1);
 
                         //when
-                        friendService.createFriendRequest(sender,receiver1);
-                        friendService.createFriendRequest(sender,receiver2);
-                        friendService.createFriendRequest(receiver2,receiver3);
+                        friendService.createFriendRequest(sender.getCheckId(),receiver1.getCheckId());
+                        friendService.createFriendRequest(sender.getCheckId(),receiver2.getCheckId());
+                        friendService.createFriendRequest(receiver2.getCheckId(),receiver3.getCheckId());
                         //then
                         Friend friend1 = friendRepository.areFriends(sender, receiver1).get();
                         Friend friend2 = friendRepository.areFriends(sender, receiver2).get();
@@ -83,7 +83,7 @@ class FriendServiceTest {
 
                         friendRepository.save(friend);
                         //when //then
-                        Assertions.assertThatThrownBy(() -> friendService.createFriendRequest(sender, receiver))
+                        Assertions.assertThatThrownBy(() -> friendService.createFriendRequest(sender.getCheckId(), receiver.getCheckId()))
                                 .isInstanceOf(FriendRequestPendingException.class)
                                 .hasMessage("요청 대기상태 입니다.");
                     }),
@@ -101,7 +101,7 @@ class FriendServiceTest {
 
                         friendRepository.save(friend);
                         //when //then
-                        Assertions.assertThatThrownBy(() -> friendService.createFriendRequest(sender, receiver))
+                        Assertions.assertThatThrownBy(() -> friendService.createFriendRequest(sender.getCheckId(), receiver.getCheckId()))
                                 .isInstanceOf(AlreadyFriendsException.class)
                                 .hasMessage("이미 친구상태 입니다.");
                     })

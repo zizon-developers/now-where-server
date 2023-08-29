@@ -22,21 +22,21 @@ public class OAuthExceptionManager {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpClientErrorException.BadRequest.class)
-    public ResponseEntity HttpClientErrorExceptionBadRequestHandler (HttpClientErrorException.BadRequest  e){
+    public ResponseEntity httpClientErrorExceptionBadRequestHandler (HttpClientErrorException.BadRequest  e){
         log.error("[exceptionHandler] ex", e);
         return responseApi.fail("KAKAO-400-EX", "code를 확인해주세요", HttpStatus.BAD_REQUEST);
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(HttpClientErrorException.Unauthorized.class)
-    public ResponseEntity HttpClientErrorExceptionUnauthorizedHandler (HttpClientErrorException.Unauthorized  e){
+    public ResponseEntity httpClientErrorExceptionUnauthorizedHandler (HttpClientErrorException.Unauthorized  e){
         log.error("[exceptionHandler] ex", e);
         return responseApi.fail("KAKAO-401-EX", "kakao 토큰이 유효하지 않습니다.", HttpStatus.UNAUTHORIZED);
     }
 
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(HttpClientErrorException.Forbidden.class)
-    public ResponseEntity HttpClientErrorExceptionForbiddenHandler (HttpClientErrorException.Forbidden  e){
+    public ResponseEntity httpClientErrorExceptionForbiddenHandler (HttpClientErrorException.Forbidden  e){
         log.error("[exceptionHandler] ex", e);
         return responseApi.fail("KAKAO-403-EX", "필수 동의 항목을 추가해주세요 ", HttpStatus.FORBIDDEN);
     }
@@ -44,7 +44,7 @@ public class OAuthExceptionManager {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(OauthKakaoApiException.class)
-    public ResponseEntity OauthKakaoApiExceptionHadnler (OauthKakaoApiException e){
+    public ResponseEntity oauthKakaoApiExceptionHadnler (OauthKakaoApiException e){
         log.error("[exceptionHandler] ex", e);
         return responseApi.fail("K-CONTROLLER-EX", e.getMessage(), HttpStatus.BAD_REQUEST);
     }
@@ -58,7 +58,7 @@ public class OAuthExceptionManager {
 
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(LogoutTokenException.class)
-    public ResponseEntity OauthKakaoApiExceptionHadnler (LogoutTokenException e){
+    public ResponseEntity logoutTokenExceptionHadnler (LogoutTokenException e){
         log.error("[exceptionHandler] ex", e);
         return responseApi.fail("LOGOUT-EX", e.getMessage(), HttpStatus.CONFLICT);
     }

@@ -25,7 +25,7 @@ class UserRepositoryTest {
     }
     @Test
     @DisplayName("두명의 checkID를 통해서 해당하는 두명의 사용자를 조회할 수 있으며 bettor, receiver 순으로 조회된다.")
-    public void findBettorAndReceiver() {
+    public void findSenderAndReceiver() {
         // given
         User bettor = createUser("bettor");
         User receiver = createUser("receiver");
@@ -33,7 +33,7 @@ class UserRepositoryTest {
 
         userRepository.saveAll(List.of(bettor,receiver,test));
         // when
-        List<User> findUsers = userRepository.findBettorAndReceiver("bettorId", "receiverId");
+        List<User> findUsers = userRepository.findSenderAndReceiver("bettorId", "receiverId");
         // then
         Assertions.assertThat(findUsers).hasSize(2)
                 .extracting("email","checkId","name")

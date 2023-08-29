@@ -29,7 +29,7 @@ public class BetService {
     public ResponseBet createBet(String bettorId, RequestBet requestBet) {
 
         List<User> bettorAndReceiver = userRepository
-                .findBettorAndReceiver(bettorId, requestBet.getReceiverId());
+                .findSenderAndReceiver(bettorId, requestBet.getReceiverId());
         if (bettorAndReceiver.size() != 2)
             throw new UsernameNotFoundException("bettor and receiver is not found");
 
