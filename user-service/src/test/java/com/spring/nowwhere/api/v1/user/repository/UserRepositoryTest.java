@@ -70,7 +70,7 @@ class UserRepositoryTest {
         Assertions.assertThat(test.getName()).isEqualTo(findUser.getName());
     }
 
-//    @Test
+    @Test
     @DisplayName("모든 사용자를 조회할 수 있다.")
     public void findAll() {
         // given
@@ -83,8 +83,8 @@ class UserRepositoryTest {
         List<User> findUsers = userRepository.findAll();
         // then
         Assertions.assertThat(findUsers).hasSize(3)
-                .extracting("email","userId","name")
-                .containsExactlyInAnyOrder( //순서 보장되어야함
+                .extracting("email","checkId","name")
+                .containsExactlyInAnyOrder(
                         tuple("bettor@test.com","bettorId","bettor"),
                         tuple("receiver@test.com","receiverId","receiver"),
                         tuple("test@test.com","testId","test")

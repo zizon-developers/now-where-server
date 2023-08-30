@@ -137,6 +137,33 @@ public class OAuthKakaoController {
         log.info(code);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/logout")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
+            summary = "logout", description = "로그인을 성공한 사용자는 로그아웃을 할 수 있다.(refresh token도 삭제)")
+    public ResponseEntity logout(HttpServletRequest request){
+        String token = getTokenByReqeust(request);
+        userService.logout(token);
+        return responseApi.success("logout 되었습니다.");
+    }
+
+    @PostMapping("/access-token")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key (refresh token)") },
+            summary = "reissue", description = "refresh token을 이용해서 access token을 재발행 가능하다. (user정보 넘겨줄 수 있는지 FE랑 이야기)")
+    public ResponseEntity reissue(HttpServletRequest request,
+                                  HttpServletResponse response){
+
+        String refreshToken = getTokenByReqeust(request);
+        String email = tokenProvider.getUserEmailFromRefreshToken(refreshToken);
+
+        User user = userService.reissueWithUserVerification(email);
+        String accessToken = tokenProvider.generateJwtAccessToken(user);
+        response.addHeader(JwtProperties.ACCESS_TOKEN, accessToken);
+
+        return responseApi.success("access token 재발급 되었습니다.");
+    }
+
+
 //    @GetMapping("/payment/kakao")
 //    public Object requestKakaoPayPayment(HttpServletRequest request){
 //        String token = getTokenByReqeust(request);

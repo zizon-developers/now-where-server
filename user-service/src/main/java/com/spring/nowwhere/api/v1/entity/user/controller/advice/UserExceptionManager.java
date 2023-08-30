@@ -29,13 +29,6 @@ public class UserExceptionManager {
         return responseApi.fail("USER-NOT-EX", e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(RefreshTokenNotFoundException.class)
-    public ResponseEntity refreshTokenNotFoundExceptionHandler (RefreshTokenNotFoundException  e){
-        log.error("[exceptionHandler] ex", e);
-        return responseApi.fail("REFRESH-TOKEN-NOT-EX", e.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(LogoutTokenException.class)
     public ResponseEntity logoutTokenExceptionHadnler (LogoutTokenException e){

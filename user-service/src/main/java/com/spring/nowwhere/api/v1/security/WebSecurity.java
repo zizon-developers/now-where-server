@@ -1,6 +1,9 @@
 package com.spring.nowwhere.api.v1.security;
 
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
+import com.spring.nowwhere.api.v1.security.jwt.JwtAuthenticationEntryPoint;
+import com.spring.nowwhere.api.v1.security.jwt.JwtAuthenticationFilter;
+import com.spring.nowwhere.api.v1.security.jwt.JwtAuthorizationFilter;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
 import com.spring.nowwhere.api.v1.redis.logout.LogoutAccessTokenRedisRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +44,8 @@ public class WebSecurity {
                 .apply(new MyCustomDsl());
 
         http.authorizeRequests(authorize -> authorize
+//                        .antMatchers("/api/v1/auth/**", "/auth/**")
+//                        .permitAll()
                         .antMatchers("/**").permitAll()
                         .antMatchers("api/v1/auth/login", "api/v1/auth/join").permitAll()
                         .antMatchers("api/v1/auth/**").access("hasRole('ROLE_USER')")
@@ -48,7 +53,6 @@ public class WebSecurity {
                         .anyRequest().authenticated())
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint());
-
         return http.build();
     }
 

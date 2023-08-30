@@ -1,6 +1,7 @@
-package com.spring.nowwhere.api.v1.security;
+package com.spring.nowwhere.api.v1.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spring.nowwhere.api.v1.security.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
