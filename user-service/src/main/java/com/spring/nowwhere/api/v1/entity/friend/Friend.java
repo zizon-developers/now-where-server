@@ -12,6 +12,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+//sender 2도 DB에서 막을 수 있을까..? sender reciver 두개 묶어서 unique
 public class Friend extends BaseDate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +29,7 @@ public class Friend extends BaseDate {
     @Enumerated(EnumType.STRING)
     private FriendStatus friendStatus;
 
+//    private double recommendationProbability;
     @Builder
     public Friend(User sender, User receiver, FriendStatus friendStatus) {
         this.sender = sender;
@@ -35,8 +37,8 @@ public class Friend extends BaseDate {
         this.friendStatus = friendStatus;
     }
     public void updateFriendStatus(FriendStatus friendStatus){
-        if (FriendStatus.PENDING.equals(this.friendStatus)){
-            this.friendStatus = friendStatus;
-        }
+        this.friendStatus = friendStatus;
     }
+//    public void updateRecommendationProbability(){
+//    }
 }

@@ -107,6 +107,19 @@ class FriendServiceTest {
                     })
             );
         }
+
+    @Test
+    @DisplayName("친구 요청을 거절할 수 있다.")
+    public void rejectFriendRequest() {
+        // given
+        List<User> senderAndReceiver = createUser("sender", "receiver");
+        User sender = senderAndReceiver.get(0);
+        User receiver = senderAndReceiver.get(1);
+        friendService.createFriendRequest(sender.getCheckId(), receiver.getCheckId());
+        // when
+
+        // then
+    }
     private List<User> createUser(String name1, String name2){
         User user1 = User.builder()
                 .email(name1+"@test.com")
