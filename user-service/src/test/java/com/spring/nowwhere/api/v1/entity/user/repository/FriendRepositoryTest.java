@@ -5,8 +5,6 @@ import com.spring.nowwhere.api.v1.entity.friend.FriendStatus;
 import com.spring.nowwhere.api.v1.entity.friend.Friend;
 import com.spring.nowwhere.api.v1.entity.user.User;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -52,7 +50,7 @@ class FriendRepositoryTest {
         );
     }
 
-     @DisplayName("사용자가 특정 상태에서 친구 요청 받은 정보를 조회할 수 있다.")
+     @DisplayName("친구 요청을 받은 사용자가 특정 상태에서 친구 요청 받은 정보를 조회할 수 있다.")
      @TestFactory
      Collection<DynamicTest> getReceiversWithStatus () {
         // given
@@ -121,6 +119,80 @@ class FriendRepositoryTest {
                     //then
                     Assertions.assertAll(
                             () -> assertEquals(friend.getReceiver(),receiver),
+                            () -> assertEquals(friend.getFriendStatus(),FriendStatus.COMPLETED)
+                    );
+                })
+        );
+    }
+    @DisplayName("친구 요청을 보낸 사용자가 특정 상태에서 친구 요청 받은 정보를 조회할 수 있다.")
+    @TestFactory
+    Collection<DynamicTest> getSendersWithStatus () {
+        // given
+        User sender = createUser("sender");
+        User receiver1 = createUser("receiver1");
+        User receiver2 = createUser("receiver2");
+        User receiver3 = createUser("receiver3");
+        User receiver4 = createUser("receiver4");
+
+        Friend friend1 = Friend.builder()
+                .sender(sender)
+                .receiver(receiver1)
+                .friendStatus(FriendStatus.PENDING)
+                .build();
+
+        Friend friend2 = Friend.builder()
+                .sender(sender)
+                .receiver(receiver2)
+                .friendStatus(FriendStatus.DENIED_REQUEST)
+                .build();
+
+        Friend friend3 = Friend.builder()
+                .sender(sender)
+                .receiver(receiver3)
+                .friendStatus(FriendStatus.CANCELED_REQUEST)
+                .build();
+
+        Friend friend4 = Friend.builder()
+                .sender(sender)
+                .receiver(receiver4)
+                .friendStatus(FriendStatus.COMPLETED)
+                .build();
+
+        friendRepository.saveAll(List.of(friend1,friend2,friend3,friend4));
+        return List.of(
+                DynamicTest.dynamicTest("친구 요청이 PENDING 상태인 경우를 조회할 수 있다.", () -> {
+                    //when
+                    Friend friend = friendRepository.getSendersWithStatus(sender, FriendStatus.PENDING).get();
+                    //then
+                    Assertions.assertAll(
+                            () -> assertEquals(friend.getSender(),sender),
+                            () -> assertEquals(friend.getFriendStatus(),FriendStatus.PENDING)
+                    );
+                }),
+                DynamicTest.dynamicTest("친구 요청이 DENIED_REQUEST 상태인 경우를 조회할 수 있다.", () -> {
+                    //when
+                    Friend friend = friendRepository.getSendersWithStatus(sender, FriendStatus.DENIED_REQUEST).get();
+                    //then
+                    Assertions.assertAll(
+                            () -> assertEquals(friend.getSender(),sender),
+                            () -> assertEquals(friend.getFriendStatus(),FriendStatus.DENIED_REQUEST)
+                    );
+                }),
+                DynamicTest.dynamicTest("친구 요청이 CANCELED_REQUEST 상태인 경우를 조회할 수 있다.", () -> {
+                    //when
+                    Friend friend = friendRepository.getSendersWithStatus(sender, FriendStatus.CANCELED_REQUEST).get();
+                    //then
+                    Assertions.assertAll(
+                            () -> assertEquals(friend.getSender(),sender),
+                            () -> assertEquals(friend.getFriendStatus(),FriendStatus.CANCELED_REQUEST)
+                    );
+                }),
+                DynamicTest.dynamicTest("친구 요청이 COMPLETED 상태인 경우를 조회할 수 있다.", () -> {
+                    //when
+                    Friend friend = friendRepository.getSendersWithStatus(sender, FriendStatus.COMPLETED).get();
+                    //then
+                    Assertions.assertAll(
+                            () -> assertEquals(friend.getSender(),sender),
                             () -> assertEquals(friend.getFriendStatus(),FriendStatus.COMPLETED)
                     );
                 })
