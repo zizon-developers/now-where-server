@@ -11,6 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.Collection;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -88,39 +90,42 @@ class FriendRepositoryTest {
         return List.of(
                 DynamicTest.dynamicTest("친구 요청이 PENDING 상태인 경우를 조회할 수 있다.", () -> {
                     //when
-                    Friend friend = friendRepository.getReceiversWithStatus(receiver, FriendStatus.PENDING).get();
+                    List<Friend> friends = friendRepository.getReceiversWithStatus(receiver, FriendStatus.PENDING);
                     //then
-                    Assertions.assertAll(
-                            () -> assertEquals(friend.getReceiver(),receiver),
-                            () -> assertEquals(friend.getFriendStatus(),FriendStatus.PENDING)
-                    );
+                    assertThat(friends).hasSize(1)
+                            .extracting("receiver","sender","friendStatus")
+                            .containsExactly(
+                                    tuple(receiver,sender1,FriendStatus.PENDING)
+                            );
                 }),
                 DynamicTest.dynamicTest("친구 요청이 DENIED_REQUEST 상태인 경우를 조회할 수 있다.", () -> {
                     //when
-                    Friend friend = friendRepository.getReceiversWithStatus(receiver, FriendStatus.DENIED_REQUEST).get();
+                    List<Friend> friends = friendRepository.getReceiversWithStatus(receiver, FriendStatus.DENIED_REQUEST);
                     //then
-                    Assertions.assertAll(
-                            () -> assertEquals(friend.getReceiver(),receiver),
-                            () -> assertEquals(friend.getFriendStatus(),FriendStatus.DENIED_REQUEST)
-                    );
+                    assertThat(friends).hasSize(1)
+                            .extracting("receiver","sender","friendStatus")
+                            .containsExactly(
+                                    tuple(receiver,sender2,FriendStatus.DENIED_REQUEST)
+                            );
                 }),
                 DynamicTest.dynamicTest("친구 요청이 CANCELED_REQUEST 상태인 경우를 조회할 수 있다.", () -> {
                     //when
-                    Friend friend = friendRepository.getReceiversWithStatus(receiver, FriendStatus.CANCELED_REQUEST).get();
+                    List<Friend> friends = friendRepository.getReceiversWithStatus(receiver, FriendStatus.CANCELED_REQUEST);
                     //then
-                    Assertions.assertAll(
-                            () -> assertEquals(friend.getReceiver(),receiver),
-                            () -> assertEquals(friend.getFriendStatus(),FriendStatus.CANCELED_REQUEST)
-                    );
+                    assertThat(friends).hasSize(1)
+                            .extracting("receiver","sender","friendStatus")
+                            .containsExactly(
+                                    tuple(receiver,sender3,FriendStatus.CANCELED_REQUEST)
+                            );
                 }),
                 DynamicTest.dynamicTest("친구 요청이 COMPLETED 상태인 경우를 조회할 수 있다.", () -> {
-                    //when
-                    Friend friend = friendRepository.getReceiversWithStatus(receiver, FriendStatus.COMPLETED).get();
+                    List<Friend> friends = friendRepository.getReceiversWithStatus(receiver, FriendStatus.COMPLETED);
                     //then
-                    Assertions.assertAll(
-                            () -> assertEquals(friend.getReceiver(),receiver),
-                            () -> assertEquals(friend.getFriendStatus(),FriendStatus.COMPLETED)
-                    );
+                    assertThat(friends).hasSize(1)
+                            .extracting("receiver","sender","friendStatus")
+                            .containsExactly(
+                                    tuple(receiver,sender4,FriendStatus.COMPLETED)
+                            );
                 })
         );
     }
@@ -162,39 +167,42 @@ class FriendRepositoryTest {
         return List.of(
                 DynamicTest.dynamicTest("친구 요청이 PENDING 상태인 경우를 조회할 수 있다.", () -> {
                     //when
-                    Friend friend = friendRepository.getSendersWithStatus(sender, FriendStatus.PENDING).get();
+                    List<Friend> friends = friendRepository.getSendersWithStatus(sender, FriendStatus.PENDING);
                     //then
-                    Assertions.assertAll(
-                            () -> assertEquals(friend.getSender(),sender),
-                            () -> assertEquals(friend.getFriendStatus(),FriendStatus.PENDING)
-                    );
+                    assertThat(friends).hasSize(1)
+                            .extracting("receiver","sender","friendStatus")
+                            .containsExactly(
+                                    tuple(receiver1,sender,FriendStatus.PENDING)
+                            );
                 }),
                 DynamicTest.dynamicTest("친구 요청이 DENIED_REQUEST 상태인 경우를 조회할 수 있다.", () -> {
                     //when
-                    Friend friend = friendRepository.getSendersWithStatus(sender, FriendStatus.DENIED_REQUEST).get();
+                    List<Friend> friends = friendRepository.getSendersWithStatus(sender, FriendStatus.DENIED_REQUEST);
                     //then
-                    Assertions.assertAll(
-                            () -> assertEquals(friend.getSender(),sender),
-                            () -> assertEquals(friend.getFriendStatus(),FriendStatus.DENIED_REQUEST)
-                    );
+                    assertThat(friends).hasSize(1)
+                            .extracting("receiver","sender","friendStatus")
+                            .containsExactly(
+                                    tuple(receiver2,sender,FriendStatus.DENIED_REQUEST)
+                            );
                 }),
                 DynamicTest.dynamicTest("친구 요청이 CANCELED_REQUEST 상태인 경우를 조회할 수 있다.", () -> {
                     //when
-                    Friend friend = friendRepository.getSendersWithStatus(sender, FriendStatus.CANCELED_REQUEST).get();
+                    List<Friend> friends = friendRepository.getSendersWithStatus(sender, FriendStatus.CANCELED_REQUEST);
                     //then
-                    Assertions.assertAll(
-                            () -> assertEquals(friend.getSender(),sender),
-                            () -> assertEquals(friend.getFriendStatus(),FriendStatus.CANCELED_REQUEST)
-                    );
+                    assertThat(friends).hasSize(1)
+                            .extracting("receiver","sender","friendStatus")
+                            .containsExactly(
+                                    tuple(receiver3,sender,FriendStatus.CANCELED_REQUEST)
+                            );
                 }),
                 DynamicTest.dynamicTest("친구 요청이 COMPLETED 상태인 경우를 조회할 수 있다.", () -> {
-                    //when
-                    Friend friend = friendRepository.getSendersWithStatus(sender, FriendStatus.COMPLETED).get();
+                    List<Friend> friends = friendRepository.getSendersWithStatus(sender, FriendStatus.COMPLETED);
                     //then
-                    Assertions.assertAll(
-                            () -> assertEquals(friend.getSender(),sender),
-                            () -> assertEquals(friend.getFriendStatus(),FriendStatus.COMPLETED)
-                    );
+                    assertThat(friends).hasSize(1)
+                            .extracting("receiver","sender","friendStatus")
+                            .containsExactly(
+                                    tuple(receiver4,sender,FriendStatus.COMPLETED)
+                            );
                 })
         );
     }

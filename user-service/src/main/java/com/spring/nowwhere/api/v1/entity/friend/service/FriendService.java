@@ -1,6 +1,7 @@
 package com.spring.nowwhere.api.v1.entity.friend.service;
 
 import com.spring.nowwhere.api.v1.entity.friend.Friend;
+import com.spring.nowwhere.api.v1.entity.friend.exception.FriendNotFoundException;
 import com.spring.nowwhere.api.v1.entity.friend.repository.FriendRepository;
 import com.spring.nowwhere.api.v1.entity.friend.FriendStatus;
 import com.spring.nowwhere.api.v1.entity.friend.exception.AlreadyFriendsException;
@@ -64,51 +65,50 @@ public class FriendService {
     }
 
     //친구 요청을 수락하는 메서드
-    public void acceptFriendRequest (String receiverId){
-        User receiver = checkUser(receiverId);
+    public void acceptFriendRequest (String senderId, String receiverId){
+        List<User> senderAndReceiver = checkSenderAndReceiver(senderId, receiverId);
+        User sender = senderAndReceiver.get(SENDER_INDEX);
+        User receiver = senderAndReceiver.get(RECEIVER_INDEX);
 
-        Friend findFriend = checkReceiverPendingStatus(receiver);
+        Friend findFriend = checkFriendRequest(sender, receiver);
         findFriend.updateFriendStatus(FriendStatus.COMPLETED);
 
-        insertReceiverInverseRecord(findFriend.getSender(), receiver);
-    }
-    //친구 요청을 거절하는 메서드
-    public void rejectFriendRequest (String receiverId){
-        User receiver = checkUser(receiverId);
-
-        Friend findFriend = checkReceiverPendingStatus(receiver);
-        findFriend.updateFriendStatus(FriendStatus.DENIED_REQUEST);
-        //나중에 추천친구 로직에 확률 계산하기 위한 로직 추가하기
+        insertReceiverInverseRecord(sender, receiver);
     }
 
-    private User checkUser(String receiverId) {
-        return userRepository.findByCheckId(receiverId)
-                .orElseThrow(() -> new UsernameNotFoundException("가입하지 않은 사용자 입니다."));
+    private Friend checkFriendRequest(User sender, User receiver) {
+        return friendRepository.areFriends(sender, receiver)
+                .filter(friend -> FriendStatus.PENDING.equals(friend.getFriendStatus()))
+                .orElseThrow(() -> new FriendNotFoundException("친구 요청 정보가 존재하지 않습니다."));
     }
-    private Friend checkReceiverPendingStatus(User receiver) {
-        return friendRepository.getReceiversWithStatus(receiver, FriendStatus.PENDING)
-                .orElseThrow(() -> new FriendRequestPendingException("친구 요청을 응답할 수 있는 상태가 아닙니다."));
-    }
-
     private Friend insertReceiverInverseRecord(User sender, User receiver) {
         Friend receiverFriend = Friend.builder()
-                .sender(sender)
-                .receiver(receiver)
+                .sender(receiver)
+                .receiver(sender)
                 .friendStatus(FriendStatus.PENDING)
                 .build();
 
         return friendRepository.save(receiverFriend);
     }
-    public void cancelFriendRequest (String senderId){
-        User sender = checkUser(senderId);
 
-        //동적 sql로 처리해도 될듯..?
-        Friend findFriend = checkSenderPendingStatus(sender);
-        findFriend.updateFriendStatus(FriendStatus.CANCELED_REQUEST);
+    //친구 요청을 거절하는 메서드
+    public void rejectFriendRequest (String senderId, String receiverId){
+        List<User> senderAndReceiver = checkSenderAndReceiver(senderId, receiverId);
+        User sender = senderAndReceiver.get(SENDER_INDEX);
+        User receiver = senderAndReceiver.get(RECEIVER_INDEX);
+
+        Friend findFriend = checkFriendRequest(sender, receiver);
+        findFriend.updateFriendStatus(FriendStatus.DENIED_REQUEST);
         //나중에 추천친구 로직에 확률 계산하기 위한 로직 추가하기
     }
-    private Friend checkSenderPendingStatus(User sender) {
-        return friendRepository.getSendersWithStatus(sender, FriendStatus.PENDING)
-                .orElseThrow(() -> new FriendRequestPendingException("친구 요청을 응답할 수 있는 상태가 아닙니다."));
+
+    public void cancelFriendRequest (String senderId, String receiverId){
+        List<User> senderAndReceiver = checkSenderAndReceiver(senderId, receiverId);
+        User sender = senderAndReceiver.get(SENDER_INDEX);
+        User receiver = senderAndReceiver.get(RECEIVER_INDEX);
+
+        Friend findFriend = checkFriendRequest(sender, receiver);
+        findFriend.updateFriendStatus(FriendStatus.CANCELED_REQUEST);
+        //나중에 추천친구 로직에 확률 계산하기 위한 로직 추가하기
     }
 }

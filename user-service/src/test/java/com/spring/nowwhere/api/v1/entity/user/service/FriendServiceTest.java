@@ -2,6 +2,7 @@ package com.spring.nowwhere.api.v1.entity.user.service;
 
 import com.spring.nowwhere.api.v1.entity.friend.*;
 import com.spring.nowwhere.api.v1.entity.friend.exception.AlreadyFriendsException;
+import com.spring.nowwhere.api.v1.entity.friend.exception.FriendNotFoundException;
 import com.spring.nowwhere.api.v1.entity.friend.exception.FriendRequestPendingException;
 import com.spring.nowwhere.api.v1.entity.friend.service.FriendService;
 import com.spring.nowwhere.api.v1.entity.user.User;
@@ -122,9 +123,9 @@ class FriendServiceTest {
         User receiver = createAndSaveUser("receiver");
         friendService.createFriendRequest(sender.getCheckId(), receiver.getCheckId());
         // when
-        friendService.acceptFriendRequest(receiver.getCheckId());
+        friendService.acceptFriendRequest(sender.getCheckId(), receiver.getCheckId());
         // then
-        Friend friend = friendRepository.getReceiversWithStatus(receiver, FriendStatus.COMPLETED).get();
+        Friend friend = friendRepository.areFriends(sender, receiver).get();
         assertAll(
                 () -> assertEquals(friend.getSender(), sender),
                 () -> assertEquals(friend.getReceiver(), receiver),
@@ -143,9 +144,9 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.COMPLETED);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.acceptFriendRequest(receiver.getCheckId()))
-                            .isInstanceOf(FriendRequestPendingException.class)
-                            .hasMessage("친구 요청을 응답할 수 있는 상태가 아닙니다.");
+                    assertThatThrownBy(() -> friendService.acceptFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                            .isInstanceOf(FriendNotFoundException.class)
+                            .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 }),
                 DynamicTest.dynamicTest("요청 상태가 CANCELED_REQUEST인 경우 예외가 발생한다.", () -> {
                     // given
@@ -154,9 +155,9 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.CANCELED_REQUEST);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.acceptFriendRequest(receiver.getCheckId()))
-                            .isInstanceOf(FriendRequestPendingException.class)
-                            .hasMessage("친구 요청을 응답할 수 있는 상태가 아닙니다.");
+                    assertThatThrownBy(() -> friendService.acceptFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                            .isInstanceOf(FriendNotFoundException.class)
+                            .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 }),
                 DynamicTest.dynamicTest("요청 상태가 DENIED_REQUEST인 경우 예외가 발생한다.", () -> {
                     // given
@@ -165,9 +166,9 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.DENIED_REQUEST);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.acceptFriendRequest(receiver.getCheckId()))
-                            .isInstanceOf(FriendRequestPendingException.class)
-                            .hasMessage("친구 요청을 응답할 수 있는 상태가 아닙니다.");
+                    assertThatThrownBy(() -> friendService.acceptFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                            .isInstanceOf(FriendNotFoundException.class)
+                            .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 })
         );
     }
@@ -180,9 +181,9 @@ class FriendServiceTest {
         User receiver = createAndSaveUser("receiver");
         friendService.createFriendRequest(sender.getCheckId(), receiver.getCheckId());
         // when
-        friendService.rejectFriendRequest(receiver.getCheckId());
+        friendService.rejectFriendRequest(sender.getCheckId(), receiver.getCheckId());
         // then
-        Friend friend = friendRepository.getReceiversWithStatus(receiver, FriendStatus.DENIED_REQUEST).get();
+        Friend friend = friendRepository.areFriends(sender, receiver).get();
         assertAll(
                 () -> assertEquals(friend.getSender(), sender),
                 () -> assertEquals(friend.getReceiver(), receiver),
@@ -201,9 +202,9 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.COMPLETED);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.rejectFriendRequest(receiver.getCheckId()))
-                            .isInstanceOf(FriendRequestPendingException.class)
-                            .hasMessage("친구 요청을 응답할 수 있는 상태가 아닙니다.");
+                    assertThatThrownBy(() -> friendService.rejectFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                            .isInstanceOf(FriendNotFoundException.class)
+                            .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 }),
                 DynamicTest.dynamicTest("요청 상태가 CANCELED_REQUEST인 경우 예외가 발생한다.", () -> {
                     // given
@@ -212,9 +213,9 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.CANCELED_REQUEST);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.rejectFriendRequest(receiver.getCheckId()))
-                            .isInstanceOf(FriendRequestPendingException.class)
-                            .hasMessage("친구 요청을 응답할 수 있는 상태가 아닙니다.");
+                    assertThatThrownBy(() -> friendService.rejectFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                            .isInstanceOf(FriendNotFoundException.class)
+                            .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 }),
                 DynamicTest.dynamicTest("요청 상태가 DENIED_REQUEST인 경우 예외가 발생한다.", () -> {
                     // given
@@ -223,9 +224,9 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.DENIED_REQUEST);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.rejectFriendRequest(receiver.getCheckId()))
-                            .isInstanceOf(FriendRequestPendingException.class)
-                            .hasMessage("친구 요청을 응답할 수 있는 상태가 아닙니다.");
+                    assertThatThrownBy(() -> friendService.rejectFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                            .isInstanceOf(FriendNotFoundException.class)
+                            .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 })
         );
     }
@@ -238,9 +239,9 @@ class FriendServiceTest {
         User receiver = createAndSaveUser("receiver");
         friendService.createFriendRequest(sender.getCheckId(), receiver.getCheckId());
         // when
-        friendService.cancelFriendRequest(sender.getCheckId());
+        friendService.cancelFriendRequest(sender.getCheckId(), receiver.getCheckId());
         // then
-        Friend friend = friendRepository.getReceiversWithStatus(receiver, FriendStatus.CANCELED_REQUEST).get();
+        Friend friend = friendRepository.areFriends(sender, receiver).get();
         assertAll(
                 () -> assertEquals(friend.getSender(), sender),
                 () -> assertEquals(friend.getReceiver(), receiver),
@@ -259,9 +260,9 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.COMPLETED);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.cancelFriendRequest(receiver.getCheckId()))
-                            .isInstanceOf(FriendRequestPendingException.class)
-                            .hasMessage("친구 요청을 응답할 수 있는 상태가 아닙니다.");
+                    assertThatThrownBy(() -> friendService.cancelFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                            .isInstanceOf(FriendNotFoundException.class)
+                            .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 }),
                 DynamicTest.dynamicTest("요청 상태가 CANCELED_REQUEST인 경우 예외가 발생한다.", () -> {
                     // given
@@ -270,9 +271,9 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.CANCELED_REQUEST);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.cancelFriendRequest(receiver.getCheckId()))
-                            .isInstanceOf(FriendRequestPendingException.class)
-                            .hasMessage("친구 요청을 응답할 수 있는 상태가 아닙니다.");
+                    assertThatThrownBy(() -> friendService.cancelFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                            .isInstanceOf(FriendNotFoundException.class)
+                            .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 }),
                 DynamicTest.dynamicTest("요청 상태가 DENIED_REQUEST인 경우 예외가 발생한다.", () -> {
                     // given
@@ -281,9 +282,9 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.DENIED_REQUEST);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.cancelFriendRequest(receiver.getCheckId()))
-                            .isInstanceOf(FriendRequestPendingException.class)
-                            .hasMessage("친구 요청을 응답할 수 있는 상태가 아닙니다.");
+                    assertThatThrownBy(() -> friendService.cancelFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                            .isInstanceOf(FriendNotFoundException.class)
+                            .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 })
         );
     }

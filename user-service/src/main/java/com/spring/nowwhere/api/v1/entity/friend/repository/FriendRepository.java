@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface FriendRepository extends JpaRepository<Friend, FriendID> {
@@ -19,13 +20,13 @@ public interface FriendRepository extends JpaRepository<Friend, FriendID> {
     //특정 사용자가 받은 친구 요청을 조회하는 메서드 반환값 List임
     @Query("select f from Friend f where f.receiver = :receiver " +
             "and f.friendStatus = :status")
-    Optional<Friend> getReceiversWithStatus(@Param("receiver") User receiver,
-                                               @Param("status") FriendStatus friendStatus);
+    List<Friend> getReceiversWithStatus(@Param("receiver") User receiver,
+                                        @Param("status") FriendStatus friendStatus);
 
     @Query("select f from Friend f where f.sender = :sender " +
             "and f.friendStatus = :status")
-    Optional<Friend> getSendersWithStatus(@Param("sender") User sender,
-                                          @Param("status") FriendStatus friendStatus);
+    List<Friend> getSendersWithStatus(@Param("sender") User sender,
+                                      @Param("status") FriendStatus friendStatus);
 
 //    getSentFriendRequests(userId): 특정 사용자가 보낸 친구 요청을 조회하는 메서드
 //    getFriends(userId): 특정 사용자의 친구 목록을 조회하는 메서드

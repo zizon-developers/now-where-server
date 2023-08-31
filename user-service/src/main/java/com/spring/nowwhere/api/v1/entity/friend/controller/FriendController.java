@@ -23,7 +23,7 @@ public class FriendController {
     public ResponseEntity sendFriendRequest(@PathVariable("userId") String userId,
                                             @RequestBody RequestFriend requestFriend) {
 
-        friendService.createFriendRequest(userId, requestFriend.getReceiverId());
+//        friendService.createFriendRequest(userId, requestFriend.getReceiverId());
         return responseApi.success("친구요청 성공");
     }
 }
