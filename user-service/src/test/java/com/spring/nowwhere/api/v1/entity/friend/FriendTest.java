@@ -10,10 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -23,15 +19,13 @@ class FriendTest {
     private FriendRepository friendRepository;
     @Autowired
     private UserRepository userRepository;
-    @PersistenceContext
-    private EntityManager em;
 
     @Test
     @DisplayName("친구 요청에 대한 상태를 변경할 수 있다.")
     public void updateFriendStatus() {
         // given
-        User sender = createUser("sender");
-        User receiver = createUser("receiver");
+        User sender = createAndSaveUser("sender1");
+        User receiver = createAndSaveUser("receiver2");
         Friend friend = Friend.builder()
                 .sender(sender)
                 .receiver(receiver)
@@ -41,24 +35,21 @@ class FriendTest {
         // when
         Friend findFriend = friendRepository.areFriends(sender, receiver).get();
         findFriend.updateFriendStatus(FriendStatus.DENIED_REQUEST);
-        Friend updateFriend = friendRepository.areFriends(sender, receiver).get();
         // then
+        Friend updateFriend = friendRepository.areFriends(sender, receiver).get();
         Assertions.assertAll(
                 ()->assertEquals(updateFriend.getFriendStatus(),FriendStatus.DENIED_REQUEST),
                 ()->assertEquals(updateFriend.getSender(),findFriend.getSender()),
                 ()->assertEquals(updateFriend.getReceiver(),findFriend.getReceiver())
         );
-
     }
 
-    private User createUser(String name) {
+    private User createAndSaveUser(String name) {
         User user = User.builder()
                 .email(name+"@test.com")
                 .checkId(name+"Id")
                 .name(name)
                 .build();
-        userRepository.save(user);
-        return user;
-
+        return userRepository.save(user);
     }
 }

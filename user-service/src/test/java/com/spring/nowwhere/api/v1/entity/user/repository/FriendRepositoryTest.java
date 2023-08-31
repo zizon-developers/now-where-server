@@ -31,8 +31,8 @@ class FriendRepositoryTest {
     @DisplayName("두 사용자의 친구 정보를 조회할 수 있다.")
     public void areFriends() {
         // given
-        User sender = createUser("sender1");
-        User receiver = createUser("receiver2");
+        User sender = createAndSaveUser("sender1");
+        User receiver = createAndSaveUser("receiver2");
 
         Friend friend = Friend.builder()
                 .sender(sender)
@@ -54,11 +54,11 @@ class FriendRepositoryTest {
      @TestFactory
      Collection<DynamicTest> getReceiversWithStatus () {
         // given
-         User sender1 = createUser("sender1");
-         User sender2 = createUser("sender2");
-         User sender3 = createUser("sender3");
-         User sender4 = createUser("sender4");
-         User receiver = createUser("receiver");
+         User sender1 = createAndSaveUser("sender1");
+         User sender2 = createAndSaveUser("sender2");
+         User sender3 = createAndSaveUser("sender3");
+         User sender4 = createAndSaveUser("sender4");
+         User receiver = createAndSaveUser("receiver");
 
          Friend friend1 = Friend.builder()
                  .sender(sender1)
@@ -128,11 +128,11 @@ class FriendRepositoryTest {
     @TestFactory
     Collection<DynamicTest> getSendersWithStatus () {
         // given
-        User sender = createUser("sender");
-        User receiver1 = createUser("receiver1");
-        User receiver2 = createUser("receiver2");
-        User receiver3 = createUser("receiver3");
-        User receiver4 = createUser("receiver4");
+        User sender = createAndSaveUser("sender");
+        User receiver1 = createAndSaveUser("receiver1");
+        User receiver2 = createAndSaveUser("receiver2");
+        User receiver3 = createAndSaveUser("receiver3");
+        User receiver4 = createAndSaveUser("receiver4");
 
         Friend friend1 = Friend.builder()
                 .sender(sender)
@@ -199,7 +199,7 @@ class FriendRepositoryTest {
         );
     }
 
-    private User createUser(String name) {
+    private User createAndSaveUser(String name) {
         User user = User.builder()
                 .email(name + "@test.com")
                 .name(name)

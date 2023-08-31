@@ -90,7 +90,7 @@ class UserServiceTest {
                 DynamicTest.dynamicTest("사용자는 로그인할 수 있다.",()->{
                     //given
                     String email = "user@test.com";
-                    User user = createUser("user");
+                    User user = createAndSaveUser("user");
                     userRepository.save(user);
 
                     LogoutAccessTokenFromRedis logoutAccessTokenFromRedis =
@@ -121,8 +121,7 @@ class UserServiceTest {
     Collection<DynamicTest> logoutDynamicTest() {
         // given
         String email = "user@test.com";
-        User user = createUser("user");
-        userRepository.save(user);
+        User user = createAndSaveUser("user");
 
         return List.of(
                 DynamicTest.dynamicTest("사용자는 로그아웃할 수 있다.",()->{
@@ -166,8 +165,7 @@ class UserServiceTest {
     Collection<DynamicTest> reissueWithUserVerification() {
         // given
         String email = "user@test.com";
-        User user = createUser("user");
-        userRepository.save(user);
+        User user = createAndSaveUser("user");
 
         return List.of(
                 DynamicTest.dynamicTest("회원이 로그인에 성공한 경우 검증에 성공한다.", () -> {
@@ -190,7 +188,6 @@ class UserServiceTest {
                     assertThatThrownBy(() -> userService.reissueWithUserVerification(email))
                             .isInstanceOf(RefreshTokenNotFoundException.class)
                             .hasMessage("refresh token Not Found");
-
                 })
         );
     }
@@ -199,9 +196,8 @@ class UserServiceTest {
     @TestFactory
     Collection<DynamicTest> updateName() {
         // given
-        User user1 = createUser("user");
-        User user2 = createUser("exception");
-        userRepository.saveAll(List.of(user1, user2));
+        User user1 = createAndSaveUser("user");
+        User exUser = createAndSaveUser("exception");
 
         return List.of(
                 DynamicTest.dynamicTest("사용자는 닉네임을 변경할 수 있다.", () -> {
@@ -229,9 +225,8 @@ class UserServiceTest {
     @TestFactory
     Collection<DynamicTest> updateRemittanceId() {
         // given
-        User user1 = createUser("user");
-        User user2 = createUser("exception");
-        userRepository.saveAll(List.of(user1, user2));
+        User user1 = createAndSaveUser("user");
+        User exUser = createAndSaveUser("exception");
 
         return List.of(
                 DynamicTest.dynamicTest("사용자는 송금ID 변경할 수 있다.", () -> {
@@ -255,13 +250,14 @@ class UserServiceTest {
                 })
         );
     }
-    private User createUser(String name) {
-        User test = User.builder()
+    private User createAndSaveUser(String name) {
+        User user = User.builder()
                 .email(name+"@test.com")
                 .checkId(name+"Id")
                 .name(name)
                 .remittanceId(name+"PayId")
                 .build();
-        return test;
+
+        return userRepository.save(user);
     }
 }
