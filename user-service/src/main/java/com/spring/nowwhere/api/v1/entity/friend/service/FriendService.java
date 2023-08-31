@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class FriendService {
     private final int SENDER_INDEX = 0;
     private final int RECEIVER_INDEX = 1;
@@ -25,7 +25,6 @@ public class FriendService {
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
 
-    @Transactional
     public void createFriendRequest (String senderId, String receiverId){ //친구 요청을 보내는 메서드
 
         List<User> senderAndReceiver = checkSenderAndReceiver(senderId, receiverId);
@@ -64,9 +63,7 @@ public class FriendService {
         return friend;
     }
 
-
     //친구 요청을 수락하는 메서드
-    @Transactional
     public void acceptFriendRequest (String receiverId){
         User receiver = checkUser(receiverId);
 
@@ -76,7 +73,6 @@ public class FriendService {
         insertReceiverInverseRecord(findFriend.getSender(), receiver);
     }
     //친구 요청을 거절하는 메서드
-    @Transactional
     public void rejectFriendRequest (String receiverId){
         User receiver = checkUser(receiverId);
 
@@ -103,12 +99,11 @@ public class FriendService {
 
         return friendRepository.save(receiverFriend);
     }
-    @Transactional
     public void cancelFriendRequest (String senderId){
         User sender = checkUser(senderId);
 
         //동적 sql로 처리해도 될듯..?
-        Friend findFriend = checkReceiverPendingStatus(sender);
+        Friend findFriend = checkSenderPendingStatus(sender);
         findFriend.updateFriendStatus(FriendStatus.CANCELED_REQUEST);
         //나중에 추천친구 로직에 확률 계산하기 위한 로직 추가하기
     }
