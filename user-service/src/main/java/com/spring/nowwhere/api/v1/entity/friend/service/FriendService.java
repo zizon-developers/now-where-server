@@ -64,8 +64,7 @@ public class FriendService {
         return friend;
     }
 
-    //친구 요청을 수락하는 메서드
-    public void acceptFriendRequest (String senderId, String receiverId){
+    public void updateFriendRequestToAccept(String senderId, String receiverId){
         List<User> senderAndReceiver = checkSenderAndReceiver(senderId, receiverId);
         User sender = senderAndReceiver.get(SENDER_INDEX);
         User receiver = senderAndReceiver.get(RECEIVER_INDEX);
@@ -91,8 +90,7 @@ public class FriendService {
         return friendRepository.save(receiverFriend);
     }
 
-    //친구 요청을 거절하는 메서드
-    public void rejectFriendRequest (String senderId, String receiverId){
+    public void updateFriendRequestToReject(String senderId, String receiverId){
         List<User> senderAndReceiver = checkSenderAndReceiver(senderId, receiverId);
         User sender = senderAndReceiver.get(SENDER_INDEX);
         User receiver = senderAndReceiver.get(RECEIVER_INDEX);
@@ -102,7 +100,7 @@ public class FriendService {
         //나중에 추천친구 로직에 확률 계산하기 위한 로직 추가하기
     }
 
-    public void cancelFriendRequest (String senderId, String receiverId){
+    public void updateFriendRequestToCancel(String senderId, String receiverId){
         List<User> senderAndReceiver = checkSenderAndReceiver(senderId, receiverId);
         User sender = senderAndReceiver.get(SENDER_INDEX);
         User receiver = senderAndReceiver.get(RECEIVER_INDEX);

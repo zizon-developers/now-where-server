@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
-@RestControllerAdvice(basePackages = "com.spring.nowwhere.api.v1.entity.user.controller")
+@RestControllerAdvice(basePackages = "com.spring.nowwhere.api.v1.entity.bet.controller")
 @RequiredArgsConstructor
 public class BetExceptionManager {
 

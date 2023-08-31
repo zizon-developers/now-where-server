@@ -117,13 +117,13 @@ class FriendServiceTest {
 
     @Test
     @DisplayName("사용자는 친구 요청을 수락 수 있다.")
-    public void acceptFriendRequest() {
+    public void updateFriendRequestToAccept() {
         // given
         User sender = createAndSaveUser("sender");
         User receiver = createAndSaveUser("receiver");
         friendService.createFriendRequest(sender.getCheckId(), receiver.getCheckId());
         // when
-        friendService.acceptFriendRequest(sender.getCheckId(), receiver.getCheckId());
+        friendService.updateFriendRequestToAccept(sender.getCheckId(), receiver.getCheckId());
         // then
         Friend friend = friendRepository.areFriends(sender, receiver).get();
         assertAll(
@@ -135,7 +135,7 @@ class FriendServiceTest {
 
     @DisplayName("친구 요청 상태가 대기 상태가 아닐경우 친구 요청을 수락할 때 예외가 발생한다.")
     @TestFactory
-    Collection<DynamicTest> acceptFriendRequest_EX() {
+    Collection<DynamicTest> updateFriendRequestToAccept_EX() {
         return List.of(
                 DynamicTest.dynamicTest("요청 상태가 COMPLETED인 경우 예외가 발생한다.", () -> {
                     // given
@@ -144,7 +144,7 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.COMPLETED);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.acceptFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                    assertThatThrownBy(() -> friendService.updateFriendRequestToAccept(sender.getCheckId(), receiver.getCheckId()))
                             .isInstanceOf(FriendNotFoundException.class)
                             .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 }),
@@ -155,7 +155,7 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.CANCELED_REQUEST);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.acceptFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                    assertThatThrownBy(() -> friendService.updateFriendRequestToAccept(sender.getCheckId(), receiver.getCheckId()))
                             .isInstanceOf(FriendNotFoundException.class)
                             .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 }),
@@ -166,7 +166,7 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.DENIED_REQUEST);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.acceptFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                    assertThatThrownBy(() -> friendService.updateFriendRequestToAccept(sender.getCheckId(), receiver.getCheckId()))
                             .isInstanceOf(FriendNotFoundException.class)
                             .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 })
@@ -175,13 +175,13 @@ class FriendServiceTest {
 
     @Test
     @DisplayName("사용자는 친구 요청을 거절할 수 있다.")
-    public void rejectFriendRequest() {
+    public void updateFriendRequestToReject() {
         // given
         User sender = createAndSaveUser("sender");
         User receiver = createAndSaveUser("receiver");
         friendService.createFriendRequest(sender.getCheckId(), receiver.getCheckId());
         // when
-        friendService.rejectFriendRequest(sender.getCheckId(), receiver.getCheckId());
+        friendService.updateFriendRequestToReject(sender.getCheckId(), receiver.getCheckId());
         // then
         Friend friend = friendRepository.areFriends(sender, receiver).get();
         assertAll(
@@ -193,7 +193,7 @@ class FriendServiceTest {
 
     @DisplayName("친구 요청 상태가 대기 상태가 아닐경우 친구 요청을 거절할 때 예외가 발생한다.")
     @TestFactory
-    Collection<DynamicTest> rejectFriendRequest_EX() {
+    Collection<DynamicTest> updateFriendRequestToReject_EX() {
         return List.of(
                 DynamicTest.dynamicTest("요청 상태가 COMPLETED인 경우 예외가 발생한다.", () -> {
                     // given
@@ -202,7 +202,7 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.COMPLETED);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.rejectFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                    assertThatThrownBy(() -> friendService.updateFriendRequestToReject(sender.getCheckId(), receiver.getCheckId()))
                             .isInstanceOf(FriendNotFoundException.class)
                             .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 }),
@@ -213,7 +213,7 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.CANCELED_REQUEST);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.rejectFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                    assertThatThrownBy(() -> friendService.updateFriendRequestToReject(sender.getCheckId(), receiver.getCheckId()))
                             .isInstanceOf(FriendNotFoundException.class)
                             .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 }),
@@ -224,7 +224,7 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.DENIED_REQUEST);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.rejectFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                    assertThatThrownBy(() -> friendService.updateFriendRequestToReject(sender.getCheckId(), receiver.getCheckId()))
                             .isInstanceOf(FriendNotFoundException.class)
                             .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 })
@@ -233,13 +233,13 @@ class FriendServiceTest {
 
     @Test
     @DisplayName("사용자는 보낸 친구요청을 취소할 수 있다.")
-    public void cancelFriendRequest() {
+    public void updateFriendRequestToCancel() {
         // given
         User sender = createAndSaveUser("sender");
         User receiver = createAndSaveUser("receiver");
         friendService.createFriendRequest(sender.getCheckId(), receiver.getCheckId());
         // when
-        friendService.cancelFriendRequest(sender.getCheckId(), receiver.getCheckId());
+        friendService.updateFriendRequestToCancel(sender.getCheckId(), receiver.getCheckId());
         // then
         Friend friend = friendRepository.areFriends(sender, receiver).get();
         assertAll(
@@ -251,7 +251,7 @@ class FriendServiceTest {
 
     @DisplayName("친구 요청 상태가 대기 상태가 아닐경우 친구 요청을 취소할 때 예외가 발생한다.")
     @TestFactory
-    Collection<DynamicTest> cancelFriendRequest_EX() {
+    Collection<DynamicTest> updateFriendRequestToCancel_EX() {
         return List.of(
                 DynamicTest.dynamicTest("요청 상태가 COMPLETED인 경우 예외가 발생한다.", () -> {
                     // given
@@ -260,7 +260,7 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.COMPLETED);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.cancelFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                    assertThatThrownBy(() -> friendService.updateFriendRequestToCancel(sender.getCheckId(), receiver.getCheckId()))
                             .isInstanceOf(FriendNotFoundException.class)
                             .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 }),
@@ -271,7 +271,7 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.CANCELED_REQUEST);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.cancelFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                    assertThatThrownBy(() -> friendService.updateFriendRequestToCancel(sender.getCheckId(), receiver.getCheckId()))
                             .isInstanceOf(FriendNotFoundException.class)
                             .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 }),
@@ -282,7 +282,7 @@ class FriendServiceTest {
                     createAndSaveFriend(sender, receiver, FriendStatus.DENIED_REQUEST);
 
                     //when //then
-                    assertThatThrownBy(() -> friendService.cancelFriendRequest(sender.getCheckId(), receiver.getCheckId()))
+                    assertThatThrownBy(() -> friendService.updateFriendRequestToCancel(sender.getCheckId(), receiver.getCheckId()))
                             .isInstanceOf(FriendNotFoundException.class)
                             .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 })

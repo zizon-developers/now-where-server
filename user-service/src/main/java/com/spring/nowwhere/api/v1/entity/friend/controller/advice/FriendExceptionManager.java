@@ -2,6 +2,7 @@ package com.spring.nowwhere.api.v1.entity.friend.controller.advice;
 
 import com.spring.nowwhere.api.v1.entity.bet.exception.TimeValidationException;
 import com.spring.nowwhere.api.v1.entity.friend.exception.AlreadyFriendsException;
+import com.spring.nowwhere.api.v1.entity.friend.exception.FriendNotFoundException;
 import com.spring.nowwhere.api.v1.entity.friend.exception.FriendRequestPendingException;
 import com.spring.nowwhere.api.v1.response.ResponseApi;
 import com.spring.nowwhere.api.v1.security.exception.LogoutTokenException;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
-@RestControllerAdvice(basePackages = "com.spring.nowwhere.api.v1.entity.user.controller")
+@RestControllerAdvice(basePackages = "com.spring.nowwhere.api.v1.entity.friend.controller")
 @RequiredArgsConstructor
 public class FriendExceptionManager {
 
@@ -32,6 +33,12 @@ public class FriendExceptionManager {
     public ResponseEntity alreadyFriendsExceptionHandler (AlreadyFriendsException e){
         log.error("[exceptionHandler] ex", e);
         return responseApi.fail("ALREADY-EX", e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(FriendNotFoundException.class)
+    public ResponseEntity FriendNotFoundExceptionHandler (FriendNotFoundException e){
+        log.error("[exceptionHandler] ex", e);
+        return responseApi.fail("FRIEND-NOT-EX", e.getMessage(), HttpStatus.BAD_REQUEST);
     }
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(FriendRequestPendingException.class)

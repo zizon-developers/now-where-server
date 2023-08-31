@@ -32,7 +32,7 @@ import java.util.Optional;
 @Tag(name = "OAuth", description = "카카오 API")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("api/v1/auth")
+@RequestMapping("/api/v1/auth")
 public class OAuthKakaoController {
 
     private final OAuthKakaoService oAuthKakaoService;
