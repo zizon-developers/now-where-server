@@ -17,7 +17,7 @@ public class FriendController {
     private final FriendService friendService;
     private final ResponseApi responseApi;
 
-    @PostMapping("/{userId}/friend_request")
+    @PostMapping("/{userId}/friend-request")
     @Operation(security = {@SecurityRequirement(name = "bearer-key")},
             summary = "친구 요청하기", description = "사용자가 특정 사용자에게 친구 추가를 요청한다.")
     public ResponseEntity sendFriendRequest(@PathVariable("userId") String userId,
@@ -27,7 +27,7 @@ public class FriendController {
         return responseApi.success("친구요청 성공");
     }
 
-    @PutMapping("/{userId}/friend_request/accept")
+    @PutMapping("/{userId}/friend-request/accept")
     @Operation(security = {@SecurityRequirement(name = "bearer-key")},
             summary = "친구 요청 수락하기", description = "특정 사용자의 친구 추가를 요청을 수락한다.")
     public ResponseEntity acceptFriendRequest(@PathVariable("userId") String userId,
@@ -36,7 +36,7 @@ public class FriendController {
         friendService.updateFriendRequestToAccept(userId, requestFriend.getReceiverId());
         return responseApi.success("친구요청 수락 성공");
     }
-    @PutMapping("/{userId}/friend_request/reject")
+    @PutMapping("/{userId}/friend-request/reject")
     @Operation(security = {@SecurityRequirement(name = "bearer-key")},
             summary = "친구 요청 거절하기", description = "특정 사용자의 친구 추가를 요청을 거절한다.")
     public ResponseEntity rejectFriendRequest(@PathVariable("userId") String userId,
@@ -45,7 +45,7 @@ public class FriendController {
         friendService.updateFriendRequestToReject(userId, requestFriend.getReceiverId());
         return responseApi.success("친구요청 거절 성공");
     }
-    @PutMapping("/{userId}/friend_request/cancel")
+    @PutMapping("/{userId}/friend-request/cancel")
     @Operation(security = {@SecurityRequirement(name = "bearer-key")},
             summary = "친구 요청 취소하기", description = "특정 사용자의 친구 추가 요청을 취소한다.")
     public ResponseEntity cancelFriendRequest(@PathVariable("userId") String userId,
