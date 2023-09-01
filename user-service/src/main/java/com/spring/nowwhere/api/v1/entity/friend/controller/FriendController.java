@@ -54,4 +54,13 @@ public class FriendController {
         friendService.updateFriendRequestToCancel(userId, requestFriend.getReceiverId());
         return responseApi.success("친구요청 취소 성공");
     }
+    @DeleteMapping("/{userId}/friends")
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")},
+            summary = "친구 삭제하기", description = "특정 사용자의 친구를 삭제한다.")
+    public ResponseEntity removeFriend(@PathVariable("userId") String userId,
+                                            @RequestBody RequestFriend requestFriend) {
+
+        friendService.removeFriend(userId, requestFriend.getReceiverId());
+        return responseApi.success("친구 삭제 성공");
+    }
 }

@@ -45,7 +45,7 @@ class FriendServiceTest {
                     //when
                     friendService.createFriendRequest(sender.getCheckId(), receiver.getCheckId());
                     //then
-                    Friend friend = friendRepository.areFriends(sender, receiver).get();
+                    Friend friend = friendRepository.findBySenderAndReceiver(sender, receiver).get();
                     assertAll(
                             //역방향 레코드 조회 주의하기
                             () -> assertEquals(friend.getSender(), sender),
@@ -59,7 +59,7 @@ class FriendServiceTest {
                     //when
                     friendService.createFriendRequest(sender.getCheckId(), receiver.getCheckId());
                     //then
-                    Friend friend = friendRepository.areFriends(sender, receiver).get();
+                    Friend friend = friendRepository.findBySenderAndReceiver(sender, receiver).get();
                     assertAll(
                             //역방향 레코드 조회 주의하기
                             () -> assertEquals(friend.getSender(), sender),
@@ -73,7 +73,7 @@ class FriendServiceTest {
                     //when
                     friendService.createFriendRequest(sender.getCheckId(), receiver.getCheckId());
                     //then
-                    Friend friend2 = friendRepository.areFriends(sender, receiver).get();
+                    Friend friend2 = friendRepository.findBySenderAndReceiver(sender, receiver).get();
                     assertAll(
                             //역방향 레코드 조회 주의하기
                             () -> assertEquals(friend2.getSender(), sender),
@@ -125,7 +125,7 @@ class FriendServiceTest {
         // when
         friendService.updateFriendRequestToAccept(sender.getCheckId(), receiver.getCheckId());
         // then
-        Friend friend = friendRepository.areFriends(sender, receiver).get();
+        Friend friend = friendRepository.findBySenderAndReceiver(sender, receiver).get();
         assertAll(
                 () -> assertEquals(friend.getSender(), sender),
                 () -> assertEquals(friend.getReceiver(), receiver),
@@ -183,7 +183,7 @@ class FriendServiceTest {
         // when
         friendService.updateFriendRequestToReject(sender.getCheckId(), receiver.getCheckId());
         // then
-        Friend friend = friendRepository.areFriends(sender, receiver).get();
+        Friend friend = friendRepository.findBySenderAndReceiver(sender, receiver).get();
         assertAll(
                 () -> assertEquals(friend.getSender(), sender),
                 () -> assertEquals(friend.getReceiver(), receiver),
@@ -241,7 +241,7 @@ class FriendServiceTest {
         // when
         friendService.updateFriendRequestToCancel(sender.getCheckId(), receiver.getCheckId());
         // then
-        Friend friend = friendRepository.areFriends(sender, receiver).get();
+        Friend friend = friendRepository.findBySenderAndReceiver(sender, receiver).get();
         assertAll(
                 () -> assertEquals(friend.getSender(), sender),
                 () -> assertEquals(friend.getReceiver(), receiver),
@@ -287,6 +287,18 @@ class FriendServiceTest {
                             .hasMessage("친구 요청 정보가 존재하지 않습니다.");
                 })
         );
+    }
+//    @Test
+    @DisplayName("사용자는 특정 친구를 삭제할 수 있다.")
+    public void removeFriend() {
+        // given
+        User sender = createAndSaveUser("sender");
+        User receiver = createAndSaveUser("receiver");
+        createAndSaveFriend(sender, receiver, FriendStatus.COMPLETED);
+        createAndSaveFriend(receiver, sender, FriendStatus.COMPLETED);
+        // when
+        friendService.removeFriend(sender.getCheckId(),receiver.getCheckId());
+        // then
     }
 
     private User createAndSaveUser(String name) {

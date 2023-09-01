@@ -32,7 +32,7 @@ public class FriendService {
         User sender = senderAndReceiver.get(SENDER_INDEX);
         User receiver = senderAndReceiver.get(RECEIVER_INDEX);
 
-        Optional<Friend> findFriend = friendRepository.areFriends(sender, receiver);
+        Optional<Friend> findFriend = friendRepository.findBySenderAndReceiver(sender, receiver);
         if (findFriend.isPresent()){
             FriendStatus friendStatus = findFriend.get().getFriendStatus();
             if (FriendStatus.COMPLETED.equals(friendStatus)){
@@ -76,7 +76,7 @@ public class FriendService {
     }
 
     private Friend checkFriendRequest(User sender, User receiver) {
-        return friendRepository.areFriends(sender, receiver)
+        return friendRepository.findBySenderAndReceiver(sender, receiver)
                 .filter(friend -> FriendStatus.PENDING.equals(friend.getFriendStatus()))
                 .orElseThrow(() -> new FriendNotFoundException("친구 요청 정보가 존재하지 않습니다."));
     }
@@ -108,5 +108,20 @@ public class FriendService {
         Friend findFriend = checkFriendRequest(sender, receiver);
         findFriend.updateFriendStatus(FriendStatus.CANCELED_REQUEST);
         //나중에 추천친구 로직에 확률 계산하기 위한 로직 추가하기
+    }
+    public void removeFriend(String senderId, String receiverId){
+        List<User> senderAndReceiver = checkSenderAndReceiver(senderId, receiverId);
+        User sender = senderAndReceiver.get(SENDER_INDEX);
+        User receiver = senderAndReceiver.get(RECEIVER_INDEX);
+
+        List<Friend> friends = validateFriendsWithReverse(sender, receiver);
+        friendRepository.deleteAll(friends);
+    }
+    private List<Friend> validateFriendsWithReverse(User sender, User receiver) {
+        List<Friend> findFriendWithReverse = friendRepository.findByFriendWithReverse(sender, receiver);
+        if (findFriendWithReverse.size() != 2) {
+            throw new FriendNotFoundException("친구 관계가 올바르지 않습니다.");
+        }
+        return findFriendWithReverse;
     }
 }

@@ -33,10 +33,10 @@ class FriendTest {
                 .build();
         friendRepository.save(friend);
         // when
-        Friend findFriend = friendRepository.areFriends(sender, receiver).get();
+        Friend findFriend = friendRepository.findBySenderAndReceiver(sender, receiver).get();
         findFriend.updateFriendStatus(FriendStatus.DENIED_REQUEST);
         // then
-        Friend updateFriend = friendRepository.areFriends(sender, receiver).get();
+        Friend updateFriend = friendRepository.findBySenderAndReceiver(sender, receiver).get();
         Assertions.assertAll(
                 ()->assertEquals(updateFriend.getFriendStatus(),FriendStatus.DENIED_REQUEST),
                 ()->assertEquals(updateFriend.getSender(),findFriend.getSender()),
