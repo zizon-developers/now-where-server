@@ -22,17 +22,17 @@ public class FriendQueryService {
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
 
-    private Page<FriendDto> getFriendRequests(String receiverId, Pageable pageable){
-        User receiver = validateUserOrThrowException(receiverId);
+    public Page<FriendDto> findFriendRequests(String userId, Pageable pageable){
+        User user = validateUserOrThrowException(userId);
 
-        return  friendRepository.findByReceiverAndFriendStatus(receiver, FriendStatus.PENDING, pageable)
+        return  friendRepository.findBySenderAndFriendStatus(user, FriendStatus.PENDING, pageable)
                                 .map(FriendDto::of);
     }
 
-    private Page<FriendDto> getFriendList(String senderId, Pageable pageable){
-        User sender = validateUserOrThrowException(senderId);
+    public Page<FriendDto> findFriendList(String userId, Pageable pageable){
+        User user = validateUserOrThrowException(userId);
 
-        return  friendRepository.findByReceiverAndFriendStatus(sender, FriendStatus.COMPLETED, pageable)
+        return  friendRepository.findBySenderAndFriendStatus(user, FriendStatus.COMPLETED, pageable)
                                 .map(FriendDto::of);
     }
 

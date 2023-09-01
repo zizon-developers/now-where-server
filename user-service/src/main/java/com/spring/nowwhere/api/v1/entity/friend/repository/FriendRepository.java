@@ -20,7 +20,6 @@ public interface FriendRepository extends JpaRepository<Friend, FriendID> {
             "or (f.sender = :receiver and f.receiver = :sender)")
     List<Friend> findByFriendWithReverse(@Param("sender") User sender,
                                          @Param("receiver") User receiver);
-    Page<Friend> findByReceiverAndFriendStatus(User receiver, FriendStatus friendStatus, Pageable pageable);
     Page<Friend> findBySenderAndFriendStatus(User sender, FriendStatus friendStatus, Pageable pageable);
 
 //    getSentFriendRequests(userId): 특정 사용자가 보낸 친구 요청을 조회하는 메서드

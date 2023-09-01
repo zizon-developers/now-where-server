@@ -1,9 +1,9 @@
-package com.spring.nowwhere.api.v1.entity.user.repository;
+package com.spring.nowwhere.api.v1.entity.friend.repository;
 
-import com.spring.nowwhere.api.v1.entity.friend.repository.FriendRepository;
 import com.spring.nowwhere.api.v1.entity.friend.FriendStatus;
 import com.spring.nowwhere.api.v1.entity.friend.Friend;
 import com.spring.nowwhere.api.v1.entity.user.User;
+import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -51,64 +51,6 @@ class FriendRepositoryTest {
                 () -> assertEquals(findFriend.getFriendStatus(), FriendStatus.PENDING),
                 () -> assertEquals(findFriend.getReceiver(), receiver),
                 () -> assertEquals(findFriend.getSender(), sender)
-        );
-    }
-
-     @DisplayName("친구 요청을 받은 사용자가 특정 상태에서 친구 요청 받은 정보를 조회할 수 있다.")
-     @TestFactory
-     Collection<DynamicTest> findByReceiverAndFriendStatus () {
-        // given
-         User sender1 = createAndSaveUser("sender1");
-         User sender2 = createAndSaveUser("sender2");
-         User sender3 = createAndSaveUser("sender3");
-         User sender4 = createAndSaveUser("sender4");
-         User receiver = createAndSaveUser("receiver");
-
-         createAndSaveFriend(sender1, receiver, FriendStatus.PENDING);
-         createAndSaveFriend(sender2, receiver, FriendStatus.DENIED_REQUEST);
-         createAndSaveFriend(sender3, receiver, FriendStatus.CANCELED_REQUEST);
-         createAndSaveFriend(sender4, receiver, FriendStatus.COMPLETED);
-         PageRequest pageRequest = PageRequest.of(0, 1);
-        return List.of(
-                DynamicTest.dynamicTest("친구 요청이 PENDING 상태인 경우를 조회할 수 있다.", () -> {
-                    //when
-                    Page<Friend> friends = friendRepository.findByReceiverAndFriendStatus(receiver, FriendStatus.PENDING,pageRequest);
-                    //then
-                    assertThat(friends).hasSize(1)
-                            .extracting("receiver","sender","friendStatus")
-                            .containsExactly(
-                                    tuple(receiver,sender1,FriendStatus.PENDING)
-                            );
-                }),
-                DynamicTest.dynamicTest("친구 요청이 DENIED_REQUEST 상태인 경우를 조회할 수 있다.", () -> {
-                    //when
-                    Page<Friend> friends = friendRepository.findByReceiverAndFriendStatus(receiver, FriendStatus.DENIED_REQUEST,pageRequest);
-                    //then
-                    assertThat(friends).hasSize(1)
-                            .extracting("receiver","sender","friendStatus")
-                            .containsExactly(
-                                    tuple(receiver,sender2,FriendStatus.DENIED_REQUEST)
-                            );
-                }),
-                DynamicTest.dynamicTest("친구 요청이 CANCELED_REQUEST 상태인 경우를 조회할 수 있다.", () -> {
-                    //when
-                    Page<Friend> friends = friendRepository.findByReceiverAndFriendStatus(receiver, FriendStatus.CANCELED_REQUEST,pageRequest);
-                    //then
-                    assertThat(friends).hasSize(1)
-                            .extracting("receiver","sender","friendStatus")
-                            .containsExactly(
-                                    tuple(receiver,sender3,FriendStatus.CANCELED_REQUEST)
-                            );
-                }),
-                DynamicTest.dynamicTest("친구 요청이 COMPLETED 상태인 경우를 조회할 수 있다.", () -> {
-                    Page<Friend> friends = friendRepository.findByReceiverAndFriendStatus(receiver, FriendStatus.COMPLETED, pageRequest);
-                    //then
-                    assertThat(friends).hasSize(1)
-                            .extracting("receiver","sender","friendStatus")
-                            .containsExactly(
-                                    tuple(receiver,sender4,FriendStatus.COMPLETED)
-                            );
-                })
         );
     }
     @DisplayName("친구 요청을 보낸 사용자가 특정 상태에서 친구 요청 받은 정보를 조회할 수 있다.")

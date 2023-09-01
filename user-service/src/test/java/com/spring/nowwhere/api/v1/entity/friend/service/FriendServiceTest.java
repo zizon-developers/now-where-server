@@ -1,4 +1,4 @@
-package com.spring.nowwhere.api.v1.entity.user.service;
+package com.spring.nowwhere.api.v1.entity.friend.service;
 
 import com.spring.nowwhere.api.v1.entity.friend.*;
 import com.spring.nowwhere.api.v1.entity.friend.exception.AlreadyFriendsException;
