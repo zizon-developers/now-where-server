@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -288,7 +289,7 @@ class FriendServiceTest {
                 })
         );
     }
-//    @Test
+    @Test
     @DisplayName("사용자는 특정 친구를 삭제할 수 있다.")
     public void removeFriend() {
         // given
@@ -299,6 +300,10 @@ class FriendServiceTest {
         // when
         friendService.removeFriend(sender.getCheckId(),receiver.getCheckId());
         // then
+        Optional<Friend> senderAndReceiver = friendRepository.findBySenderAndReceiver(sender, receiver);
+        Optional<Friend> senderAndReceiverWithReverse = friendRepository.findBySenderAndReceiver(receiver, sender);
+        assertThat(senderAndReceiver).isEmpty();
+        assertThat(senderAndReceiverWithReverse).isEmpty();
     }
 
     private User createAndSaveUser(String name) {
