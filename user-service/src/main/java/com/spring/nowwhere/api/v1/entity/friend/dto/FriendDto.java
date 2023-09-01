@@ -1,12 +1,12 @@
-package com.spring.nowwhere.api.v1.entity.friend;
+package com.spring.nowwhere.api.v1.entity.friend.dto;
 
+import com.spring.nowwhere.api.v1.entity.friend.Friend;
+import com.spring.nowwhere.api.v1.entity.friend.FriendStatus;
 import com.spring.nowwhere.api.v1.entity.user.User;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import lombok.Getter;
 
-import java.util.Objects;
-
-@Schema(description = "친구 요청 목록 조회를 위한 요청DTO")
+@Getter
 public class FriendDto {
     private User user;
     private User friend;

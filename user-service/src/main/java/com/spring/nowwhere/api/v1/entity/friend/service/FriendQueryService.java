@@ -1,6 +1,6 @@
 package com.spring.nowwhere.api.v1.entity.friend.service;
 
-import com.spring.nowwhere.api.v1.entity.friend.FriendDto;
+import com.spring.nowwhere.api.v1.entity.friend.dto.FriendDto;
 import com.spring.nowwhere.api.v1.entity.friend.FriendStatus;
 import com.spring.nowwhere.api.v1.entity.friend.repository.FriendRepository;
 import com.spring.nowwhere.api.v1.entity.user.User;
@@ -11,8 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

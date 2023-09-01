@@ -1,8 +1,7 @@
 package com.spring.nowwhere.api.v1.entity.friend.service;
 
-import com.spring.nowwhere.api.v1.entity.bet.BetStatus;
 import com.spring.nowwhere.api.v1.entity.friend.Friend;
-import com.spring.nowwhere.api.v1.entity.friend.FriendDto;
+import com.spring.nowwhere.api.v1.entity.friend.dto.FriendDto;
 import com.spring.nowwhere.api.v1.entity.friend.FriendStatus;
 import com.spring.nowwhere.api.v1.entity.friend.repository.FriendRepository;
 import com.spring.nowwhere.api.v1.entity.user.User;
@@ -19,7 +18,6 @@ import org.springframework.data.domain.PageRequest;
 import java.util.List;
 
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class FriendQueryServiceTest {
