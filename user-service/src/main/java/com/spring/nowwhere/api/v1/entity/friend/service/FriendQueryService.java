@@ -32,15 +32,11 @@ public class FriendQueryService {
                                 .map(FriendDto::of);
     }
 
-    public Page<UserDto> findFriendList(String userId, Pageable pageable){
+    public Page<FriendDto> findFriendList(String userId, Pageable pageable){
         User user = validateUserOrThrowException(userId);
-        List<UserDto> friends = user.getFriends().stream()
-                                    .map(UserDto::of)
-                                    .collect(Collectors.toList());
 
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), friends.size());
-        return new PageImpl<>(friends.subList(start, end), pageable, friends.size());
+        return friendRepository.findBySenderAndFriendStatus(user, FriendStatus.COMPLETED, pageable)
+                .map(FriendDto::of);
     }
 
     private User validateUserOrThrowException(String receiverId) {

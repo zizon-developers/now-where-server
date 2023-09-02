@@ -2,7 +2,6 @@ package com.spring.nowwhere.api.v1.entity.user.controller;
 
 import com.spring.nowwhere.api.v1.entity.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.entity.user.dto.UserResponse;
-import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.response.ResponseApi;
 import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
@@ -53,6 +52,7 @@ public class UserController {
                                                            @RequestParam("id") String payId){
         String token = getTokenByReqeust(request);
         String checkId = tokenProvider.getCheckIdFromAccessToken(token);
+
         UserDto findUser = userService.updateRemittanceId(checkId, payId);
         return responseApi.success(UserResponse.of(findUser), "송금ID 변경 성공", HttpStatus.OK);
     }

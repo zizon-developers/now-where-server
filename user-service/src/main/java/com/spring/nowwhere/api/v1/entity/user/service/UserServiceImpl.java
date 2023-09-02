@@ -46,14 +46,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getUserByAll() {
-        List<User> users = userRepository.findAll();
-        return users.stream()
-                .map(UserDto::of)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     @Transactional
     public TokenDto login(OAuthUserDto userDto) {
 

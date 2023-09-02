@@ -35,7 +35,7 @@ class FriendQueryServiceTest {
         userRepository.deleteAllInBatch();
     }
 
-//    @Test
+    @Test
     @DisplayName("친구 요청 목록을 조회할 수 있다.")
     public void findFriendRequests() {
         // given
@@ -75,23 +75,24 @@ class FriendQueryServiceTest {
         User receiver2 = createAndSaveUser("receiver2");
         User receiver3 = createAndSaveUser("receiver3");
 
+        createAndSaveFriend(sender, receiver1, FriendStatus.COMPLETED);
         createAndSaveFriend(sender, receiver2, FriendStatus.COMPLETED);
         createAndSaveFriend(sender, receiver3, FriendStatus.COMPLETED);
         int size = 2;
         // when
         int page = 0;
         PageRequest pageRequest = PageRequest.of(page, size);
-        Page<UserDto> friendRequests = friendQueryService.findFriendList(sender.getCheckId(), pageRequest);
+        Page<FriendDto> friendRequests = friendQueryService.findFriendList(sender.getCheckId(), pageRequest);
         // then
-        List<UserDto> findFriendDto = friendRequests.getContent();
+        List<FriendDto> findFriendDto = friendRequests.getContent();
         Assertions.assertThat(friendRequests.getTotalElements()).isEqualTo(3L);
         Assertions.assertThat(friendRequests.hasNext()).isTrue();
 
         Assertions.assertThat(findFriendDto).hasSize(size)
-                .extracting("email", "name", "checkId")
+                .extracting("user", "friend", "friendStatus")
                 .containsExactlyInAnyOrder(
-                        tuple(sender.getEmail(), receiver1.getName(), receiver1.getCheckId()),
-                        tuple(sender.getEmail(), receiver2.getName(), FriendStatus.COMPLETED)
+                        tuple(sender, receiver1, FriendStatus.COMPLETED),
+                        tuple(sender, receiver2, FriendStatus.COMPLETED)
                 );
     }
 

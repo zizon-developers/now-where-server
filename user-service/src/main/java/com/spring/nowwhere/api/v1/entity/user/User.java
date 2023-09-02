@@ -34,9 +34,6 @@ public class User extends BaseDate {
     private String remittanceId;
     private String password;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<User> friends = new ArrayList<>();
-
     @Enumerated(value = EnumType.STRING)
     @ElementCollection(fetch = FetchType.LAZY)
     private List<UserRole> roles = new ArrayList<>();
@@ -52,9 +49,6 @@ public class User extends BaseDate {
         this.remittanceId = remittanceId;
         this.password = password;
         this.roles = roles;
-    }
-    public void addFriend(User friend){
-        this.friends.add(friend);
     }
     public void updateName(String name){
         this.name = name;
