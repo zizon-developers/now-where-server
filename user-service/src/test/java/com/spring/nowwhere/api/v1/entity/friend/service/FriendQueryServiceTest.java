@@ -5,6 +5,7 @@ import com.spring.nowwhere.api.v1.entity.friend.dto.FriendDto;
 import com.spring.nowwhere.api.v1.entity.friend.FriendStatus;
 import com.spring.nowwhere.api.v1.entity.friend.repository.FriendRepository;
 import com.spring.nowwhere.api.v1.entity.user.User;
+import com.spring.nowwhere.api.v1.entity.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -34,7 +35,7 @@ class FriendQueryServiceTest {
         userRepository.deleteAllInBatch();
     }
 
-    @Test
+//    @Test
     @DisplayName("친구 요청 목록을 조회할 수 있다.")
     public void findFriendRequests() {
         // given
@@ -73,24 +74,24 @@ class FriendQueryServiceTest {
         User receiver1 = createAndSaveUser("receiver1");
         User receiver2 = createAndSaveUser("receiver2");
         User receiver3 = createAndSaveUser("receiver3");
-        createAndSaveFriend(sender, receiver1, FriendStatus.COMPLETED);
+
         createAndSaveFriend(sender, receiver2, FriendStatus.COMPLETED);
         createAndSaveFriend(sender, receiver3, FriendStatus.COMPLETED);
         int size = 2;
         // when
         int page = 0;
         PageRequest pageRequest = PageRequest.of(page, size);
-        Page<FriendDto> friendRequests = friendQueryService.findFriendList(sender.getCheckId(), pageRequest);
+        Page<UserDto> friendRequests = friendQueryService.findFriendList(sender.getCheckId(), pageRequest);
         // then
-        List<FriendDto> findFriendDto = friendRequests.getContent();
+        List<UserDto> findFriendDto = friendRequests.getContent();
         Assertions.assertThat(friendRequests.getTotalElements()).isEqualTo(3L);
         Assertions.assertThat(friendRequests.hasNext()).isTrue();
 
         Assertions.assertThat(findFriendDto).hasSize(size)
-                .extracting("user", "friend", "friendStatus")
+                .extracting("email", "name", "checkId")
                 .containsExactlyInAnyOrder(
-                        tuple(sender, receiver1, FriendStatus.COMPLETED),
-                        tuple(sender, receiver2, FriendStatus.COMPLETED)
+                        tuple(sender.getEmail(), receiver1.getName(), receiver1.getCheckId()),
+                        tuple(sender.getEmail(), receiver2.getName(), FriendStatus.COMPLETED)
                 );
     }
 

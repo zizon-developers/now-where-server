@@ -126,6 +126,14 @@ class FriendServiceTest {
         // when
         friendService.updateFriendRequestToAccept(sender.getCheckId(), receiver.getCheckId());
         // then
+        List<User> senderFriends = userRepository.findByEmail(sender.getEmail()).get().getFriends();
+        List<User> receiverFriends = userRepository.findByEmail(receiver.getEmail()).get().getFriends();
+
+        assertThat(senderFriends.get(0)).isEqualTo(receiver);
+        assertThat(senderFriends).hasSize(1);
+        assertThat(receiverFriends.get(0)).isEqualTo(sender);
+        assertThat(receiverFriends).hasSize(1);
+
         Friend friend = friendRepository.findBySenderAndReceiver(sender, receiver).get();
         assertAll(
                 () -> assertEquals(friend.getSender(), sender),

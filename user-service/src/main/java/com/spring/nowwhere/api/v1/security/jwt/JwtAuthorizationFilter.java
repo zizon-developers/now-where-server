@@ -5,8 +5,6 @@ import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
 import com.spring.nowwhere.api.v1.security.ErrorResponse;
 import com.spring.nowwhere.api.v1.security.PrincipalDetails;
-import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
-import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
 import com.spring.nowwhere.api.v1.redis.logout.LogoutAccessTokenRedisRepository;
 import com.spring.nowwhere.api.v1.security.exception.LogoutTokenException;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -67,12 +65,11 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 email = tokenProvider.getUserEmailFromAccessToken(token);
             }
 
-
             if (logoutAccessTokenRedisRepository.findByEmail(email).isPresent()){
                 throw new LogoutTokenException("Logout된 토큰 입니다.");
             }
 
-            User user = userRepository.findByEmail(email)
+            User user = userRepository.getUserByEmailWithRole(email)
                     .orElseThrow(() -> new UsernameNotFoundException("token에 해당하는 유저가 없습니다."));
 
             PrincipalDetails principalDetails = new PrincipalDetails(user);

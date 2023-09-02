@@ -4,13 +4,18 @@ import com.spring.nowwhere.api.v1.entity.friend.dto.FriendDto;
 import com.spring.nowwhere.api.v1.entity.friend.FriendStatus;
 import com.spring.nowwhere.api.v1.entity.friend.repository.FriendRepository;
 import com.spring.nowwhere.api.v1.entity.user.User;
+import com.spring.nowwhere.api.v1.entity.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,11 +32,15 @@ public class FriendQueryService {
                                 .map(FriendDto::of);
     }
 
-    public Page<FriendDto> findFriendList(String userId, Pageable pageable){
+    public Page<UserDto> findFriendList(String userId, Pageable pageable){
         User user = validateUserOrThrowException(userId);
+        List<UserDto> friends = user.getFriends().stream()
+                                    .map(UserDto::of)
+                                    .collect(Collectors.toList());
 
-        return  friendRepository.findBySenderAndFriendStatus(user, FriendStatus.COMPLETED, pageable)
-                                .map(FriendDto::of);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), friends.size());
+        return new PageImpl<>(friends.subList(start, end), pageable, friends.size());
     }
 
     private User validateUserOrThrowException(String receiverId) {

@@ -46,7 +46,7 @@ public class FriendQueryController {
         String token = getTokenByReqeust(request);
         String checkId = tokenProvider.getCheckIdFromAccessToken(token);
         Page<ResponseFriend> friendList = friendQueryService.findFriendList(checkId, pageable)
-                .map(ResponseFriend::new);
+                .map(ResponseFriend::of);
         return responseApi.success(friendList);
     }
     private static String getTokenByReqeust(HttpServletRequest request) {

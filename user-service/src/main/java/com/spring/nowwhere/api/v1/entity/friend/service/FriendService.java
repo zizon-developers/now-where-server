@@ -73,8 +73,8 @@ public class FriendService {
         findFriend.updateFriendStatus(FriendStatus.COMPLETED);
 
         insertReceiverInverseRecord(sender, receiver);
+        friendSave(sender,receiver);
     }
-
     private Friend checkFriendRequest(User sender, User receiver) {
         return friendRepository.findBySenderAndReceiver(sender, receiver)
                 .filter(friend -> FriendStatus.PENDING.equals(friend.getFriendStatus()))
@@ -86,8 +86,11 @@ public class FriendService {
                 .receiver(sender)
                 .friendStatus(FriendStatus.PENDING)
                 .build();
-
         return friendRepository.save(receiverFriend);
+    }
+    private void friendSave(User sender, User receiver) {
+        sender.addFriend(receiver);
+        receiver.addFriend(sender);
     }
 
     public void updateFriendRequestToReject(String senderId, String receiverId){
