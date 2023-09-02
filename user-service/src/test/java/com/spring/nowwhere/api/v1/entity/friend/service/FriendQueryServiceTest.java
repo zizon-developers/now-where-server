@@ -49,7 +49,9 @@ class FriendQueryServiceTest {
         // when
         int page = 0;
         PageRequest pageRequest = PageRequest.of(page, size);
+        System.out.println("=============");
         Page<FriendDto> friendRequests = friendQueryService.findFriendRequests(sender.getCheckId(), pageRequest);
+        System.out.println("=============");
         // then
         List<FriendDto> findFriendDto = friendRequests.getContent();
         Assertions.assertThat(friendRequests.getTotalElements()).isEqualTo(3L);

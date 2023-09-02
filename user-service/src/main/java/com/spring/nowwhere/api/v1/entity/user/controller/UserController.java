@@ -27,24 +27,6 @@ public class UserController {
     private final ResponseApi responseApi;
     private final TokenProvider tokenProvider;
 
-    private static String getTokenByReqeust(HttpServletRequest request) {
-        return request.getHeader(JwtProperties.AUTHORIZATION)
-                .replace(JwtProperties.TOKEN_PREFIX, "");
-    }
-
-    @GetMapping("")
-    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
-            summary = "all users", description = "모든 사용자를 조회할 수 있다.")
-    public ResponseEntity<List<UserResponse>> getUsers(){
-        List<UserDto> userList = userService.getUserByAll();
-
-        List<UserResponse> result = userList.stream()
-                                            .map(UserResponse::of)
-                                            .collect(Collectors.toList());
-
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
-
     //내기 횟수, 내기로 번 돈추가하기
     @GetMapping("/me")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
@@ -55,21 +37,30 @@ public class UserController {
         UserDto findUser = userService.getUserBettingInfo(email);
         return ResponseEntity.ok(UserResponse.of(findUser));
     }
-    @PostMapping("/{userId}/name")
+    @PostMapping("/name")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
-            summary = "update name", description = "특정 사용자를 이름을 변경할 수 있다.")
-    public ResponseEntity<UserResponse> updateName(@PathVariable("userId") String userId,
+            summary = "update name", description = "특정 사용자의 이름을 변경할 수 있다.")
+    public ResponseEntity<UserResponse> updateName(HttpServletRequest request,
                                                    @RequestParam("name") String name){
-        UserDto findUser = userService.updateName(userId, name);
+        String token = getTokenByReqeust(request);
+        String checkId = tokenProvider.getCheckIdFromAccessToken(token);
+
+        UserDto findUser = userService.updateName(checkId, name);
         return responseApi.success(UserResponse.of(findUser), "닉네임 변경 성공", HttpStatus.OK);
     }
 
-    @PostMapping("/{userId}/pay-id")
+    @PostMapping("/pay-id")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
-            summary = "update remittanceId", description = "특정 사용자의 송금ID를 변경할 수 있다.")
-    public ResponseEntity<UserResponse> updateRemittanceId(@PathVariable("userId") String userId,
-                                                   @RequestParam("payId") String payId){
-        UserDto findUser = userService.updateRemittanceId(userId, payId);
+            summary = "update remittanceId", description = "특정 사용자의 송금ID를 갱신할 수 있다.")
+    public ResponseEntity<UserResponse> updateRemittanceId(HttpServletRequest request,
+                                                           @RequestParam("payId") String payId){
+        String token = getTokenByReqeust(request);
+        String checkId = tokenProvider.getCheckIdFromAccessToken(token);
+        UserDto findUser = userService.updateRemittanceId(checkId, payId);
         return responseApi.success(UserResponse.of(findUser), "송금ID 변경 성공", HttpStatus.OK);
+    }
+    private static String getTokenByReqeust(HttpServletRequest request) {
+        return request.getHeader(JwtProperties.AUTHORIZATION)
+                .replace(JwtProperties.TOKEN_PREFIX, "");
     }
 }

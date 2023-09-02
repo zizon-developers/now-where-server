@@ -14,7 +14,6 @@ public class ResponseApi<T> {
     @Getter
     @Builder
     private static class SuccessBody<T> {
-
         private int state;
         private T data;
         private String message;

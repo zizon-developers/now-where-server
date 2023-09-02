@@ -27,7 +27,7 @@ public class TokenProvider {
 
     private String setJwt(User user, Date expireDate, String secret) {
         JwtBuilder builder = Jwts.builder()
-                .setSubject(user.getEmail())
+                .setSubject(user.getName())
                 .setHeader(createHeader())
                 .setClaims(createClaims(user))
                 .setExpiration(expireDate)
@@ -50,6 +50,7 @@ public class TokenProvider {
         Map<String, Object> claims = new HashMap<>();
 
         claims.put("email", user.getEmail());
+        claims.put("checkId", user.getCheckId());
         claims.put("role", user.getRoles());
 
         return claims;
@@ -104,6 +105,10 @@ public class TokenProvider {
     public String getUserEmailFromAccessToken(String token) {
         Claims claims = getClaimsFormToken(token, env.getProperty("token.access-secret"));
         return (String) claims.get("email");
+    }
+    public String getCheckIdFromAccessToken(String token) {
+        Claims claims = getClaimsFormToken(token, env.getProperty("token.access-secret"));
+        return (String) claims.get("checkId");
     }
     public String getUserEmailFromRefreshToken(String token) {
         Claims claims = getClaimsFormToken(token, env.getProperty("token.refresh-secret"));
