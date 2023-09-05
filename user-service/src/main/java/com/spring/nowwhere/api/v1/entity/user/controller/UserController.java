@@ -2,7 +2,6 @@ package com.spring.nowwhere.api.v1.entity.user.controller;
 
 import com.spring.nowwhere.api.v1.entity.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.entity.user.dto.UserResponse;
-import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.response.ResponseApi;
 import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
@@ -15,9 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -53,9 +49,10 @@ public class UserController {
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
             summary = "update remittanceId", description = "특정 사용자의 송금ID를 갱신할 수 있다.")
     public ResponseEntity<UserResponse> updateRemittanceId(HttpServletRequest request,
-                                                           @RequestParam("payId") String payId){
+                                                           @RequestParam("id") String payId){
         String token = getTokenByReqeust(request);
         String checkId = tokenProvider.getCheckIdFromAccessToken(token);
+
         UserDto findUser = userService.updateRemittanceId(checkId, payId);
         return responseApi.success(UserResponse.of(findUser), "송금ID 변경 성공", HttpStatus.OK);
     }

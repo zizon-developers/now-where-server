@@ -9,19 +9,22 @@ public class UserDto {
     private String email;
     private String name;
     private String checkId;
+    private String profileImg;
 
     @Builder
-    private UserDto(String email, String name, String userId) {
+    private UserDto(String email, String name, String checkId, String profileImg) {
         this.email = email;
         this.name = name;
-        this.checkId = userId;
+        this.checkId = checkId;
+        this.profileImg = profileImg;
     }
 
     public static UserDto of(User user){
         return UserDto.builder()
                 .email(user.getEmail())
+                .profileImg(user.getProfileImg())
                 .name(user.getName())
-                .userId(user.getCheckId())
+                .checkId(user.getCheckId())
                 .build();
     }
 }

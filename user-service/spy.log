@@ -1,0 +1,36 @@
+1693898149571|1|statement|connection 88|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table bet drop foreign key FKhhw7ad5s9sql24aglsi431e4e|alter table bet drop foreign key FKhhw7ad5s9sql24aglsi431e4e
+1693898149572|0|statement|connection 88|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table bet drop foreign key FK7f22b2rov8exbqodw88eps9ry|alter table bet drop foreign key FK7f22b2rov8exbqodw88eps9ry
+1693898149573|0|statement|connection 88|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table friend drop foreign key FKbod6at6b4e2bb1js3vwl06yvk|alter table friend drop foreign key FKbod6at6b4e2bb1js3vwl06yvk
+1693898149574|0|statement|connection 88|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table friend drop foreign key FKt58d5t8jqraodv0g8g9pevd55|alter table friend drop foreign key FKt58d5t8jqraodv0g8g9pevd55
+1693898149575|0|statement|connection 88|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table user_roles drop foreign key FK5gikiw021w6y16a8t5vjwqwyj|alter table user_roles drop foreign key FK5gikiw021w6y16a8t5vjwqwyj
+1693898149579|3|statement|connection 88|url jdbc:mariadb://localhost/now_where?user=root&password=***|drop table if exists bet|drop table if exists bet
+1693898149582|2|statement|connection 88|url jdbc:mariadb://localhost/now_where?user=root&password=***|drop table if exists friend|drop table if exists friend
+1693898149586|2|statement|connection 88|url jdbc:mariadb://localhost/now_where?user=root&password=***|drop table if exists user_roles|drop table if exists user_roles
+1693898149589|2|statement|connection 88|url jdbc:mariadb://localhost/now_where?user=root&password=***|drop table if exists users|drop table if exists users
+1693898258408|1|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table bet drop foreign key FKhhw7ad5s9sql24aglsi431e4e|alter table bet drop foreign key FKhhw7ad5s9sql24aglsi431e4e
+1693898258410|1|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table bet drop foreign key FK7f22b2rov8exbqodw88eps9ry|alter table bet drop foreign key FK7f22b2rov8exbqodw88eps9ry
+1693898258411|0|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table friend drop foreign key FKbod6at6b4e2bb1js3vwl06yvk|alter table friend drop foreign key FKbod6at6b4e2bb1js3vwl06yvk
+1693898258412|0|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table friend drop foreign key FKt58d5t8jqraodv0g8g9pevd55|alter table friend drop foreign key FKt58d5t8jqraodv0g8g9pevd55
+1693898258413|0|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table user_roles drop foreign key FK5gikiw021w6y16a8t5vjwqwyj|alter table user_roles drop foreign key FK5gikiw021w6y16a8t5vjwqwyj
+1693898258416|2|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|drop table if exists bet|drop table if exists bet
+1693898258418|2|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|drop table if exists friend|drop table if exists friend
+1693898258423|4|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|drop table if exists user_roles|drop table if exists user_roles
+1693898258428|3|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|drop table if exists users|drop table if exists users
+1693900150448|1|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table bet drop foreign key FKhhw7ad5s9sql24aglsi431e4e|alter table bet drop foreign key FKhhw7ad5s9sql24aglsi431e4e
+1693900150451|1|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table bet drop foreign key FK7f22b2rov8exbqodw88eps9ry|alter table bet drop foreign key FK7f22b2rov8exbqodw88eps9ry
+1693900150452|0|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table friend drop foreign key FKbod6at6b4e2bb1js3vwl06yvk|alter table friend drop foreign key FKbod6at6b4e2bb1js3vwl06yvk
+1693900150453|1|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table friend drop foreign key FKt58d5t8jqraodv0g8g9pevd55|alter table friend drop foreign key FKt58d5t8jqraodv0g8g9pevd55
+1693900150455|1|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table user_roles drop foreign key FK5gikiw021w6y16a8t5vjwqwyj|alter table user_roles drop foreign key FK5gikiw021w6y16a8t5vjwqwyj
+1693900150459|3|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|drop table if exists bet|drop table if exists bet
+1693900150463|2|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|drop table if exists friend|drop table if exists friend
+1693900150469|5|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|drop table if exists user_roles|drop table if exists user_roles
+1693900150473|2|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|drop table if exists users|drop table if exists users
+1693903846193|1|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table bet drop foreign key FKhhw7ad5s9sql24aglsi431e4e|alter table bet drop foreign key FKhhw7ad5s9sql24aglsi431e4e
+1693903846195|1|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table bet drop foreign key FK7f22b2rov8exbqodw88eps9ry|alter table bet drop foreign key FK7f22b2rov8exbqodw88eps9ry
+1693903846197|1|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table friend drop foreign key FKbod6at6b4e2bb1js3vwl06yvk|alter table friend drop foreign key FKbod6at6b4e2bb1js3vwl06yvk
+1693903846198|0|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table friend drop foreign key FKt58d5t8jqraodv0g8g9pevd55|alter table friend drop foreign key FKt58d5t8jqraodv0g8g9pevd55
+1693903846199|0|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|alter table user_roles drop foreign key FK5gikiw021w6y16a8t5vjwqwyj|alter table user_roles drop foreign key FK5gikiw021w6y16a8t5vjwqwyj
+1693903846202|3|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|drop table if exists bet|drop table if exists bet
+1693903846206|2|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|drop table if exists friend|drop table if exists friend
+1693903846210|3|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|drop table if exists user_roles|drop table if exists user_roles
+1693903846214|2|statement|connection 201|url jdbc:mariadb://localhost/now_where?user=root&password=***|drop table if exists users|drop table if exists users

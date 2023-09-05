@@ -1,6 +1,7 @@
 package com.spring.nowwhere.api.v1.user.repository;
 
 import com.spring.nowwhere.api.v1.entity.user.User;
+import com.spring.nowwhere.api.v1.entity.user.UserRole;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -10,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.groups.Tuple.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class UserRepositoryTest {
@@ -21,7 +24,7 @@ class UserRepositoryTest {
 
     @AfterEach
     void tearDown(){
-        userRepository.deleteAllInBatch();
+        userRepository.deleteAll();
     }
     @Test
     @DisplayName("두명의 checkID를 통해서 해당하는 두명의 사용자를 조회할 수 있으며 bettor, receiver 순으로 조회된다.")
@@ -109,13 +112,33 @@ class UserRepositoryTest {
         Assertions.assertThat(test.getEmail()).isEqualTo(findUser.getEmail());
         Assertions.assertThat(test.getRemittanceId()).isEqualTo(findUser.getRemittanceId());
     }
+    @Test
+    @DisplayName("사용자를 email로 조회시 role도 같이 조회된다.")
+    public void getUserByEmailWithRole() {
+        // given
+        User user = createAndSaveUser("user");
+        // when
+        System.out.println("=============");
+        User findUser = userRepository.getUserByEmailWithRole(user.getEmail()).get();
+        System.out.println("=============");
+
+        // then
+        assertAll(
+                ()->assertEquals(findUser.getRoles().get(0),UserRole.ROLE_USER),
+                ()->assertEquals(findUser.getEmail(),user.getEmail()),
+                ()->assertEquals(findUser.getCheckId(),user.getCheckId()),
+                ()->assertEquals(findUser.getRemittanceId(),user.getRemittanceId())
+        );
+    }
 
     private User createAndSaveUser(String name) {
+        List<UserRole> roles = List.of(UserRole.ROLE_USER);
         User user = User.builder()
                 .email(name + "@test.com")
                 .checkId(name + "Id")
                 .name(name)
                 .remittanceId(name + "PayId")
+                .roles(roles)
                 .build();
         return userRepository.save(user);
     }

@@ -8,8 +8,6 @@ import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
 import java.util.List;
 
 public interface UserService {
-    List<UserDto> getUserByAll();
-
     void logout(String token);
 
     TokenDto login(OAuthUserDto userDto);
