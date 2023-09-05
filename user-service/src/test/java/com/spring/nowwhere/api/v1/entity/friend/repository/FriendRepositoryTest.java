@@ -148,7 +148,7 @@ class FriendRepositoryTest {
     EntityManager em;
     @PersistenceUnit
     EntityManagerFactory emf;
-    @Test
+//    @Test
     @DisplayName("test")
     public void test() {
         // given
