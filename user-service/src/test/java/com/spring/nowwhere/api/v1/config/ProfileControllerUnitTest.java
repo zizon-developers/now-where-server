@@ -5,9 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
-class ProfileControllerTest {
+class ProfileControllerUnitTest {
 
     @Test
     @DisplayName("realProfile를 조회할 수 있다.")

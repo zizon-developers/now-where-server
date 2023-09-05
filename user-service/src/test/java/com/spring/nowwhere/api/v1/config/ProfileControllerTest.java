@@ -2,43 +2,31 @@ package com.spring.nowwhere.api.v1.config;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.mock.env.MockEnvironment;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class ProfileControllerUnitTest {
+@SpringBootTest
+@AutoConfigureMockMvc
+public class ProfileControllerTest {
+
+    @Autowired
+    private MockMvc mvc;
 
     @Test
-    @DisplayName("realProfile를 조회할 수 있다.")
-    public void profile() {
-        // given
-        String expectedProfile = "real";
-        MockEnvironment env = new MockEnvironment();
-        env.addActiveProfile(expectedProfile);
-        env.addActiveProfile("oauth");
-        env.addActiveProfile("real-db");
+    public void profile은_인증없이_호출된다() throws Exception {
+        String expected = "local";
 
-        ProfileController controller = new ProfileController(env);
-
-        // when
-        String profile = controller.profile();
-
-        // then
-        assertThat(profile).isEqualTo(expectedProfile);
-    }
-    @Test
-    @DisplayName("active_profile이_없으면_default가_조회된다")
-    public void profile_default() {
-        // given
-        String expectedProfile = "default";
-        MockEnvironment env = new MockEnvironment();
-        ProfileController controller = new ProfileController(env);
-
-        // when
-        String profile = controller.profile();
-
-        // then
-        assertThat(profile).isEqualTo(expectedProfile);
+        mvc.perform(get("/profile"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(expected));
     }
 
 }

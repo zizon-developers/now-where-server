@@ -63,7 +63,8 @@ public class WebSecurity {
                                                                 "/error",
                                                                 "/swagger-ui/**",
                                                                 "/swagger-resources/**",
-                                                                "/v3/api-docs/**");
+                                                                "/v3/api-docs/**",
+                                                                "/profile");
     }
 
     public class MyCustomDsl extends AbstractHttpConfigurer<MyCustomDsl, HttpSecurity> {

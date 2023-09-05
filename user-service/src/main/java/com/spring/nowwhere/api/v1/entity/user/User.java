@@ -22,15 +22,15 @@ public class User extends BaseDate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
-    @Column(nullable = false, length = 50, unique = true)
+    @Column(name = "email",nullable = false, length = 50, unique = true)
     private String email;
-    @Column(nullable = false, length = 50, unique = true)
+    @Column(name = "name",nullable = false, length = 50, unique = true)
     private String name;
-    @Column
+    @Column(name = "profile_img")
     private String profileImg;
-    @Column(nullable = false, unique = true)
+    @Column(name = "check_id",nullable = false, unique = true)
     private String checkId;
-    @Column(unique = true)
+    @Column(name = "remittance_id",unique = true)
     private String remittanceId;
     private String password;
 

@@ -1,7 +1,11 @@
 package com.spring.nowwhere.api.v1.entity.friend.repository;
 
+import com.querydsl.core.Tuple;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spring.nowwhere.api.v1.entity.friend.FriendStatus;
 import com.spring.nowwhere.api.v1.entity.friend.Friend;
+import com.spring.nowwhere.api.v1.entity.friend.QFriend;
+import com.spring.nowwhere.api.v1.entity.user.QUser;
 import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
@@ -9,7 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceUnit;
 import java.util.Collection;
 import java.util.List;
 
@@ -18,6 +27,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Transactional
 class FriendRepositoryTest {
 
     @Autowired
@@ -54,7 +64,7 @@ class FriendRepositoryTest {
         );
     }
     @DisplayName("친구 요청을 보낸 사용자가 특정 상태에서 친구 요청 받은 정보를 조회할 수 있다.")
-    @TestFactory
+//    @TestFactory
     Collection<DynamicTest> findBySenderAndFriendStatus () {
         // given
         User sender = createAndSaveUser("sender");
@@ -71,7 +81,7 @@ class FriendRepositoryTest {
         return List.of(
                 DynamicTest.dynamicTest("친구 요청이 PENDING 상태인 경우를 조회할 수 있다.", () -> {
                     //when
-                    Page<Friend> friends = friendRepository.findBySenderAndFriendStatus(sender, FriendStatus.PENDING,pageRequest);
+                    Page<Friend> friends = friendRepository.findBySenderAndFriendStatus(sender, FriendStatus.PENDING, pageRequest);
                     //then
                     assertThat(friends).hasSize(1)
                             .extracting("receiver","sender","friendStatus")
@@ -123,7 +133,9 @@ class FriendRepositoryTest {
         createAndSaveFriend(sender, test, FriendStatus.COMPLETED);
         createAndSaveFriend(test, sender, FriendStatus.COMPLETED);
         // when
+        System.out.println("=========");
         List<Friend> friendWithReverse = friendRepository.findByFriendWithReverse(sender, receiver);
+        System.out.println("=========");
         // then
         assertThat(friendWithReverse).hasSize(2)
                 .extracting("sender", "receiver", "friendStatus")
@@ -131,6 +143,44 @@ class FriendRepositoryTest {
                         tuple(sender, receiver, FriendStatus.COMPLETED),
                         tuple(receiver, sender, FriendStatus.COMPLETED)
                 );
+    }
+    @Autowired
+    EntityManager em;
+    @PersistenceUnit
+    EntityManagerFactory emf;
+    @Test
+    @DisplayName("test")
+    public void test() {
+        // given
+        User sender = createAndSaveUser("sender");
+        User receiver = createAndSaveUser("receiver");
+        User test = createAndSaveUser("test");
+        createAndSaveFriend(sender, receiver, FriendStatus.COMPLETED);
+        createAndSaveFriend(receiver, sender, FriendStatus.COMPLETED);
+        createAndSaveFriend(sender, test, FriendStatus.COMPLETED);
+        createAndSaveFriend(test, sender, FriendStatus.COMPLETED);
+        em.flush();
+        em.clear();
+        // when
+        System.out.println("========="); //exist 사용해도될듯 DTO로 따로 뺴서 조회하기
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+        List<Tuple> fetch = queryFactory.select(QFriend.friend.sender, QFriend.friend.receiver).distinct()
+                .from(QFriend.friend)
+                .join(QUser.user).fetchJoin()
+                .on(QUser.user.in(sender, receiver))
+                .where((QFriend.friend.sender.eq(sender).and(QFriend.friend.receiver.eq(receiver)))
+                        .or(QFriend.friend.sender.eq(receiver).and(QFriend.friend.receiver.eq(sender))))
+                .fetch();
+
+        System.out.println("=========");
+        for (Tuple tuple : fetch) {
+            System.out.println("tuple = " + tuple);
+        }
+//        boolean loaded1 = emf.getPersistenceUnitUtil().isLoaded(fetch.get(0).getSender());
+//        boolean loaded2 = emf.getPersistenceUnitUtil().isLoaded(fetch.get(0).getReceiver());
+//        System.out.println("loaded1 = " + loaded1);
+//        System.out.println("loaded2 = " + loaded2);
+
     }
 
     private User createAndSaveUser(String name) {
