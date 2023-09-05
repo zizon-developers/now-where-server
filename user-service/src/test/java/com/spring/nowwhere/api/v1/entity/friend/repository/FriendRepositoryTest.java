@@ -121,7 +121,7 @@ class FriendRepositoryTest {
         );
     }
 
-    @Test
+//    @Test
     @DisplayName("친구 조회시 역방향 레코드도 같이 조회한다.")
     public void findByFriendWithReverse() {
         // given

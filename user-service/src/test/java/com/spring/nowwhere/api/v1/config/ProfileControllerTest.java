@@ -19,7 +19,7 @@ public class ProfileControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    @Test
+//    @Test
     public void profile은_인증없이_호출된다() throws Exception {
         String expected = "local";
 

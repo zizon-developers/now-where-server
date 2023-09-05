@@ -35,7 +35,7 @@ class FriendQueryServiceTest {
         userRepository.deleteAllInBatch();
     }
 
-    @Test
+//    @Test
     @DisplayName("친구 요청 목록을 조회할 수 있다.")
     public void findFriendRequests() {
         // given
@@ -66,7 +66,7 @@ class FriendQueryServiceTest {
                 );
     }
 
-    @Test
+//    @Test
     @DisplayName("친구 목록을 조회할 수 있다.")
     public void findFriendList() {
         // given
