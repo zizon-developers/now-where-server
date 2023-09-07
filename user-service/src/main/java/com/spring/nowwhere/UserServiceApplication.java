@@ -1,5 +1,6 @@
 package com.spring.nowwhere;
 
+import com.spring.nowwhere.api.v1.config.SwaggerConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;

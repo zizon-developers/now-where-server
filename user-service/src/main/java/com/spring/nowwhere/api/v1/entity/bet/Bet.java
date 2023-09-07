@@ -17,11 +17,11 @@ public class Bet extends BaseDate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "bettor_id")
+    @JoinColumn(name = "bettor")
     private User bettor;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "receiver_id")
+    @JoinColumn(name = "receiver")
     private User receiver;
 
     @Enumerated(EnumType.STRING)

@@ -1,5 +1,6 @@
 package com.spring.nowwhere.api.v1.entity.friend.repository;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spring.nowwhere.api.v1.entity.friend.Friend;
 import com.spring.nowwhere.api.v1.entity.friend.FriendStatus;
@@ -35,46 +36,59 @@ public class FriendRepositoryImpl implements FriendQueryRepository {
                 .from(friend)
                 .join(friend.sender).fetchJoin()
                 .join(friend.receiver).fetchJoin()
-                .where((friend.sender.eq(sender).and(friend.receiver.eq(receiver)))
-                        .or(friend.sender.eq(receiver).and(friend.receiver.eq(sender))))
+                .where(senderAndReceiverEq(sender,receiver)
+                        .or(senderAndReceiverEq(receiver,sender)))
                 .fetch();
     }
 
     @Override
     public Optional<Friend> findBySenderAndReceiver(User sender, User receiver) {
         return Optional.ofNullable(
-                queryFactory.selectFrom(QFriend.friend)
-                            .join(QFriend.friend.sender).fetchJoin()
-                            .join(QFriend.friend.receiver).fetchJoin()
-                            .where(QFriend.friend.sender.eq(sender).and(QFriend.friend.receiver.eq(receiver)))
+                queryFactory.selectFrom(friend)
+                            .join(friend.sender).fetchJoin()
+                            .join(friend.receiver).fetchJoin()
+                            .where(senderAndReceiverEq(sender,receiver))
                             .fetchOne()
                 );
+    }
+    private BooleanBuilder senderEq(User sender){
+        return new BooleanBuilder(friend.sender.eq(sender));
+    }
+    private BooleanBuilder senderAndReceiverEq(User sender, User receiver){
+        return senderEq(sender).and(friend.receiver.eq(receiver));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<FriendQueryDto> findBySenderAndFriendStatus(User sender, FriendStatus friendStatus, Pageable pageable) {
-        List<FriendQueryDto> content = queryFactory.select(
-                    new QFriendQueryDto(friend.receiver.name, friend.receiver.profileImg, friend.friendStatus))
-                .from(friend)
-                .leftJoin(friend.sender, user)
-                .leftJoin(friend.receiver, user)
-                .where(friend.sender.eq(sender).and(friend.friendStatus.eq(friendStatus)))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        Long count = getCountBySenderAndFriendStatus(sender, friendStatus);
+        List<FriendQueryDto> content = getContentQueryBySenderAndStatus(sender, friendStatus, pageable);
+        Long count = getCountQueryBySenderAndStatus(sender, friendStatus);
 
         return new PageImpl<>(content, pageable, count);
     }
 
-    private Long getCountBySenderAndFriendStatus(User sender, FriendStatus friendStatus) {
+    private List<FriendQueryDto> getContentQueryBySenderAndStatus(User sender, FriendStatus friendStatus, Pageable pageable) {
+        return queryFactory.select(
+                        new QFriendQueryDto(friend.receiver.name, friend.receiver.profileImg, friend.friendStatus))
+                .from(friend)
+                .leftJoin(friend.sender, user)
+                .leftJoin(friend.receiver, user)
+                .where(senderAndStatusEq(sender,friendStatus))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
+
+    private Long getCountQueryBySenderAndStatus(User sender, FriendStatus friendStatus) {
         return queryFactory.select(friend.count())
                 .from(friend)
                 .leftJoin(friend.sender, user)
                 .leftJoin(friend.receiver, user)
-                .where(friend.sender.eq(sender).and(friend.friendStatus.eq(friendStatus)))
+                .where(senderAndStatusEq(sender,friendStatus))
                 .fetchOne();
+    }
+
+    private BooleanBuilder senderAndStatusEq(User sender, FriendStatus status) {
+        return senderEq(sender).and(friend.friendStatus.eq(status));
     }
 }

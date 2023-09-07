@@ -9,6 +9,11 @@ import com.spring.nowwhere.api.v1.response.ResponseApi;
 import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,13 +36,20 @@ public class FriendQueryController {
     @GetMapping("/friend-request")
     @Operation(security = {@SecurityRequirement(name = "bearer-key")},
             summary = "친구 요청목록 가져오기", description = "사용자 친구 요청 목록들을 반환한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ResponseFriendDto.class)))
+    })
     public ResponseEntity<Page<ResponseFriendDto>> getFriendRequests(HttpServletRequest request,
                                                                      Pageable pageable) {
+
         String token = getTokenByReqeust(request);
         User sender = getUserFromAccessToken(token);
         Page<ResponseFriendDto> requestFriendPage = friendRepository
-                                .findBySenderAndFriendStatus(sender, FriendStatus.PENDING, pageable)
-                                .map(ResponseFriendDto::of);
+                .findBySenderAndFriendStatus(sender, FriendStatus.PENDING, pageable)
+                .map(ResponseFriendDto::of);
         return responseApi.success(requestFriendPage);
     }
 
