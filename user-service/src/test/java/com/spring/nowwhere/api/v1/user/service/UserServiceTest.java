@@ -1,5 +1,6 @@
 package com.spring.nowwhere.api.v1.user.service;
 
+import com.spring.nowwhere.api.IntegrationTestSupport;
 import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
 import com.spring.nowwhere.api.v1.auth.exception.RefreshTokenNotFoundException;
 import com.spring.nowwhere.api.v1.entity.user.service.UserService;
@@ -15,7 +16,6 @@ import com.spring.nowwhere.api.v1.entity.user.exception.DuplicateUsernameExcepti
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Collection;
@@ -26,8 +26,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
-class UserServiceTest {
+class UserServiceTest extends IntegrationTestSupport {
     @Autowired
     private UserRepository userRepository;
     @Autowired

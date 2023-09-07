@@ -1,5 +1,8 @@
-package com.spring.nowwhere.api.v1.entity.friend;
+package com.spring.nowwhere.api.v1.friend;
 
+import com.spring.nowwhere.api.IntegrationTestSupport;
+import com.spring.nowwhere.api.v1.entity.friend.Friend;
+import com.spring.nowwhere.api.v1.entity.friend.FriendStatus;
 import com.spring.nowwhere.api.v1.entity.friend.repository.FriendRepository;
 import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
@@ -7,14 +10,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
 @Transactional
-class FriendTest {
+class FriendTest extends IntegrationTestSupport {
     @Autowired
     private FriendRepository friendRepository;
     @Autowired

@@ -1,5 +1,6 @@
 package com.spring.nowwhere.api.v1.bet;
 
+import com.spring.nowwhere.api.IntegrationTestSupport;
 import com.spring.nowwhere.api.v1.entity.bet.*;
 import com.spring.nowwhere.api.v1.entity.bet.dto.RequestBet;
 import com.spring.nowwhere.api.v1.entity.bet.dto.ResponseBet;
@@ -22,8 +23,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-class BetServiceTest {
+class BetServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private BetService betService;

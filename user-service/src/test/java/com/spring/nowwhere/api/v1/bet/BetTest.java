@@ -1,4 +1,4 @@
-package com.spring.nowwhere.api.v1.entity.bet;
+package com.spring.nowwhere.api.v1.bet;
 
 import com.spring.nowwhere.api.v1.entity.bet.repository.BetRepository;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;

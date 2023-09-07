@@ -1,9 +1,11 @@
-package com.spring.nowwhere.api.v1.entity.friend.repository;
+package com.spring.nowwhere.api.v1.friend.repository;
 
+import com.spring.nowwhere.api.IntegrationTestSupport;
 import com.spring.nowwhere.api.v1.entity.friend.FriendStatus;
 import com.spring.nowwhere.api.v1.entity.friend.Friend;
 import com.spring.nowwhere.api.v1.entity.friend.dto.FriendQueryDto;
 import com.spring.nowwhere.api.v1.entity.friend.dto.ResponseFriendDto;
+import com.spring.nowwhere.api.v1.entity.friend.repository.FriendRepository;
 import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
@@ -23,14 +25,17 @@ import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
 @Transactional
-class FriendRepositoryTest {
+class FriendRepositoryTest extends IntegrationTestSupport {
 
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private FriendRepository friendRepository;
+    @Autowired
+    EntityManager em;
+    @PersistenceUnit
+    EntityManagerFactory emf;
 
     @AfterEach
     void tearDown() {
@@ -124,17 +129,13 @@ class FriendRepositoryTest {
                 })
         );
     }
-    @Autowired
-    EntityManager em;
-    @PersistenceUnit
-    EntityManagerFactory emf;
 
     @Test
     @DisplayName("친구 조회시 역방향 레코드도 같이 조회한다.")
     public void findByFriendWithReverse() {
         // given
         User sender = createAndSaveUser("sender");
-        User receiver = createAndSaveUser("receiver");
+        User receiver = createAndSaveUser("receiver5");
         User test = createAndSaveUser("test");
         createAndSaveFriend(sender, receiver, FriendStatus.COMPLETED);
         createAndSaveFriend(receiver, sender, FriendStatus.COMPLETED);

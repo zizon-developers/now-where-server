@@ -1,5 +1,6 @@
 package com.spring.nowwhere.api.v1.user.repository;
 
+import com.spring.nowwhere.api.IntegrationTestSupport;
 import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.entity.user.UserRole;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
@@ -8,16 +9,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.groups.Tuple.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-class UserRepositoryTest {
+class UserRepositoryTest extends IntegrationTestSupport {
 
     @Autowired
     private UserRepository userRepository;

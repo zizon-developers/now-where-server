@@ -1,21 +1,13 @@
-package com.spring.nowwhere.api.v1.entity.friend.service;
+package com.spring.nowwhere.api.v1.friend;
 
 import com.spring.nowwhere.api.v1.entity.friend.Friend;
 import com.spring.nowwhere.api.v1.entity.friend.FriendStatus;
 import com.spring.nowwhere.api.v1.entity.friend.repository.FriendRepository;
 import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-
-import java.util.List;
-
-import static org.assertj.core.groups.Tuple.tuple;
 
 @SpringBootTest
 class FriendQueryControllerTest {
