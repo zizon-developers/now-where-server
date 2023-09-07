@@ -34,7 +34,9 @@ class UserRepositoryTest {
         createAndSaveUser("receiver");
         createAndSaveUser("test");
         // when
+        System.out.println("=========");
         List<User> findUsers = userRepository.findSenderAndReceiver("bettorId", "receiverId");
+        System.out.println("=========");
         // then
         Assertions.assertThat(findUsers).hasSize(2)
                 .extracting("email","checkId","name")

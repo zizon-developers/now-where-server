@@ -12,7 +12,6 @@ public class RequestFriend {
     public RequestFriend(String receiverId) {
         this.receiverId = receiverId;
     }
-
     public String getReceiverId() {
         return receiverId;
     }
