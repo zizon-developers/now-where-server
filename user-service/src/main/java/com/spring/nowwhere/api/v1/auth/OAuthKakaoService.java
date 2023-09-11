@@ -5,8 +5,7 @@ import com.spring.nowwhere.api.v1.auth.dto.KaKaoFriendDto;
 import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
 import com.spring.nowwhere.api.v1.auth.dto.TokenDto;
 import com.spring.nowwhere.api.v1.auth.exception.OauthKakaoApiException;
-import com.spring.nowwhere.api.v1.redis.kakao.KakaoTokenFromRedis;
-import com.spring.nowwhere.api.v1.redis.kakao.KakaoTokenRedisRepository;
+import com.spring.nowwhere.api.v1.entity.friend.service.FriendService;
 import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +27,9 @@ import static org.springframework.web.client.HttpClientErrorException.*;
 @Slf4j
 @RequiredArgsConstructor
 public class OAuthKakaoService {
-    private final KakaoTokenRedisRepository kakaoTokenRedisRepository;
+
     private final RestTemplate restTemplate;
+    private final FriendService friendService;
     private final Environment evn;
 
     public TokenDto getKakaoToken(String code) {
@@ -132,9 +132,6 @@ public class OAuthKakaoService {
 
     public Map<String, Object> getKakaoFriends(String accessToken, KaKaoFriendDto kaKaoFriendDto) {
 
-
-
-
         try {
             String reqURL = evn.getProperty("spring.security.oauth2.client.provider.kakao.friend-uri");
             ResponseEntity<Map> response = null; //예외처리 할 때 catch에서 사용하려고
@@ -168,6 +165,9 @@ public class OAuthKakaoService {
             throw e;
         }
     }
+    public void inviteFriendRegistration(String invitedUserCheckId, String invitingUserCheckId) {
+        friendService.saveFriendshipFromInvitation(invitingUserCheckId, invitedUserCheckId);
+    }
 
     public ResponseEntity<Object> createKakaoPayPaymentURL(String userId, int amount,String accessToken) {
 
@@ -197,4 +197,6 @@ public class OAuthKakaoService {
     private String toHexValue(int value){
         return Integer.toHexString((value * 524288));
     }
+
+
 }

@@ -36,12 +36,11 @@ public class FriendQueryController {
     @GetMapping("/friend-request")
     @Operation(security = {@SecurityRequirement(name = "bearer-key")},
             summary = "친구 요청목록 가져오기", description = "사용자 친구 요청 목록들을 반환한다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ResponseFriendDto.class)))
-    })
+//            @ApiResponse(responseCode = "200", description = "OK",
+//                    content = @Content(
+//                                    mediaType = "application/json",
+//                                    schema = @Schema(implementation = ResponseFriendDto.class)))
+//    })
     public ResponseEntity<Page<ResponseFriendDto>> getFriendRequests(HttpServletRequest request,
                                                                      Pageable pageable) {
 

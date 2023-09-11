@@ -2,6 +2,7 @@ package com.spring.nowwhere.api.v1.friend.service;
 
 import com.spring.nowwhere.api.IntegrationTestSupport;
 import com.spring.nowwhere.api.v1.entity.friend.*;
+import com.spring.nowwhere.api.v1.entity.friend.dto.FriendQueryDto;
 import com.spring.nowwhere.api.v1.entity.friend.exception.AlreadyFriendsException;
 import com.spring.nowwhere.api.v1.entity.friend.exception.FriendNotFoundException;
 import com.spring.nowwhere.api.v1.entity.friend.exception.FriendRequestPendingException;
@@ -11,12 +12,15 @@ import com.spring.nowwhere.api.v1.entity.friend.repository.FriendRepository;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FriendServiceTest extends IntegrationTestSupport {
@@ -31,6 +35,35 @@ class FriendServiceTest extends IntegrationTestSupport {
     void tearDown() {
         friendRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
+    }
+    @Test
+    @DisplayName("친구 링크받은 사용자의 회원가입은 친구 등록까지 된다.")
+    public void saveFriendshipFromInvitation() {
+        // given
+        User sender = createAndSaveUser("sender");
+        User receiver = createAndSaveUser("receiver");
+        // when
+        friendService.saveFriendshipFromInvitation(sender.getCheckId(),receiver.getCheckId());
+        List<Friend> friendWithReverse = friendRepository.findByFriendWithReverse(sender, receiver);
+        // then
+        assertThat(friendWithReverse).hasSize(2)
+                .extracting("sender", "receiver", "friendStatus")
+                .containsExactlyInAnyOrder(
+                        tuple(sender, receiver, FriendStatus.COMPLETED),
+                        tuple(receiver, sender, FriendStatus.COMPLETED)
+                );
+    }
+
+    @Test
+    @DisplayName("친구 링크받은 사용자의 회원가입은 친구 등록까지 된다.")
+    public void saveFriendshipFromInvitation_EX() {
+        // given
+        User userEx = User.builder().build();
+        User receiver = createAndSaveUser("receiver");
+        // when // then
+        assertThatThrownBy(() -> friendService.saveFriendshipFromInvitation(userEx.getCheckId(), receiver.getCheckId()))
+                .isInstanceOf(UsernameNotFoundException.class)
+                .hasMessage("sender and receiver is not found");
     }
 
     @DisplayName("사용자 친구요청 시나리오")
@@ -311,7 +344,6 @@ class FriendServiceTest extends IntegrationTestSupport {
                 .name(name)
                 .checkId(name + "Id")
                 .build();
-
         return userRepository.save(user);
     }
 

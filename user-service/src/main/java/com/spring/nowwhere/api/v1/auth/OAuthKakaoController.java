@@ -1,9 +1,6 @@
 package com.spring.nowwhere.api.v1.auth;
 
-import com.spring.nowwhere.api.v1.auth.dto.KaKaoFriendDto;
-import com.spring.nowwhere.api.v1.auth.dto.OAuthCodeRequest;
-import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
-import com.spring.nowwhere.api.v1.auth.dto.TokenDto;
+import com.spring.nowwhere.api.v1.auth.dto.*;
 import com.spring.nowwhere.api.v1.auth.exception.OauthKakaoApiException;
 import com.spring.nowwhere.api.v1.response.ResponseApi;
 import com.spring.nowwhere.api.v1.entity.user.User;
@@ -56,6 +53,20 @@ public class OAuthKakaoController {
         response.addHeader(HttpHeaders.AUTHORIZATION, tokenDto.getAccessToken());
         response.addCookie(createCookie(tokenDto.getRefreshToken()));
         return responseApi.success("로그인 성공");
+    }
+
+    @PostMapping("/invite-friends")
+    @Operation(summary = "친구 링크를 통해서 가입하기",
+            description = "카카오 로그인 정보를 통해서 회원가입 이후 쿼리파라미터 정보를 통해 친구로 등록된다.")
+    public ResponseEntity inviteFriend(@RequestBody InviteFriendRequest inviteFriendRequest) {
+
+        TokenDto kakaoToken = oAuthKakaoService.getKakaoToken(inviteFriendRequest.getCode());
+        OAuthUserDto kakaoUser = oAuthKakaoService.getKakaoUser(kakaoToken.getAccessToken());
+        savedKakaoAccessToken(kakaoToken,kakaoUser.getEmail());
+
+        oAuthKakaoService.inviteFriendRegistration(kakaoUser.getCheckId(),inviteFriendRequest.getCheckId());
+
+        return responseApi.success("친구링크를 통해서 가입이 완료되었습니다.");
     }
 
     @PostMapping("/grant-permission")

@@ -41,9 +41,8 @@ public class FriendService {
                 throw new FriendRequestPendingException("요청 대기상태 입니다.");
             }
         }
-
         //다음에 DTO 변환해주기
-        Friend friend = createAndSaveFriend(sender, receiver);
+        createAndSaveFriend(sender, receiver);
     }
     private List<User> checkSenderAndReceiver(String senderId, String receiverId) {
         List<User> senderAndReceiver = userRepository.findSenderAndReceiver(senderId, receiverId);
@@ -62,6 +61,22 @@ public class FriendService {
 
         friendRepository.save(friend);
         return friend;
+    }
+    public void saveFriendshipFromInvitation(String senderId, String receiverId){
+        List<User> senderAndReceiver = checkSenderAndReceiver(senderId, receiverId);
+        User sender = senderAndReceiver.get(SENDER_INDEX);
+        User receiver = senderAndReceiver.get(RECEIVER_INDEX);
+        createFriend(sender, receiver);
+        insertReceiverInverseRecord(sender, receiver);
+    }
+
+    private Friend createFriend(User sender, User receiver) {
+        Friend receiverFriend = Friend.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .friendStatus(FriendStatus.COMPLETED)
+                .build();
+        return friendRepository.save(receiverFriend);
     }
 
     public void updateFriendRequestToAccept(String senderId, String receiverId){
@@ -83,7 +98,7 @@ public class FriendService {
         Friend receiverFriend = Friend.builder()
                 .sender(receiver)
                 .receiver(sender)
-                .friendStatus(FriendStatus.PENDING)
+                .friendStatus(FriendStatus.COMPLETED)
                 .build();
         return friendRepository.save(receiverFriend);
     }
