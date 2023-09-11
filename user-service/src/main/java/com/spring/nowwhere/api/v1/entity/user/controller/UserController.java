@@ -28,7 +28,7 @@ public class UserController {
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
             summary = "get user", description = "특정 사용자를 조회할 수 있다.")
     public ResponseEntity<UserResponse> getUser(HttpServletRequest request){
-        String token = getTokenByReqeust(request);
+        String token = getTokenByRequest(request);
         String email = tokenProvider.getUserEmailFromAccessToken(token);
         UserDto findUser = userService.getUserBettingInfo(email);
         return ResponseEntity.ok(UserResponse.of(findUser));
@@ -38,7 +38,7 @@ public class UserController {
             summary = "update name", description = "특정 사용자의 이름을 변경할 수 있다.")
     public ResponseEntity<UserResponse> updateName(HttpServletRequest request,
                                                    @RequestParam("name") String name){
-        String token = getTokenByReqeust(request);
+        String token = getTokenByRequest(request);
         String checkId = tokenProvider.getCheckIdFromAccessToken(token);
 
         UserDto findUser = userService.updateName(checkId, name);
@@ -50,13 +50,13 @@ public class UserController {
             summary = "update remittanceId", description = "특정 사용자의 송금ID를 갱신할 수 있다.")
     public ResponseEntity<UserResponse> updateRemittanceId(HttpServletRequest request,
                                                            @RequestParam("id") String payId){
-        String token = getTokenByReqeust(request);
+        String token = getTokenByRequest(request);
         String checkId = tokenProvider.getCheckIdFromAccessToken(token);
 
         UserDto findUser = userService.updateRemittanceId(checkId, payId);
         return responseApi.success(UserResponse.of(findUser), "송금ID 변경 성공", HttpStatus.OK);
     }
-    private static String getTokenByReqeust(HttpServletRequest request) {
+    private static String getTokenByRequest(HttpServletRequest request) {
         return request.getHeader(JwtProperties.AUTHORIZATION)
                 .replace(JwtProperties.TOKEN_PREFIX, "");
     }

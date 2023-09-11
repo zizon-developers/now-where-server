@@ -9,11 +9,6 @@ import com.spring.nowwhere.api.v1.response.ResponseApi;
 import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -44,7 +39,7 @@ public class FriendQueryController {
     public ResponseEntity<Page<ResponseFriendDto>> getFriendRequests(HttpServletRequest request,
                                                                      Pageable pageable) {
 
-        String token = getTokenByReqeust(request);
+        String token = getTokenByRequest(request);
         User sender = getUserFromAccessToken(token);
         Page<ResponseFriendDto> requestFriendPage = friendRepository
                 .findBySenderAndFriendStatus(sender, FriendStatus.PENDING, pageable)
@@ -57,7 +52,7 @@ public class FriendQueryController {
             summary = "친구 목록 가져오기", description = "사용자의 친구 목록들을 반환한다.")
     public ResponseEntity<Page<ResponseFriendDto>> getFriendList(HttpServletRequest request,
                                                                  Pageable pageable) {
-        String token = getTokenByReqeust(request);
+        String token = getTokenByRequest(request);
         User sender = getUserFromAccessToken(token);
         Page<ResponseFriendDto> friendList = friendRepository
                                 .findBySenderAndFriendStatus(sender, FriendStatus.PENDING, pageable)
@@ -70,7 +65,7 @@ public class FriendQueryController {
         return userRepository.findByCheckId(checkId)
                 .orElseThrow(() -> new UsernameNotFoundException(checkId + "에 대한 유저가 존재하지 않습니다."));
     }
-    private static String getTokenByReqeust(HttpServletRequest request) {
+    private static String getTokenByRequest(HttpServletRequest request) {
         return request.getHeader(JwtProperties.AUTHORIZATION)
                 .replace(JwtProperties.TOKEN_PREFIX, "");
     }
