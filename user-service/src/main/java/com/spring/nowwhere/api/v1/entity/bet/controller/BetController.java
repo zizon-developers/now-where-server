@@ -26,7 +26,7 @@ public class BetController {
     private final ResponseApi responseApi;
     private final TokenProvider tokenProvider;
 
-    @PostMapping("/{userId}/bets")
+    @PostMapping("/bets")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
             summary = "create bet", description = "특정 사용자에게 내기를 요청할 수 있다.")
     public ResponseEntity<ResponseBet> createBet(HttpServletRequest request,
@@ -34,7 +34,7 @@ public class BetController {
         String token = getTokenByRequest(request);
         String checkId = tokenProvider.getCheckIdFromAccessToken(token);
         ResponseBet responseBet = betService.createBet(checkId, requestBet);
-        return responseApi.success(responseBet, "내기 저장에 성공했습니다.", HttpStatus.CREATED);
+        return responseApi.success(responseBet, "내기 요청에 성공했습니다.", HttpStatus.CREATED);
     }
     private static String getTokenByRequest(HttpServletRequest request) {
         return request.getHeader(JwtProperties.AUTHORIZATION)
