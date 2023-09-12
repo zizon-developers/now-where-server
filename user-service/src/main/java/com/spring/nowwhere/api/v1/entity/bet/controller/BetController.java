@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,7 +31,7 @@ public class BetController {
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
             summary = "create bet", description = "특정 사용자에게 내기를 요청할 수 있다.")
     public ResponseEntity<ResponseBet> createBet(HttpServletRequest request,
-                                                 RequestBet requestBet){
+                                                 @RequestBody RequestBet requestBet){
         String token = getTokenByRequest(request);
         String checkId = tokenProvider.getCheckIdFromAccessToken(token);
         ResponseBet responseBet = betService.createBet(checkId, requestBet);
