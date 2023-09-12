@@ -1,6 +1,7 @@
 package com.spring.nowwhere.api.v1.entity.user.service;
 
 import com.spring.nowwhere.api.v1.auth.dto.TokenDto;
+import com.spring.nowwhere.api.v1.entity.bet.dto.BetSummaryDto;
 import com.spring.nowwhere.api.v1.entity.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.auth.dto.OAuthUserDto;
@@ -22,5 +23,5 @@ public interface UserService {
 
     UserDto updateRemittanceId(String checkId, String remittanceId);
 
-    UserDto getUserBettingInfo(String email);
+    BetSummaryDto getUserInfoWithBetSummery(String checkId);
 }

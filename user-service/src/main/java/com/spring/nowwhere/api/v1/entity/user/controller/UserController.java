@@ -23,16 +23,6 @@ public class UserController {
     private final ResponseApi responseApi;
     private final TokenProvider tokenProvider;
 
-    //내기 횟수, 내기로 번 돈추가하기
-    @GetMapping("/me")
-    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
-            summary = "get user", description = "특정 사용자를 조회할 수 있다.")
-    public ResponseEntity<UserResponse> getUser(HttpServletRequest request){
-        String token = getTokenByRequest(request);
-        String email = tokenProvider.getUserEmailFromAccessToken(token);
-        UserDto findUser = userService.getUserBettingInfo(email);
-        return ResponseEntity.ok(UserResponse.of(findUser));
-    }
     @PostMapping("/name")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },
             summary = "update name", description = "특정 사용자의 이름을 변경할 수 있다.")
@@ -56,7 +46,7 @@ public class UserController {
         UserDto findUser = userService.updateRemittanceId(checkId, payId);
         return responseApi.success(UserResponse.of(findUser), "송금ID 변경 성공", HttpStatus.OK);
     }
-    private static String getTokenByRequest(HttpServletRequest request) {
+    private String getTokenByRequest(HttpServletRequest request) {
         return request.getHeader(JwtProperties.AUTHORIZATION)
                 .replace(JwtProperties.TOKEN_PREFIX, "");
     }

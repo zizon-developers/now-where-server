@@ -2,6 +2,8 @@ package com.spring.nowwhere.api.v1.entity.user.service;
 
 import com.spring.nowwhere.api.v1.auth.dto.TokenDto;
 import com.spring.nowwhere.api.v1.auth.exception.RefreshTokenNotFoundException;
+import com.spring.nowwhere.api.v1.entity.bet.dto.BetSummaryDto;
+import com.spring.nowwhere.api.v1.entity.bet.repository.BetQueryRepository;
 import com.spring.nowwhere.api.v1.entity.user.dto.UserDto;
 import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.entity.user.UserRole;
@@ -30,6 +32,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    private final BetQueryRepository betRepository;
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -38,19 +41,10 @@ public class UserServiceImpl implements UserService {
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
     @Override
-    public UserDto getUserBettingInfo(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException(email));
-
-        return UserDto.of(user);
-    }
-
-    @Override
     @Transactional
     public TokenDto login(OAuthUserDto userDto) {
 
-        User findUser = userRepository.findByCheckId(userDto.getCheckId()).orElseThrow(
-                () -> new UsernameNotFoundException("user not found"));
+        User findUser = checkUser(userDto.getCheckId());
 
         String accessToken = tokenProvider.generateJwtAccessToken(findUser);
         String refreshToken = tokenProvider.generateJwtRefreshToken(findUser);
@@ -72,8 +66,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User updateEmail(OAuthUserDto userDto) {
-        User findUser = userRepository.findByCheckId(userDto.getCheckId())
-                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+        User findUser = checkUser(userDto.getCheckId());
 
         if (findUser.isUserIdEmailMatching())
             findUser.updateEmail(userDto.getEmail());
@@ -117,30 +110,42 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto updateName(String checkId, String updateName) {
 
-        User findUser = userRepository.findByCheckId(checkId)
-                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+        User findUser = checkUser(checkId);
+        validationUsername(updateName);
+        findUser.updateName(updateName);
+        return UserDto.of(findUser);
+    }
 
+    private void validationUsername(String updateName) {
         userRepository.findByName(updateName)
                         .ifPresent(ex -> {
                             throw new DuplicateUsernameException(updateName + "은 중복된 이름입니다.");});
-        findUser.updateName(updateName);
-
-        return UserDto.of(findUser);
     }
 
     @Override
     @Transactional
     public UserDto updateRemittanceId(String checkId, String remittanceId) {
+        User findUser = checkUser(checkId);
+        validationRemittanceId(remittanceId);
+        findUser.updateRemittanceId(remittanceId);
+        return UserDto.of(findUser);
+    }
 
-        User findUser = userRepository.findByCheckId(checkId)
-                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
-
+    private void validationRemittanceId(String remittanceId) {
         userRepository.findByRemittanceId(remittanceId)
                         .ifPresent(ex -> {
                             throw new DuplicateRemittanceIdException(remittanceId + "은 중복된 송금ID입니다.");});
-        findUser.updateRemittanceId(remittanceId);
+    }
 
-        return UserDto.of(findUser);
+    private User checkUser(String checkId) {
+        return userRepository.findByCheckId(checkId)
+                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+    }
+
+    @Override
+    public BetSummaryDto getUserInfoWithBetSummery(String checkId) {
+        User findUser = checkUser(checkId);
+        return betRepository.getUserBettingSummary(findUser);
     }
 
     @Transactional

@@ -2,6 +2,10 @@ package com.spring.nowwhere.api.v1.auth;
 
 import com.spring.nowwhere.api.v1.auth.dto.*;
 import com.spring.nowwhere.api.v1.auth.exception.OauthKakaoApiException;
+import com.spring.nowwhere.api.v1.entity.bet.dto.BetSummaryDto;
+import com.spring.nowwhere.api.v1.entity.bet.repository.BetRepository;
+import com.spring.nowwhere.api.v1.entity.user.dto.UserDto;
+import com.spring.nowwhere.api.v1.entity.user.dto.UserResponse;
 import com.spring.nowwhere.api.v1.response.ResponseApi;
 import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
@@ -37,6 +41,7 @@ public class OAuthKakaoController {
     private final TokenProvider tokenProvider;
     private final KakaoTokenRedisRepository kakaoTokenRedisRepository;
     private final ResponseApi responseApi;
+
     
     @PostMapping("/login")
     @Operation(summary = "login", description = "카카오 계정을 통해서 로그인할 수 있으며 서버에 회원가입이 안되어 있으면 회원가입도 완료된다.")
@@ -65,7 +70,6 @@ public class OAuthKakaoController {
         savedKakaoAccessToken(kakaoToken,kakaoUser.getEmail());
 
         oAuthKakaoService.inviteFriendRegistration(kakaoUser.getCheckId(),inviteFriendRequest.getCheckId());
-
         return responseApi.success("친구링크를 통해서 가입이 완료되었습니다.");
     }
 
@@ -174,6 +178,20 @@ public class OAuthKakaoController {
         return responseApi.success("access token 재발급 되었습니다.");
     }
 
+    @GetMapping("/me")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
+            summary = "사용자 정보", description = "특정 사용자의 정보와 내기정보를 얻을 수 있다.")
+    public ResponseEntity<BetSummaryDto> getUser(HttpServletRequest request){
+        String token = getTokenByRequest(request);
+        String checkId = tokenProvider.getCheckIdFromAccessToken(token);
+        BetSummaryDto betSummaryDto = userService.getUserInfoWithBetSummery(checkId);
+        return ResponseEntity.ok(betSummaryDto);
+    }
+
+    private String getTokenByRequest(HttpServletRequest request) {
+        return request.getHeader(JwtProperties.AUTHORIZATION)
+                .replace(JwtProperties.TOKEN_PREFIX, "");
+    }
 
 //    @GetMapping("/payment/kakao")
 //    public Object requestKakaoPayPayment(HttpServletRequest request){
