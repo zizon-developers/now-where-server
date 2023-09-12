@@ -1,18 +1,33 @@
 package com.spring.nowwhere.api.v1.bet;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Expression;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spring.nowwhere.api.IntegrationTestSupport;
 import com.spring.nowwhere.api.v1.entity.bet.*;
+import com.spring.nowwhere.api.v1.entity.bet.dto.BetSummaryDto;
+import com.spring.nowwhere.api.v1.entity.bet.dto.QBetSummaryDto;
+import com.spring.nowwhere.api.v1.entity.bet.dto.QUserInfoDto;
 import com.spring.nowwhere.api.v1.entity.bet.repository.BetRepository;
+import com.spring.nowwhere.api.v1.entity.bet.dto.UserInfoDto;
+import com.spring.nowwhere.api.v1.entity.user.QUser;
 import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
+import static com.spring.nowwhere.api.v1.entity.bet.QBet.bet;
+import static com.spring.nowwhere.api.v1.entity.user.QUser.user;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,7 +38,7 @@ class BetRepositoryTest extends IntegrationTestSupport {
     @Autowired
     private BetRepository betRepository;
 
-    @AfterEach
+//    @AfterEach
     void tearDown(){
         betRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
@@ -84,52 +99,44 @@ class BetRepositoryTest extends IntegrationTestSupport {
         // then
         assertThat(bet.isPresent()).isTrue();
     }
+    @Autowired
+    EntityManager em;
 
+    @Test
+    @Transactional
+    @DisplayName("사용자가 진행한 내기 횟수와, 내기로 번 금액을 얻을 수 있다.")
+    public void getUserBettingSummary() {
+        // given
+        User bettor = createUserAndSave("bettor");
+        User receiver = createUserAndSave("receiver");
+        User test = createUserAndSave("test");
 
+        Location location = new Location(454, 589);
+        LocalDateTime startTime1 = LocalDateTime.of(2021, 2, 5, 23, 50);
+        LocalDateTime endTime1 = LocalDateTime.of(2021, 2, 5, 23, 59);
+        BetInfo betInfo1 = createBetInfo(4000, startTime1, endTime1, location);
+        BetInfo betInfo2 = createBetInfo(5000, startTime1.plusDays(1), endTime1.plusDays(1), location);
+        BetInfo betInfo3 = createBetInfo(6000, startTime1.plusDays(1), endTime1.plusDays(1), location);
 
-//    @Test
-//    @DisplayName("사용자가 신청한 내기를 모두 조회할 수 있다.")
-//    public void findBetByBettor() {
-//        // given
-//        User bettor = createUserAndSave("bettor");
-//        User receiver = createUserAndSave("receiver");
-//
-//        userRepository.saveAll(List.of(bettor,receiver));
-//        LocalDateTime startTime;
-//        LocalDateTime endTime;
-//        int amount;
-//        Location appointmentLocation;
-//
-//        Bet bet1 = Bet.builder()
-//                .bettor(bettor)
-//                .receiver(receiver)
-//                (4500)
-//                .status(BetStatus.PENDING)
-//                .build();
-//        Bet bet2 = Bet.builder()
-//                .bettor(bettor)
-//                .receiver(receiver)
-//                .amount(5500)
-//                .status(BetStatus.ONGOING)
-//                .build();
-//        Bet bet3 = Bet.builder()
-//                .bettor(receiver)
-//                .receiver(bettor)
-//                .amount(6500)
-//                .status(BetStatus.COMPLETED)
-//                .build();
-//        betRepository.saveAll(List.of(bet1,bet2,bet3));
-//        // when
-//        List<Bet> bets = betRepository.findBetByBettor(bettor);
-//        // then
-//        Assertions.assertThat(bets).hasSize(2)
-//                .extracting("amount", "status", "bettor", "receiver")
-//                .containsExactlyInAnyOrder(
-//                        //session 에러 나옴 LAZY 조회라서 쿼리 수정하기  (지금 EAGER로 잠시 변경함) user equal메서드도 만들어줌
-//                        tuple(4500,BetStatus.PENDING,bettor,receiver),
-//                        tuple(5500,BetStatus.ONGOING,bettor,receiver)
-//                );
-//    }
+        Bet bet1 = createBetAndSave(bettor, receiver, betInfo1, BetStatus.COMPLETED);
+        bet1.updateBetResult(BetResult.BETTOR_WIN);
+        Bet bet2 = createBetAndSave(bettor, receiver, betInfo2, BetStatus.ONGOING);
+        Bet bet3 = createBetAndSave(receiver, bettor, betInfo3, BetStatus.COMPLETED);
+        bet3.updateBetResult(BetResult.RECEIVER_WIN);
+        em.flush();
+        em.clear();
+        // when
+        BetSummaryDto bettingSummary = betRepository.getUserBettingSummary(bettor);
+        // then
+        UserInfoDto userInfoDto = bettingSummary.getUserInfoDto();
+        assertAll(
+                () -> assertEquals(userInfoDto.getName(), bettor.getName()),
+                () -> assertEquals(userInfoDto.getEmail(), bettor.getEmail()),
+                () -> assertEquals(userInfoDto.getProfileImg(), bettor.getProfileImg())
+        );
+        assertThat(bettingSummary.getTotalBetCount()).isEqualTo(2);
+        assertThat(bettingSummary.getTotalBetAmount()).isEqualTo(10000);
+    }
 
     private Bet createBetAndSave(User bettor, User receiver, BetInfo betInfo, BetStatus betStatus) {
         Bet bet = Bet.builder()
@@ -153,6 +160,7 @@ class BetRepositoryTest extends IntegrationTestSupport {
         User user = User.builder()
                 .checkId(name+"id")
                 .email(name+"@test.com")
+                .profileImg(name+"img")
                 .name(name)
                 .build();
         return userRepository.save(user);

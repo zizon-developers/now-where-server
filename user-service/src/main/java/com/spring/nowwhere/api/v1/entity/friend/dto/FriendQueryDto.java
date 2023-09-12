@@ -2,6 +2,7 @@ package com.spring.nowwhere.api.v1.entity.friend.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
 import com.spring.nowwhere.api.v1.entity.friend.FriendStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
