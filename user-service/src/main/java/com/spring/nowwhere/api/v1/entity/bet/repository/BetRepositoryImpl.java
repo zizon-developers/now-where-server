@@ -38,7 +38,7 @@ public class BetRepositoryImpl implements BetQueryRepository{
                 queryFactory.selectFrom(bet)
                     .join(bet.bettor).fetchJoin()
                     .join(bet.receiver).fetchJoin()
-                    .where(inTimeRange(startTime, endTime).and(resultIsNotNullAndBettorEq(user)))
+                    .where(inTimeRange(startTime, endTime).and(bettorAndReceiverEq(user)))
                     .fetchFirst());
     }
 
@@ -87,5 +87,8 @@ public class BetRepositoryImpl implements BetQueryRepository{
     private BooleanBuilder inTimeRange(LocalDateTime startTime, LocalDateTime endTime) {
         return new BooleanBuilder(bet.betInfo.startTime.loe(endTime)
                                         .and(bet.betInfo.endTime.goe(startTime)));
+    }
+    private BooleanBuilder bettorAndReceiverEq(User user) {
+        return new BooleanBuilder(bet.bettor.eq(user).or(bet.receiver.eq(user)));
     }
 }

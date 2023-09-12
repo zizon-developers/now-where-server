@@ -1,33 +1,22 @@
 package com.spring.nowwhere.api.v1.bet;
 
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spring.nowwhere.api.IntegrationTestSupport;
 import com.spring.nowwhere.api.v1.entity.bet.*;
 import com.spring.nowwhere.api.v1.entity.bet.dto.BetSummaryDto;
-import com.spring.nowwhere.api.v1.entity.bet.dto.QBetSummaryDto;
-import com.spring.nowwhere.api.v1.entity.bet.dto.QUserInfoDto;
 import com.spring.nowwhere.api.v1.entity.bet.repository.BetRepository;
 import com.spring.nowwhere.api.v1.entity.bet.dto.UserInfoDto;
-import com.spring.nowwhere.api.v1.entity.user.QUser;
 import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
-import static com.spring.nowwhere.api.v1.entity.bet.QBet.bet;
-import static com.spring.nowwhere.api.v1.entity.user.QUser.user;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,7 +27,7 @@ class BetRepositoryTest extends IntegrationTestSupport {
     @Autowired
     private BetRepository betRepository;
 
-//    @AfterEach
+    @AfterEach
     void tearDown(){
         betRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
@@ -48,8 +37,8 @@ class BetRepositoryTest extends IntegrationTestSupport {
     @DisplayName("사용자 두명의 내기를 저장할 수 있다")
     public void save() {
         // given
-        User bettor = createUserAndSave("bettor");
-        User receiver = createUserAndSave("receiver");
+        User bettor = createUserAndSave("bettor1");
+        User receiver = createUserAndSave("receiver1");
 
         int amount = 4500;
         Location location = new Location(454, 589);
@@ -76,8 +65,8 @@ class BetRepositoryTest extends IntegrationTestSupport {
     @DisplayName("완료된 내기가 아닌 목록들중에 시작시간과 종료시간에 포함되는 내기 목록을 조회할 수 있다.")
     public void findUncompletedBetsInTimeRange() {
         // given
-        User bettor = createUserAndSave("bettor");
-        User receiver = createUserAndSave("receiver");
+        User bettor = createUserAndSave("bettor2");
+        User receiver = createUserAndSave("receiver2");
         Location location = new Location(454, 589);
 
         LocalDateTime startTime1 = LocalDateTime.of(2021, 2, 5, 23, 50);
@@ -107,9 +96,8 @@ class BetRepositoryTest extends IntegrationTestSupport {
     @DisplayName("사용자가 진행한 내기 횟수와, 내기로 번 금액을 얻을 수 있다.")
     public void getUserBettingSummary() {
         // given
-        User bettor = createUserAndSave("bettor");
-        User receiver = createUserAndSave("receiver");
-        User test = createUserAndSave("test");
+        User bettor = createUserAndSave("bettor3");
+        User receiver = createUserAndSave("receiver3");
 
         Location location = new Location(454, 589);
         LocalDateTime startTime1 = LocalDateTime.of(2021, 2, 5, 23, 50);
@@ -120,7 +108,7 @@ class BetRepositoryTest extends IntegrationTestSupport {
 
         Bet bet1 = createBetAndSave(bettor, receiver, betInfo1, BetStatus.COMPLETED);
         bet1.updateBetResult(BetResult.BETTOR_WIN);
-        Bet bet2 = createBetAndSave(bettor, receiver, betInfo2, BetStatus.ONGOING);
+        createBetAndSave(bettor, receiver, betInfo2, BetStatus.ONGOING);
         Bet bet3 = createBetAndSave(receiver, bettor, betInfo3, BetStatus.COMPLETED);
         bet3.updateBetResult(BetResult.RECEIVER_WIN);
         em.flush();
