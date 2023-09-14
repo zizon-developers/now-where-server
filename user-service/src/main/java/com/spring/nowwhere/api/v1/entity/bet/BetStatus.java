@@ -4,8 +4,9 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum BetStatus {
-    PENDING("대기상태"),
-    ONGOING("진행상태"),
+    REQUESTED("요청 상태"),
+    WAITING("대기 상태"),
+    IN_PROGRESS("진행 상태"),
     COMPLETED("완료상태");
     private final String text;
 

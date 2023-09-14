@@ -47,12 +47,12 @@ class BetRepositoryTest extends IntegrationTestSupport {
 
         BetInfo betInfo = createBetInfo(amount,startTime,endTime,location);
         //when
-        Bet saved = createBetAndSave(bettor, receiver, betInfo, BetStatus.PENDING);
+        Bet saved = createBetAndSave(bettor, receiver, betInfo, BetStatus.REQUESTED);
         // then
         assertAll(
                 () -> assertEquals(saved.getBettor(), bettor),
                 () -> assertEquals(saved.getReceiver(), receiver),
-                () -> assertEquals(saved.getBetStatus(), BetStatus.PENDING),
+                () -> assertEquals(saved.getBetStatus(), BetStatus.REQUESTED),
 
                 () -> assertEquals(saved.getBetInfo().getAmount(), amount),
                 () -> assertEquals(saved.getBetInfo().getStartTime(), startTime),
@@ -62,7 +62,7 @@ class BetRepositoryTest extends IntegrationTestSupport {
     }
 
     @Test
-    @DisplayName("완료된 내기가 아닌 목록들중에 시작시간과 종료시간에 포함되는 내기 목록을 조회할 수 있다.")
+    @DisplayName("시작시간과 종료시간에 포함되는 내기 목록을 조회할 수 있다.")
     public void findUncompletedBetsInTimeRange() {
         // given
         User bettor = createUserAndSave("bettor2");
@@ -78,8 +78,8 @@ class BetRepositoryTest extends IntegrationTestSupport {
         LocalDateTime endTime2 = LocalDateTime.of(2021, 2, 6, 00, 10);
         BetInfo betInfo2 = createBetInfo(amount, startTime2, endTime2, location);
 
-        createBetAndSave(bettor, receiver, betInfo1, BetStatus.ONGOING);
-        createBetAndSave(bettor, receiver, betInfo2, BetStatus.PENDING);
+        createBetAndSave(bettor, receiver, betInfo1, BetStatus.WAITING);
+        createBetAndSave(bettor, receiver, betInfo2, BetStatus.IN_PROGRESS);
 
         // when
         LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 55);
@@ -108,7 +108,7 @@ class BetRepositoryTest extends IntegrationTestSupport {
 
         Bet bet1 = createBetAndSave(bettor, receiver, betInfo1, BetStatus.COMPLETED);
         bet1.updateBetResult(BetResult.BETTOR_WIN);
-        createBetAndSave(bettor, receiver, betInfo2, BetStatus.ONGOING);
+        createBetAndSave(bettor, receiver, betInfo2, BetStatus.IN_PROGRESS);
         Bet bet3 = createBetAndSave(receiver, bettor, betInfo3, BetStatus.COMPLETED);
         bet3.updateBetResult(BetResult.RECEIVER_WIN);
         em.flush();

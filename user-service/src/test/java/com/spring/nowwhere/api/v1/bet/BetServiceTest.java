@@ -50,12 +50,12 @@ class BetServiceTest extends IntegrationTestSupport {
          LocalDateTime startTime1 = LocalDateTime.of(2021, 2, 5, 23, 50);
          LocalDateTime endTime1 = LocalDateTime.of(2021, 2, 5, 23, 59);
          BetInfo betInfo1 = createBetInfo(amount, startTime1, endTime1, location);
-         createBetAndSave(bettor, receiver, betInfo1, BetStatus.PENDING);
+         createBetAndSave(bettor, receiver, betInfo1, BetStatus.REQUESTED);
 
          LocalDateTime startTime2 = LocalDateTime.of(2021, 2, 6, 00, 10);
          LocalDateTime endTime2 = LocalDateTime.of(2021, 2, 6, 00, 59);
          BetInfo betInfo2 = createBetInfo(amount, startTime2, endTime2, location);
-         createBetAndSave(bettor, receiver, betInfo2, BetStatus.PENDING);
+         createBetAndSave(bettor, receiver, betInfo2, BetStatus.REQUESTED);
 
          return List.of(
                  DynamicTest.dynamicTest("사용자는 다른 사용자에게 내기를 신청할 수 있다.", () -> {
@@ -76,7 +76,7 @@ class BetServiceTest extends IntegrationTestSupport {
                              () -> assertEquals(responseBet.getReceiverId(),requestBet.getReceiverId()),
                              () -> assertEquals(responseBet.getBetInfo(),requestBetInfo),
                              () -> assertEquals(responseBet.getBetInfo().getAppointmentLocation(),location),
-                             () -> assertEquals(responseBet.getBetStatus(),BetStatus.PENDING)
+                             () -> assertEquals(responseBet.getBetStatus(),BetStatus.REQUESTED)
                      );
 
                  }),

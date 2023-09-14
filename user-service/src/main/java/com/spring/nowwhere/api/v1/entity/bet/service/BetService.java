@@ -48,7 +48,7 @@ public class BetService {
         Bet bet = Bet.builder()
                 .bettor(bettor)
                 .receiver(receiver)
-                .betStatus(BetStatus.PENDING)
+                .betStatus(BetStatus.REQUESTED)
                 .betInfo(betInfo)
                 .build();
         return betRepository.save(bet);
