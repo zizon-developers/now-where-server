@@ -49,12 +49,14 @@ class BetServiceTest extends IntegrationTestSupport {
 
          LocalDateTime startTime1 = LocalDateTime.of(2021, 2, 5, 23, 50);
          LocalDateTime endTime1 = LocalDateTime.of(2021, 2, 5, 23, 59);
-         BetInfo betInfo1 = createBetInfo(amount, startTime1, endTime1, location);
+         BetDateTime betDateTime1 = new BetDateTime(startTime1, endTime1);
+         BetInfo betInfo1 = createBetInfo(amount,betDateTime1 , location);
          createBetAndSave(bettor, receiver, betInfo1, BetStatus.REQUESTED);
 
          LocalDateTime startTime2 = LocalDateTime.of(2021, 2, 6, 00, 10);
          LocalDateTime endTime2 = LocalDateTime.of(2021, 2, 6, 00, 59);
-         BetInfo betInfo2 = createBetInfo(amount, startTime2, endTime2, location);
+         BetDateTime betDateTime2 = new BetDateTime(startTime2, endTime2);
+         BetInfo betInfo2 = createBetInfo(amount, betDateTime2, location);
          createBetAndSave(bettor, receiver, betInfo2, BetStatus.REQUESTED);
 
          return List.of(
@@ -62,7 +64,8 @@ class BetServiceTest extends IntegrationTestSupport {
                      //given
                      LocalDateTime startTime = LocalDateTime.of(2021, 2, 6, 00, 00);
                      LocalDateTime endTime = LocalDateTime.of(2021, 2, 6, 00, 9);
-                     BetInfo requestBetInfo = createBetInfo(amount, startTime, endTime, location);
+                     BetDateTime betDateTime = new BetDateTime(startTime, endTime);
+                     BetInfo requestBetInfo = createBetInfo(amount, betDateTime, location);
 
                      RequestBet requestBet = RequestBet.builder()
                                                          .receiverId("receiverId")
@@ -84,7 +87,8 @@ class BetServiceTest extends IntegrationTestSupport {
                      //given
                      LocalDateTime startTime = LocalDateTime.of(2021, 2, 3, 1, 0);
                      LocalDateTime endTime = LocalDateTime.of(2021, 2, 3, 1, 4);
-                     BetInfo betInfo = createBetInfo(amount, startTime, endTime, location);
+                     BetDateTime betDateTime = new BetDateTime(startTime, endTime);
+                     BetInfo betInfo = createBetInfo(amount, betDateTime, location);
 
                      RequestBet requestBet = RequestBet.builder().receiverId("receiverId")
                                                                  .betInfo(betInfo)
@@ -99,7 +103,8 @@ class BetServiceTest extends IntegrationTestSupport {
                      //when //then
                      LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 59);
                      LocalDateTime endTime = LocalDateTime.of(2021, 2, 6, 00, 9);
-                     BetInfo requestBetInfo = createBetInfo(amount, startTime, endTime, location);
+                     BetDateTime betDateTime = new BetDateTime(startTime, endTime);
+                     BetInfo requestBetInfo = createBetInfo(amount, betDateTime, location);
                      RequestBet requestBet = RequestBet.builder().receiverId("receiverId")
                              .betInfo(requestBetInfo)
                              .build();
@@ -120,11 +125,10 @@ class BetServiceTest extends IntegrationTestSupport {
         return betRepository.save(bet);
     }
 
-    private BetInfo createBetInfo(int amount, LocalDateTime startTime, LocalDateTime endTime, Location location) {
+    private BetInfo createBetInfo(int amount, BetDateTime betDateTime, Location location) {
         return BetInfo.builder()
                 .amount(amount)
-                .startTime(startTime)
-                .endTime(endTime)
+                .betDateTime(betDateTime)
                 .appointmentLocation(location)
                 .build();
     }

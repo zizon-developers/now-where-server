@@ -46,5 +46,7 @@ public class Bet extends BaseDate {
     public void updateBetStatus(BetStatus betStatus){
         this.betStatus = betStatus;
     }
-
+    public void updateBetInfo(BetInfo updateBetInfo){
+        this.betInfo = updateBetInfo;
+    }
 }

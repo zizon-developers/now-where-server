@@ -7,14 +7,14 @@ import com.spring.nowwhere.api.v1.entity.bet.repository.BetRepository;
 import com.spring.nowwhere.api.v1.entity.bet.dto.UserInfoDto;
 import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -44,8 +44,8 @@ class BetRepositoryTest extends IntegrationTestSupport {
         Location location = new Location(454, 589);
         LocalDateTime startTime = LocalDateTime.of(2021, 2, 3, 1, 2, 3);
         LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 1, 2, 3);
-
-        BetInfo betInfo = createBetInfo(amount,startTime,endTime,location);
+        BetDateTime betDateTime = new BetDateTime(startTime, endTime);
+        BetInfo betInfo = createBetInfo(amount, betDateTime,location);
         //when
         Bet saved = createBetAndSave(bettor, receiver, betInfo, BetStatus.REQUESTED);
         // then
@@ -55,39 +55,58 @@ class BetRepositoryTest extends IntegrationTestSupport {
                 () -> assertEquals(saved.getBetStatus(), BetStatus.REQUESTED),
 
                 () -> assertEquals(saved.getBetInfo().getAmount(), amount),
-                () -> assertEquals(saved.getBetInfo().getStartTime(), startTime),
-                () -> assertEquals(saved.getBetInfo().getEndTime(), endTime),
+                () -> assertEquals(saved.getBetInfo().getBetDateTime().getStartTime(), startTime),
+                () -> assertEquals(saved.getBetInfo().getBetDateTime().getEndTime(), endTime),
                 () -> assertEquals(saved.getBetInfo().getAppointmentLocation(), location)
         );
     }
 
-    @Test
+
     @DisplayName("시작시간과 종료시간에 포함되는 내기 목록을 조회할 수 있다.")
-    public void findUncompletedBetsInTimeRange() {
+    @TestFactory
+    public Collection<DynamicTest> findBetsInTimeRange() {
         // given
         User bettor = createUserAndSave("bettor2");
         User receiver = createUserAndSave("receiver2");
+        User test = createUserAndSave("test1");
         Location location = new Location(454, 589);
 
         LocalDateTime startTime1 = LocalDateTime.of(2021, 2, 5, 23, 50);
         LocalDateTime endTime1 = LocalDateTime.of(2021, 2, 5, 23, 59);
+        BetDateTime betDateTime1 = new BetDateTime(startTime1, endTime1);
         int amount = 4500;
-        BetInfo betInfo1 = createBetInfo(amount, startTime1, endTime1, location);
+        BetInfo betInfo1 = createBetInfo(amount, betDateTime1, location);
 
-        LocalDateTime startTime2 = LocalDateTime.of(2021, 2, 6, 00, 00);
-        LocalDateTime endTime2 = LocalDateTime.of(2021, 2, 6, 00, 10);
-        BetInfo betInfo2 = createBetInfo(amount, startTime2, endTime2, location);
+        LocalDateTime startTime2 = LocalDateTime.of(2021, 2, 6, 00, 20);
+        LocalDateTime endTime2 = LocalDateTime.of(2021, 2, 6, 00, 40);
+        BetDateTime betDateTime2 = new BetDateTime(startTime2, endTime2);
+        BetInfo betInfo2 = createBetInfo(amount, betDateTime2, location);
 
-        createBetAndSave(bettor, receiver, betInfo1, BetStatus.WAITING);
-        createBetAndSave(bettor, receiver, betInfo2, BetStatus.IN_PROGRESS);
+        createBetAndSave(bettor, test, betInfo1, BetStatus.WAITING);
+        createBetAndSave(receiver, test, betInfo2, BetStatus.IN_PROGRESS);
 
-        // when
-        LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 55);
-        LocalDateTime endTime = LocalDateTime.of(2021, 2, 6, 00, 7);
-        Optional<Bet> bet = betRepository.findBetsInTimeRange(bettor, startTime, endTime);
-        // then
-        assertThat(bet.isPresent()).isTrue();
+        return List.of(
+                DynamicTest.dynamicTest("bettor의 시작시간과 종료시간에 포함되는 내기 목록을 조회할 수 있다.", () -> {
+                    // when
+                    LocalDateTime bettorStartTime = LocalDateTime.of(2021, 2, 5, 23, 40);
+                    LocalDateTime bettorEndTime = LocalDateTime.of(2021, 2, 5, 23, 50);
+                    Optional<Bet> bettorBet = betRepository.findBetsInTimeRange(bettor, receiver, bettorStartTime, bettorEndTime);
+                    // then
+                    assertThat(bettorBet.isPresent()).isTrue();
+                }),
+                DynamicTest.dynamicTest("receiver의 시작시간과 종료시간에 포함되는 내기 목록을 조회할 수 있다.", () -> {
+                    // when
+                    LocalDateTime receiverStartTime = LocalDateTime.of(2021, 2, 6, 00, 40);
+                    LocalDateTime receiverEndTime = LocalDateTime.of(2021, 2, 6, 00, 59);
+                    Optional<Bet> receiverBet = betRepository.findBetsInTimeRange(bettor, receiver, receiverStartTime, receiverEndTime);
+                    // then
+
+                    assertThat(receiverBet.isPresent()).isTrue();
+                })
+
+        );
     }
+
     @Autowired
     EntityManager em;
 
@@ -102,9 +121,13 @@ class BetRepositoryTest extends IntegrationTestSupport {
         Location location = new Location(454, 589);
         LocalDateTime startTime1 = LocalDateTime.of(2021, 2, 5, 23, 50);
         LocalDateTime endTime1 = LocalDateTime.of(2021, 2, 5, 23, 59);
-        BetInfo betInfo1 = createBetInfo(4000, startTime1, endTime1, location);
-        BetInfo betInfo2 = createBetInfo(5000, startTime1.plusDays(1), endTime1.plusDays(1), location);
-        BetInfo betInfo3 = createBetInfo(6000, startTime1.plusDays(1), endTime1.plusDays(1), location);
+        BetDateTime betDateTime1 = new BetDateTime(startTime1, endTime1);
+        BetDateTime betDateTime2 = new BetDateTime(startTime1.plusDays(1), endTime1.plusDays(1));
+        BetDateTime betDateTime3 = new BetDateTime(startTime1.plusDays(2), endTime1.plusDays(2));
+
+        BetInfo betInfo1 = createBetInfo(4000, betDateTime1, location);
+        BetInfo betInfo2 = createBetInfo(5000, betDateTime2, location);
+        BetInfo betInfo3 = createBetInfo(6000, betDateTime3, location);
 
         Bet bet1 = createBetAndSave(bettor, receiver, betInfo1, BetStatus.COMPLETED);
         bet1.updateBetResult(BetResult.BETTOR_WIN);
@@ -136,11 +159,10 @@ class BetRepositoryTest extends IntegrationTestSupport {
         return betRepository.save(bet);
     }
 
-    private BetInfo createBetInfo(int amount, LocalDateTime startTime, LocalDateTime endTime, Location location) {
+    private BetInfo createBetInfo(int amount, BetDateTime betDateTime, Location location) {
         return BetInfo.builder()
                 .amount(amount)
-                .startTime(startTime)
-                .endTime(endTime)
+                .betDateTime(betDateTime)
                 .appointmentLocation(location)
                 .build();
     }

@@ -26,9 +26,7 @@ public class QBetInfo extends BeanPath<BetInfo> {
 
     public final QLocation appointmentLocation;
 
-    public final DateTimePath<java.time.LocalDateTime> endTime = createDateTime("endTime", java.time.LocalDateTime.class);
-
-    public final DateTimePath<java.time.LocalDateTime> startTime = createDateTime("startTime", java.time.LocalDateTime.class);
+    public final QBetDateTime betDateTime;
 
     public QBetInfo(String variable) {
         this(BetInfo.class, forVariable(variable), INITS);
@@ -49,6 +47,7 @@ public class QBetInfo extends BeanPath<BetInfo> {
     public QBetInfo(Class<? extends BetInfo> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.appointmentLocation = inits.isInitialized("appointmentLocation") ? new QLocation(forProperty("appointmentLocation")) : null;
+        this.betDateTime = inits.isInitialized("betDateTime") ? new QBetDateTime(forProperty("betDateTime")) : null;
     }
 
 }

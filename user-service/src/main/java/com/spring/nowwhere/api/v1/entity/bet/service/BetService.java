@@ -1,8 +1,6 @@
 package com.spring.nowwhere.api.v1.entity.bet.service;
 
-import com.spring.nowwhere.api.v1.entity.bet.Bet;
-import com.spring.nowwhere.api.v1.entity.bet.BetInfo;
-import com.spring.nowwhere.api.v1.entity.bet.BetStatus;
+import com.spring.nowwhere.api.v1.entity.bet.*;
 import com.spring.nowwhere.api.v1.entity.bet.exception.TimeValidationException;
 import com.spring.nowwhere.api.v1.entity.bet.dto.RequestBet;
 import com.spring.nowwhere.api.v1.entity.bet.dto.ResponseBet;
@@ -28,6 +26,17 @@ public class BetService {
     private final int RECEIVER_INDEX = 1;
 
 
+    public void updateBetLocation(String bettorId, String receiverId, Location updateLocation){
+
+    }
+    public void updateBetAmount(String bettorId, String receiverId, int updateAmount){
+
+    }
+
+    public void updateBetDate(String bettorId, String receiverId, BetDateTime betDateTime) {
+
+    }
+
     public ResponseBet createBet(String bettorId, RequestBet requestBet) {
 
         List<User> bettorAndReceiver = checkBettorAndReceiver(bettorId, requestBet);
@@ -35,11 +44,12 @@ public class BetService {
         User receiver = bettorAndReceiver.get(RECEIVER_INDEX);
 
         BetInfo betInfo = requestBet.getBetInfo();
-        LocalDateTime startTime = betInfo.getStartTime();
-        LocalDateTime endTime = betInfo.getEndTime();
+        BetDateTime betDateTime = betInfo.getBetDateTime();
+        LocalDateTime startTime = betDateTime.getStartTime();
+        LocalDateTime endTime = betDateTime.getEndTime();
 
         validateTimeRange(startTime,endTime);
-        validationTimeRange(bettor, startTime, endTime);
+        validationTimeRange(bettor, receiver, startTime, endTime);
 
         return ResponseBet.of(saveBet(bettor, receiver, betInfo));
     }
@@ -62,8 +72,8 @@ public class BetService {
         return bettorAndReceiver;
     }
 
-    private void validationTimeRange(User bettor, LocalDateTime startTime, LocalDateTime endTime) {
-        betRepository.findBetsInTimeRange(bettor, startTime, endTime)
+    private void validationTimeRange(User bettor, User receiver, LocalDateTime startTime, LocalDateTime endTime) {
+        betRepository.findBetsInTimeRange(bettor, receiver, startTime, endTime)
                 .ifPresent((ex)->{
                     throw new TimeValidationException("이미 시간에 포함된 내기가 있습니다.");
                 });

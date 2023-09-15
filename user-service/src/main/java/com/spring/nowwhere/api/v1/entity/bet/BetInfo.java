@@ -8,17 +8,16 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Embeddable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BetInfo {
-    @Schema(description = "내기 시작시간")
-    private LocalDateTime startTime;
-    @Schema(description = "내기 종료시간")
-    private LocalDateTime endTime;
+    @Schema(description = "내기 시간")
+    @Embedded
+    private BetDateTime betDateTime;
+
     @Schema(description = "내기 금액", minimum = "0")
     private int amount;
     @Schema(description = "내기 약속장소")
@@ -26,9 +25,8 @@ public class BetInfo {
     private Location appointmentLocation;
 
     @Builder
-    private BetInfo(LocalDateTime startTime, LocalDateTime endTime, int amount, Location appointmentLocation) {
-        this.startTime = startTime;
-        this.endTime = endTime;
+    private BetInfo(BetDateTime betDateTime, int amount, Location appointmentLocation) {
+        this.betDateTime = betDateTime;
         this.amount = amount;
         this.appointmentLocation = appointmentLocation;
     }
@@ -38,11 +36,11 @@ public class BetInfo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BetInfo betInfo = (BetInfo) o;
-        return amount == betInfo.amount && Objects.equals(startTime, betInfo.startTime) && Objects.equals(endTime, betInfo.endTime) && Objects.equals(appointmentLocation, betInfo.appointmentLocation);
+        return amount == betInfo.amount && Objects.equals(betDateTime, betInfo.betDateTime) && Objects.equals(appointmentLocation, betInfo.appointmentLocation);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(startTime, endTime, amount, appointmentLocation);
+        return Objects.hash(betDateTime, amount, appointmentLocation);
     }
 }
