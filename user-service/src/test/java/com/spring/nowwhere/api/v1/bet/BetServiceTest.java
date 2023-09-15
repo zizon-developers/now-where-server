@@ -4,18 +4,19 @@ import com.spring.nowwhere.api.IntegrationTestSupport;
 import com.spring.nowwhere.api.v1.entity.bet.*;
 import com.spring.nowwhere.api.v1.entity.bet.dto.RequestBet;
 import com.spring.nowwhere.api.v1.entity.bet.dto.ResponseBet;
+import com.spring.nowwhere.api.v1.entity.bet.dto.UpdateBetRequest;
+import com.spring.nowwhere.api.v1.entity.bet.exception.BetStatusException;
 import com.spring.nowwhere.api.v1.entity.bet.exception.TimeValidationException;
 import com.spring.nowwhere.api.v1.entity.bet.repository.BetRepository;
 import com.spring.nowwhere.api.v1.entity.bet.service.BetService;
 import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.DynamicTest;
-import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -31,90 +32,181 @@ class BetServiceTest extends IntegrationTestSupport {
     private BetRepository betRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private EntityManager em;
 
     @AfterEach
-    void tearDown(){
+    void tearDown() {
         betRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
     }
 
-     @DisplayName("사용자 내기 시나리오")
-     @TestFactory
-     Collection<DynamicTest> createBet() {
-         // given
-         User bettor = createUserAndSave("bettor");
-         User receiver = createUserAndSave("receiver");
-         int amount = 4500;
-         Location location = new Location(454, 589);
+    @Test
+    @Transactional
+    @DisplayName("사용자는 내기정보를 업데이트 할 수 있다.")
+    public void updateBetInfo() {
+        // given
+        User bettor = createUserAndSave("bettor");
+        User receiver = createUserAndSave("receiver");
+
+        int amount = 4500;
+        Location location = new Location(454, 589);
+        LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 50);
+        LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 23, 59);
+        BetDateTime betDateTime = new BetDateTime(startTime, endTime);
+        BetInfo betInfo = createBetInfo(amount, betDateTime, location);
+        createBetAndSave(bettor, receiver, betInfo, BetStatus.REQUESTED);
+        // when
+        int updateAmount = 6000;
+        UpdateBetRequest updateBetRequest = UpdateBetRequest.builder()
+                .receiverId(receiver.getCheckId())
+                .betDateTime(betDateTime)
+                .updateBetInfoRequest(new UpdateBetRequest
+                        .UpdateInfoRequest(null, updateAmount, null))
+                .build();
+        betService.updateBetInfo(bettor.getCheckId(), updateBetRequest);
+        em.flush();
+        em.clear();
+        // then
+        Bet bet = betRepository.findBetsInTimeRange(bettor, receiver, betDateTime).get();
+        BetInfo findBetInfo = bet.getBetInfo();
+        assertAll(
+                () -> assertEquals(findBetInfo.getBetDateTime(), betDateTime),
+                () -> assertEquals(findBetInfo.getAmount(), updateAmount),
+                () -> assertEquals(findBetInfo.getAppointmentLocation(), location)
+        );
+    }
+
+    @TestFactory
+    @Transactional
+    @DisplayName("사용자는 내기가 진행중이거나, 완료된 경우 내기 정보를 업데이트 할 경우 예외가 발생한다.")
+    public Collection<DynamicTest> updateBetInfo_EX() {
+        // given
+        User bettor = createUserAndSave("bettor");
+        User receiver = createUserAndSave("receiver");
+        LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 50);
+        LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 23, 59);
+        int amount = 4500;
+        Location location = new Location(454, 589);
+
+        return List.of(
+                DynamicTest.dynamicTest("내기가 진행중일 때 내기 정보를 업데이트 할 경우 예외가 발생한다.", () -> {
+
+                    BetDateTime betDateTime = new BetDateTime(startTime, endTime);
+                    BetInfo betInfo = createBetInfo(amount, betDateTime, location);
+                    createBetAndSave(bettor, receiver, betInfo, BetStatus.IN_PROGRESS);
+                    // when // then
+                    int updateAmount = 6000;
+                    UpdateBetRequest updateBetRequest = UpdateBetRequest.builder()
+                            .receiverId(receiver.getCheckId())
+                            .betDateTime(betDateTime)
+                            .updateBetInfoRequest(new UpdateBetRequest
+                                    .UpdateInfoRequest(null, updateAmount, null))
+                            .build();
+                    assertThatThrownBy(
+                            () -> betService.updateBetInfo(bettor.getCheckId(), updateBetRequest))
+                            .isInstanceOf(BetStatusException.class)
+                            .hasMessage("내기가 진행중이거나, 완료된 경우 내기 정보를 수정할 수 없습니다.");
+                }),
+                DynamicTest.dynamicTest("내기가 완료되었을 때 내기 정보를 업데이트 할 경우 예외가 발생한다.", () -> {
+                    BetDateTime betDateTime = new BetDateTime(startTime.plusDays(1), endTime.plusDays(1));
+                    BetInfo betInfo = createBetInfo(amount, betDateTime, location);
+                    createBetAndSave(bettor, receiver, betInfo, BetStatus.COMPLETED);
+                    // when // then
+                    int updateAmount = 8000;
+                    UpdateBetRequest updateBetRequest = UpdateBetRequest.builder()
+                            .receiverId(receiver.getCheckId())
+                            .betDateTime(betDateTime)
+                            .updateBetInfoRequest(new UpdateBetRequest
+                                    .UpdateInfoRequest(null, updateAmount, null))
+                            .build();
+                    assertThatThrownBy(
+                            () -> betService.updateBetInfo(bettor.getCheckId(), updateBetRequest))
+                            .isInstanceOf(BetStatusException.class)
+                            .hasMessage("내기가 진행중이거나, 완료된 경우 내기 정보를 수정할 수 없습니다.");
+                })
+        );
+    }
+
+    @DisplayName("사용자 내기 시나리오")
+    @TestFactory
+    Collection<DynamicTest> createBet() {
+        // given
+        User bettor = createUserAndSave("bettor");
+        User receiver = createUserAndSave("receiver");
+        int amount = 4500;
+        Location location = new Location(454, 589);
 
 
-         LocalDateTime startTime1 = LocalDateTime.of(2021, 2, 5, 23, 50);
-         LocalDateTime endTime1 = LocalDateTime.of(2021, 2, 5, 23, 59);
-         BetDateTime betDateTime1 = new BetDateTime(startTime1, endTime1);
-         BetInfo betInfo1 = createBetInfo(amount,betDateTime1 , location);
-         createBetAndSave(bettor, receiver, betInfo1, BetStatus.REQUESTED);
+        LocalDateTime startTime1 = LocalDateTime.of(2021, 2, 5, 23, 50);
+        LocalDateTime endTime1 = LocalDateTime.of(2021, 2, 5, 23, 59);
+        BetDateTime betDateTime1 = new BetDateTime(startTime1, endTime1);
+        BetInfo betInfo1 = createBetInfo(amount, betDateTime1, location);
+        createBetAndSave(bettor, receiver, betInfo1, BetStatus.REQUESTED);
 
-         LocalDateTime startTime2 = LocalDateTime.of(2021, 2, 6, 00, 10);
-         LocalDateTime endTime2 = LocalDateTime.of(2021, 2, 6, 00, 59);
-         BetDateTime betDateTime2 = new BetDateTime(startTime2, endTime2);
-         BetInfo betInfo2 = createBetInfo(amount, betDateTime2, location);
-         createBetAndSave(bettor, receiver, betInfo2, BetStatus.REQUESTED);
+        LocalDateTime startTime2 = LocalDateTime.of(2021, 2, 6, 00, 10);
+        LocalDateTime endTime2 = LocalDateTime.of(2021, 2, 6, 00, 59);
+        BetDateTime betDateTime2 = new BetDateTime(startTime2, endTime2);
+        BetInfo betInfo2 = createBetInfo(amount, betDateTime2, location);
+        createBetAndSave(bettor, receiver, betInfo2, BetStatus.REQUESTED);
 
-         return List.of(
-                 DynamicTest.dynamicTest("사용자는 다른 사용자에게 내기를 신청할 수 있다.", () -> {
-                     //given
-                     LocalDateTime startTime = LocalDateTime.of(2021, 2, 6, 00, 00);
-                     LocalDateTime endTime = LocalDateTime.of(2021, 2, 6, 00, 9);
-                     BetDateTime betDateTime = new BetDateTime(startTime, endTime);
-                     BetInfo requestBetInfo = createBetInfo(amount, betDateTime, location);
+        return List.of(
+                DynamicTest.dynamicTest("사용자는 다른 사용자에게 내기를 신청할 수 있다.", () -> {
+                    //given
+                    LocalDateTime startTime = LocalDateTime.of(2021, 2, 6, 00, 00);
+                    LocalDateTime endTime = LocalDateTime.of(2021, 2, 6, 00, 9);
+                    BetDateTime betDateTime = new BetDateTime(startTime, endTime);
+                    BetInfo requestBetInfo = createBetInfo(amount, betDateTime, location);
 
-                     RequestBet requestBet = RequestBet.builder()
-                                                         .receiverId("receiverId")
-                                                         .betInfo(requestBetInfo)
-                                                         .build();
-                     //when
-                     ResponseBet responseBet = betService.createBet(bettor.getCheckId(), requestBet);
-                     //then
-                     assertAll(
-                             () -> assertEquals(responseBet.getBettorId(),bettor.getCheckId()),
-                             () -> assertEquals(responseBet.getReceiverId(),requestBet.getReceiverId()),
-                             () -> assertEquals(responseBet.getBetInfo(),requestBetInfo),
-                             () -> assertEquals(responseBet.getBetInfo().getAppointmentLocation(),location),
-                             () -> assertEquals(responseBet.getBetStatus(),BetStatus.REQUESTED)
-                     );
+                    RequestBet requestBet = RequestBet.builder()
+                            .receiverId("receiverId")
+                            .betInfo(requestBetInfo)
+                            .build();
+                    //when
+                    ResponseBet responseBet = betService.createBet(bettor.getCheckId(), requestBet);
+                    //then
+                    assertAll(
+                            () -> assertEquals(responseBet.getBettorId(), bettor.getCheckId()),
+                            () -> assertEquals(responseBet.getReceiverId(), requestBet.getReceiverId()),
+                            () -> assertEquals(responseBet.getBetInfo(), requestBetInfo),
+                            () -> assertEquals(responseBet.getBetInfo().getAppointmentLocation(), location),
+                            () -> assertEquals(responseBet.getBetStatus(), BetStatus.REQUESTED)
+                    );
 
-                 }),
-                 DynamicTest.dynamicTest("내기의 시작시간과 끝나는 시간의 차이가 5분 이하라면 예외가 발생한다.", () -> {
-                     //given
-                     LocalDateTime startTime = LocalDateTime.of(2021, 2, 3, 1, 0);
-                     LocalDateTime endTime = LocalDateTime.of(2021, 2, 3, 1, 4);
-                     BetDateTime betDateTime = new BetDateTime(startTime, endTime);
-                     BetInfo betInfo = createBetInfo(amount, betDateTime, location);
+                }),
+                DynamicTest.dynamicTest("내기의 시작시간과 끝나는 시간의 차이가 5분 이하라면 예외가 발생한다.", () -> {
+                    //given
+                    LocalDateTime startTime = LocalDateTime.of(2021, 2, 3, 1, 0);
+                    LocalDateTime endTime = LocalDateTime.of(2021, 2, 3, 1, 4);
+                    BetDateTime betDateTime = new BetDateTime(startTime, endTime);
+                    BetInfo betInfo = createBetInfo(amount, betDateTime, location);
 
-                     RequestBet requestBet = RequestBet.builder().receiverId("receiverId")
-                                                                 .betInfo(betInfo)
-                                                                 .build();
-                     //when //then
-                     assertThatThrownBy(() -> betService.createBet(bettor.getCheckId(), requestBet))
-                             .isInstanceOf(TimeValidationException.class)
-                             .hasMessage("내기의 시작시간과 끝나는 시간의 차이는 5분 이상이어야 합니다.");
+                    RequestBet requestBet = RequestBet.builder().receiverId("receiverId")
+                            .betInfo(betInfo)
+                            .build();
+                    //when //then
+                    assertThatThrownBy(() -> betService.createBet(bettor.getCheckId(), requestBet))
+                            .isInstanceOf(TimeValidationException.class)
+                            .hasMessage("내기의 시작시간과 끝나는 시간의 차이는 5분 이상이어야 합니다.");
 
-                 }),
-                 DynamicTest.dynamicTest("이미 지정된 시간에 다른 내기가 있다면 예외가 발생한다.", () -> {
-                     //when //then
-                     LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 59);
-                     LocalDateTime endTime = LocalDateTime.of(2021, 2, 6, 00, 9);
-                     BetDateTime betDateTime = new BetDateTime(startTime, endTime);
-                     BetInfo requestBetInfo = createBetInfo(amount, betDateTime, location);
-                     RequestBet requestBet = RequestBet.builder().receiverId("receiverId")
-                             .betInfo(requestBetInfo)
-                             .build();
+                }),
+                DynamicTest.dynamicTest("이미 지정된 시간에 다른 내기가 있다면 예외가 발생한다.", () -> {
+                    //when //then
+                    LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 59);
+                    LocalDateTime endTime = LocalDateTime.of(2021, 2, 6, 00, 9);
+                    BetDateTime betDateTime = new BetDateTime(startTime, endTime);
+                    BetInfo requestBetInfo = createBetInfo(amount, betDateTime, location);
+                    RequestBet requestBet = RequestBet.builder().receiverId("receiverId")
+                            .betInfo(requestBetInfo)
+                            .build();
 
-                     assertThatThrownBy(() -> betService.createBet(bettor.getCheckId(), requestBet))
-                             .isInstanceOf(TimeValidationException.class)
-                             .hasMessage("이미 시간에 포함된 내기가 있습니다.");
-                 })
-         );
-     }
+                    assertThatThrownBy(() -> betService.createBet(bettor.getCheckId(), requestBet))
+                            .isInstanceOf(TimeValidationException.class)
+                            .hasMessage("이미 시간에 포함된 내기가 있습니다.");
+                })
+        );
+    }
+
     private Bet createBetAndSave(User bettor, User receiver, BetInfo betInfo, BetStatus betStatus) {
         Bet bet = Bet.builder()
                 .bettor(bettor)
@@ -132,10 +224,11 @@ class BetServiceTest extends IntegrationTestSupport {
                 .appointmentLocation(location)
                 .build();
     }
+
     private User createUserAndSave(String name) {
         User user = User.builder()
-                .checkId(name+"Id")
-                .email(name+"@test.com")
+                .checkId(name + "Id")
+                .email(name + "@test.com")
                 .name(name)
                 .build();
         return userRepository.save(user);

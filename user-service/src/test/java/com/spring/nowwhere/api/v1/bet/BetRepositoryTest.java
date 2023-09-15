@@ -90,7 +90,8 @@ class BetRepositoryTest extends IntegrationTestSupport {
                     // when
                     LocalDateTime bettorStartTime = LocalDateTime.of(2021, 2, 5, 23, 40);
                     LocalDateTime bettorEndTime = LocalDateTime.of(2021, 2, 5, 23, 50);
-                    Optional<Bet> bettorBet = betRepository.findBetsInTimeRange(bettor, receiver, bettorStartTime, bettorEndTime);
+                    BetDateTime betDateTime = new BetDateTime(bettorStartTime, bettorEndTime);
+                    Optional<Bet> bettorBet = betRepository.findBetsInTimeRange(bettor, receiver, betDateTime);
                     // then
                     assertThat(bettorBet.isPresent()).isTrue();
                 }),
@@ -98,7 +99,8 @@ class BetRepositoryTest extends IntegrationTestSupport {
                     // when
                     LocalDateTime receiverStartTime = LocalDateTime.of(2021, 2, 6, 00, 40);
                     LocalDateTime receiverEndTime = LocalDateTime.of(2021, 2, 6, 00, 59);
-                    Optional<Bet> receiverBet = betRepository.findBetsInTimeRange(bettor, receiver, receiverStartTime, receiverEndTime);
+                    BetDateTime betDateTime = new BetDateTime(receiverStartTime, receiverEndTime);
+                    Optional<Bet> receiverBet = betRepository.findBetsInTimeRange(bettor, receiver, betDateTime);
                     // then
 
                     assertThat(receiverBet.isPresent()).isTrue();

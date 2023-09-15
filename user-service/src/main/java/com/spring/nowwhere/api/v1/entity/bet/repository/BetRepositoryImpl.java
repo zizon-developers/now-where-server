@@ -6,6 +6,7 @@ import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spring.nowwhere.api.v1.entity.bet.Bet;
+import com.spring.nowwhere.api.v1.entity.bet.BetDateTime;
 import com.spring.nowwhere.api.v1.entity.bet.BetResult;
 import com.spring.nowwhere.api.v1.entity.bet.dto.BetSummaryDto;
 import com.spring.nowwhere.api.v1.entity.bet.dto.QBetSummaryDto;
@@ -33,12 +34,12 @@ public class BetRepositoryImpl implements BetQueryRepository{
     }
 
     @Override
-    public Optional<Bet> findBetsInTimeRange(User bettor, User receiver, LocalDateTime startTime, LocalDateTime endTime) {
+    public Optional<Bet> findBetsInTimeRange(User bettor, User receiver, BetDateTime betDateTime) {
         return Optional.ofNullable(
                 queryFactory.selectFrom(bet)
                     .join(bet.bettor).fetchJoin()
                     .join(bet.receiver).fetchJoin()
-                    .where(inTimeRange(startTime, endTime)
+                    .where(inTimeRange(betDateTime.getStartTime(), betDateTime.getEndTime())
                             .and(bettorAndReceiverEq(bettor).or(bettorAndReceiverEq(receiver))))
                     .fetchFirst());
     }
