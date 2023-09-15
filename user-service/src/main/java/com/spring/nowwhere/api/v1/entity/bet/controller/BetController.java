@@ -1,5 +1,6 @@
 package com.spring.nowwhere.api.v1.entity.bet.controller;
 
+import com.spring.nowwhere.api.v1.entity.bet.dto.UpdateBetRequest;
 import com.spring.nowwhere.api.v1.entity.bet.service.BetService;
 import com.spring.nowwhere.api.v1.entity.bet.dto.RequestBet;
 import com.spring.nowwhere.api.v1.entity.bet.dto.ResponseBet;
@@ -12,10 +13,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -37,6 +35,18 @@ public class BetController {
         ResponseBet responseBet = betService.createBet(checkId, requestBet);
         return responseApi.success(responseBet, "내기 요청에 성공했습니다.", HttpStatus.CREATED);
     }
+
+    @PutMapping("/bets/info")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
+            summary = "update betInfo", description = "사용자 내기 정보 수정를 수정할 수 있다.")
+    public ResponseEntity<ResponseBet> updateBetInfo(HttpServletRequest request,
+                                                 @RequestBody UpdateBetRequest updateBetRequest){
+        String token = getTokenByRequest(request);
+        String checkId = tokenProvider.getCheckIdFromAccessToken(token);
+        betService.updateBetInfo(checkId, updateBetRequest);
+        return responseApi.success("상대방 수락시 내기정보가 변경됩니다.");
+    }
+
     private static String getTokenByRequest(HttpServletRequest request) {
         return request.getHeader(JwtProperties.AUTHORIZATION)
                 .replace(JwtProperties.TOKEN_PREFIX, "");
