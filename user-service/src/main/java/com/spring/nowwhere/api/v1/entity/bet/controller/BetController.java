@@ -1,5 +1,6 @@
 package com.spring.nowwhere.api.v1.entity.bet.controller;
 
+import com.spring.nowwhere.api.v1.entity.bet.dto.RemoveBetRequest;
 import com.spring.nowwhere.api.v1.entity.bet.dto.UpdateBetRequest;
 import com.spring.nowwhere.api.v1.entity.bet.service.BetService;
 import com.spring.nowwhere.api.v1.entity.bet.dto.RequestBet;
@@ -24,6 +25,17 @@ public class BetController {
     private final BetService betService;
     private final ResponseApi responseApi;
     private final TokenProvider tokenProvider;
+
+    @DeleteMapping("/bets")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") },
+            summary = "cancel bet", description = "특정 사용자에게 내기를 취소할 수 있다.")
+    public ResponseEntity<ResponseBet> cancelBet(HttpServletRequest request,
+                                                 @RequestBody RemoveBetRequest removeBetRequest){
+        String token = getTokenByRequest(request);
+        String checkId = tokenProvider.getCheckIdFromAccessToken(token);
+        betService.removeBet(checkId, removeBetRequest);
+        return responseApi.success("내기가 취소 되었습니다.");
+    }
 
     @PostMapping("/bets")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") },

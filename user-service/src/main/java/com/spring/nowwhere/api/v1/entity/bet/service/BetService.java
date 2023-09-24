@@ -1,6 +1,7 @@
 package com.spring.nowwhere.api.v1.entity.bet.service;
 
 import com.spring.nowwhere.api.v1.entity.bet.*;
+import com.spring.nowwhere.api.v1.entity.bet.dto.RemoveBetRequest;
 import com.spring.nowwhere.api.v1.entity.bet.dto.UpdateBetRequest;
 import com.spring.nowwhere.api.v1.entity.bet.exception.BetNotFoundException;
 import com.spring.nowwhere.api.v1.entity.bet.exception.BetStatusException;
@@ -28,6 +29,18 @@ public class BetService {
     private final int BETTOR_INDEX = 0;
     private final int RECEIVER_INDEX = 1;
 
+    public void removeBet(String bettorId, RemoveBetRequest removeBetRequest){
+        String receiverId = removeBetRequest.getReceiverId();
+        List<User> bettorAndReceiver = checkBettorAndReceiver(bettorId, receiverId);
+        User bettor = bettorAndReceiver.get(BETTOR_INDEX);
+        User receiver = bettorAndReceiver.get(RECEIVER_INDEX);
+
+        BetDateTime betDateTime = removeBetRequest.getBetDateTime();
+        Bet bet = getBetByDateTimeAndCheckStatus(bettor, receiver, betDateTime);
+
+        betRepository.delete(bet);
+    }
+
     public void updateBetInfo(String bettorId, UpdateBetRequest updateBetRequest){
         String receiverId = updateBetRequest.getReceiverId();
         List<User> bettorAndReceiver = checkBettorAndReceiver(bettorId, receiverId);
@@ -48,7 +61,7 @@ public class BetService {
                 .orElseThrow(() -> new BetNotFoundException("해당하는 내기 정보가 없습니다."));
         BetStatus betStatus = bet.getBetStatus();
         if (betStatus.equals(BetStatus.COMPLETED) || betStatus.equals(BetStatus.IN_PROGRESS)){
-            throw new BetStatusException("내기가 진행중이거나, 완료된 경우 내기 정보를 수정할 수 없습니다.");
+            throw new BetStatusException("이미 내기가 진행중이거나, 완료되었습니다.");
         }
         return bet;
     }

@@ -2,6 +2,7 @@ package com.spring.nowwhere.api.v1.bet;
 
 import com.spring.nowwhere.api.IntegrationTestSupport;
 import com.spring.nowwhere.api.v1.entity.bet.*;
+import com.spring.nowwhere.api.v1.entity.bet.dto.RemoveBetRequest;
 import com.spring.nowwhere.api.v1.entity.bet.dto.RequestBet;
 import com.spring.nowwhere.api.v1.entity.bet.dto.ResponseBet;
 import com.spring.nowwhere.api.v1.entity.bet.dto.UpdateBetRequest;
@@ -20,7 +21,9 @@ import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,6 +42,79 @@ class BetServiceTest extends IntegrationTestSupport {
     void tearDown() {
         betRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
+    }
+
+    @Test
+    @DisplayName("사용자는 내기를 취소할 수 있다.")
+    public void removeBet() {
+        // given
+        User bettor = createUserAndSave("bettor");
+        User receiver = createUserAndSave("receiver");
+
+        int amount = 4500;
+        Location location = new Location(454, 589);
+        LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 50);
+        LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 23, 59);
+        BetDateTime betDateTime = new BetDateTime(startTime, endTime);
+        BetInfo betInfo = createBetInfo(amount, betDateTime, location);
+        createBetAndSave(bettor, receiver, betInfo, BetStatus.REQUESTED);
+
+        // when
+        RemoveBetRequest removeBetRequest = RemoveBetRequest.builder()
+                .receiverId(receiver.getCheckId())
+                .betDateTime(betDateTime)
+                .build();
+        betService.removeBet(bettor.getCheckId(),removeBetRequest);
+        Optional<Bet> findBet = betRepository.findBetsInTimeRange(bettor, receiver, betDateTime);
+        // then
+        assertThat(findBet.isEmpty()).isTrue();
+    }
+
+    @TestFactory
+    @Transactional
+    @DisplayName("사용자는 내기가 진행중이거나, 완료된 경우 내기 정보를 업데이트 할 경우 예외가 발생한다.")
+    public Collection<DynamicTest> removeBet_EX() {
+        // given
+        User bettor = createUserAndSave("bettor");
+        User receiver = createUserAndSave("receiver");
+        LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 50);
+        LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 23, 59);
+        int amount = 4500;
+        Location location = new Location(454, 589);
+
+        return List.of(
+                DynamicTest.dynamicTest("내기가 진행중일 때 내기 정보를 업데이트 할 경우 예외가 발생한다.", () -> {
+
+                    BetDateTime betDateTime = new BetDateTime(startTime, endTime);
+                    BetInfo betInfo = createBetInfo(amount, betDateTime, location);
+                    createBetAndSave(bettor, receiver, betInfo, BetStatus.IN_PROGRESS);
+                    // when // then
+                    RemoveBetRequest removeBetRequest = RemoveBetRequest.builder()
+                            .receiverId(receiver.getCheckId())
+                            .betDateTime(betDateTime)
+                            .build();
+
+                    assertThatThrownBy(
+                            () -> betService.removeBet(bettor.getCheckId(),removeBetRequest))
+                            .isInstanceOf(BetStatusException.class)
+                            .hasMessage("이미 내기가 진행중이거나, 완료되었습니다.");
+                }),
+                DynamicTest.dynamicTest("내기가 완료되었을 때 내기 정보를 업데이트 할 경우 예외가 발생한다.", () -> {
+                    BetDateTime betDateTime = new BetDateTime(startTime.plusDays(1), endTime.plusDays(1));
+                    BetInfo betInfo = createBetInfo(amount, betDateTime, location);
+                    createBetAndSave(bettor, receiver, betInfo, BetStatus.COMPLETED);
+                    // when // then
+                    RemoveBetRequest removeBetRequest = RemoveBetRequest.builder()
+                            .receiverId(receiver.getCheckId())
+                            .betDateTime(betDateTime)
+                            .build();
+
+                    assertThatThrownBy(
+                            () -> betService.removeBet(bettor.getCheckId(),removeBetRequest))
+                            .isInstanceOf(BetStatusException.class)
+                            .hasMessage("이미 내기가 진행중이거나, 완료되었습니다.");
+                })
+        );
     }
 
     @Test
@@ -106,7 +182,7 @@ class BetServiceTest extends IntegrationTestSupport {
                     assertThatThrownBy(
                             () -> betService.updateBetInfo(bettor.getCheckId(), updateBetRequest))
                             .isInstanceOf(BetStatusException.class)
-                            .hasMessage("내기가 진행중이거나, 완료된 경우 내기 정보를 수정할 수 없습니다.");
+                            .hasMessage("이미 내기가 진행중이거나, 완료되었습니다.");
                 }),
                 DynamicTest.dynamicTest("내기가 완료되었을 때 내기 정보를 업데이트 할 경우 예외가 발생한다.", () -> {
                     BetDateTime betDateTime = new BetDateTime(startTime.plusDays(1), endTime.plusDays(1));
@@ -123,7 +199,7 @@ class BetServiceTest extends IntegrationTestSupport {
                     assertThatThrownBy(
                             () -> betService.updateBetInfo(bettor.getCheckId(), updateBetRequest))
                             .isInstanceOf(BetStatusException.class)
-                            .hasMessage("내기가 진행중이거나, 완료된 경우 내기 정보를 수정할 수 없습니다.");
+                            .hasMessage("이미 내기가 진행중이거나, 완료되었습니다.");
                 })
         );
     }
