@@ -1,13 +1,10 @@
 package com.spring.nowwhere.api.v1.entity.bet.service;
 
 import com.spring.nowwhere.api.v1.entity.bet.*;
-import com.spring.nowwhere.api.v1.entity.bet.dto.RemoveBetRequest;
-import com.spring.nowwhere.api.v1.entity.bet.dto.UpdateBetRequest;
+import com.spring.nowwhere.api.v1.entity.bet.dto.*;
 import com.spring.nowwhere.api.v1.entity.bet.exception.BetNotFoundException;
 import com.spring.nowwhere.api.v1.entity.bet.exception.BetStatusException;
 import com.spring.nowwhere.api.v1.entity.bet.exception.TimeValidationException;
-import com.spring.nowwhere.api.v1.entity.bet.dto.RequestBet;
-import com.spring.nowwhere.api.v1.entity.bet.dto.ResponseBet;
 import com.spring.nowwhere.api.v1.entity.bet.repository.BetRepository;
 import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
@@ -19,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.util.List;
 
+import static com.spring.nowwhere.api.v1.entity.bet.BetStatus.*;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -29,6 +28,27 @@ public class BetService {
     private final int BETTOR_INDEX = 0;
     private final int RECEIVER_INDEX = 1;
 
+    public void acceptBet(String receiverId, AcceptBetRequest acceptBetRequest) {
+        String bettorId = acceptBetRequest.getBettorId();
+        List<User> bettorAndReceiver = checkBettorAndReceiver(bettorId, receiverId);
+        User bettor = bettorAndReceiver.get(BETTOR_INDEX);
+        User receiver = bettorAndReceiver.get(RECEIVER_INDEX);
+
+        BetDateTime betDateTime = acceptBetRequest.getBetDateTime();
+        Bet bet = getBetByDateTimeAndRequest(bettor, receiver, betDateTime);
+        bet.updateBetStatus(WAITING);
+    }
+    public void rejectBet(String receiverId, RejectBetRequest rejectBetRequest){
+        String bettorId = rejectBetRequest.getBettorId();
+        List<User> bettorAndReceiver = checkBettorAndReceiver(bettorId, receiverId);
+        User bettor = bettorAndReceiver.get(BETTOR_INDEX);
+        User receiver = bettorAndReceiver.get(RECEIVER_INDEX);
+
+        BetDateTime betDateTime = rejectBetRequest.getBetDateTime();
+        Bet bet = getBetByDateTimeAndRequest(bettor, receiver, betDateTime);
+
+        betRepository.delete(bet);
+    }
     public void removeBet(String bettorId, RemoveBetRequest removeBetRequest){
         String receiverId = removeBetRequest.getReceiverId();
         List<User> bettorAndReceiver = checkBettorAndReceiver(bettorId, receiverId);
@@ -53,15 +73,25 @@ public class BetService {
         BetInfo updateBetInfo = getUpdateBetInfo(updateBetRequest, bet.getBetInfo());
 
         bet.updateBetInfo(updateBetInfo);
-        bet.updateBetStatus(BetStatus.REQUESTED);
+        bet.updateBetStatus(REQUESTED);
     }
 
     private Bet getBetByDateTimeAndCheckStatus(User bettor, User receiver, BetDateTime betDateTime) {
         Bet bet = betRepository.findBetsInTimeRange(bettor, receiver, betDateTime)
                 .orElseThrow(() -> new BetNotFoundException("해당하는 내기 정보가 없습니다."));
         BetStatus betStatus = bet.getBetStatus();
-        if (betStatus.equals(BetStatus.COMPLETED) || betStatus.equals(BetStatus.IN_PROGRESS)){
+        if (betStatus.equals(COMPLETED) || betStatus.equals(IN_PROGRESS)){
             throw new BetStatusException("이미 내기가 진행중이거나, 완료되었습니다.");
+        }
+        return bet;
+    }
+
+    private Bet getBetByDateTimeAndRequest(User bettor, User receiver, BetDateTime betDateTime) {
+        Bet bet = betRepository.findBetsInTimeRange(bettor, receiver, betDateTime)
+                .orElseThrow(() -> new BetNotFoundException("해당하는 내기 정보가 없습니다."));
+        BetStatus betStatus = bet.getBetStatus();
+        if (!REQUESTED.equals(betStatus)){
+            throw new BetStatusException("내기의 상태가 요청상태가 아닙니다.");
         }
         return bet;
     }
@@ -103,7 +133,7 @@ public class BetService {
         Bet bet = Bet.builder()
                 .bettor(bettor)
                 .receiver(receiver)
-                .betStatus(BetStatus.REQUESTED)
+                .betStatus(REQUESTED)
                 .betInfo(betInfo)
                 .build();
         return betRepository.save(bet);
@@ -120,8 +150,7 @@ public class BetService {
     private void validationTimeRange(User bettor, User receiver, BetDateTime betDateTime) {
         betRepository.findBetsInTimeRange(bettor, receiver, betDateTime)
                 .ifPresent((ex)->{
-                    throw new TimeValidationException("이미 시간에 포함된 내기가 있습니다.");
-                });
+                    throw new TimeValidationException("이미 시간에 포함된 내기가 있습니다.");});
     }
 
     private void validateTimeRange(BetDateTime betDateTime){
