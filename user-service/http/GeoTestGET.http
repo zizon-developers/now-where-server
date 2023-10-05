@@ -1,0 +1,2 @@
+GET http://localhost:8088/api/v1//location/nearby?latitude=13D&longitude=37D&km=200
+Content-Type: application/json
