@@ -49,7 +49,7 @@ class BetServiceTest extends IntegrationTestSupport {
         User receiver = createUserAndSave("receiver");
 
         int amount = 4500;
-        Location location = new Location(454, 589);
+        Location location = new Location(454, 589,"목적지");
         LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 50);
         LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 23, 59);
         BetDateTime betDateTime = new BetDateTime(startTime, endTime);
@@ -81,7 +81,7 @@ class BetServiceTest extends IntegrationTestSupport {
         LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 50);
         LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 23, 59);
         int amount = 4500;
-        Location location = new Location(454, 589);
+        Location location = new Location(454, 589,"목적지");
 
         return List.of(
                 DynamicTest.dynamicTest("내기가 대기중일 때 내기 정보를 업데이트 할 경우 예외가 발생한다.", () -> {
@@ -143,7 +143,7 @@ class BetServiceTest extends IntegrationTestSupport {
         User receiver = createUserAndSave("receiver");
 
         int amount = 4500;
-        Location location = new Location(454, 589);
+        Location location = new Location(454, 589,"목적지");
         LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 50);
         LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 23, 59);
         BetDateTime betDateTime = new BetDateTime(startTime, endTime);
@@ -175,7 +175,7 @@ class BetServiceTest extends IntegrationTestSupport {
         LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 50);
         LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 23, 59);
         int amount = 4500;
-        Location location = new Location(454, 589);
+        Location location = new Location(454, 589,"목적지");
 
         return List.of(
                 DynamicTest.dynamicTest("내기가 대기중일 때 내기 정보를 업데이트 할 경우 예외가 발생한다.", () -> {
@@ -237,7 +237,7 @@ class BetServiceTest extends IntegrationTestSupport {
         User receiver = createUserAndSave("receiver");
 
         int amount = 4500;
-        Location location = new Location(454, 589);
+        Location location = new Location(454, 589,"목적지");
         LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 50);
         LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 23, 59);
         BetDateTime betDateTime = new BetDateTime(startTime, endTime);
@@ -269,7 +269,7 @@ class BetServiceTest extends IntegrationTestSupport {
         LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 50);
         LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 23, 59);
         int amount = 4500;
-        Location location = new Location(454, 589);
+        Location location = new Location(454, 589,"목적지");
 
         return List.of(
                 DynamicTest.dynamicTest("내기가 진행중일 때 내기 정보를 업데이트 할 경우 예외가 발생한다.", () -> {
@@ -319,7 +319,7 @@ class BetServiceTest extends IntegrationTestSupport {
         User receiver = createUserAndSave("receiver");
 
         int amount = 4500;
-        Location location = new Location(454, 589);
+        Location location = new Location(454, 589,"목적지");
         LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 50);
         LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 23, 59);
         BetDateTime betDateTime = new BetDateTime(startTime, endTime);
@@ -356,7 +356,7 @@ class BetServiceTest extends IntegrationTestSupport {
         LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 50);
         LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 23, 59);
         int amount = 4500;
-        Location location = new Location(454, 589);
+        Location location = new Location(454, 589,"목적지");
 
         return List.of(
                 DynamicTest.dynamicTest("내기가 진행중일 때 내기 정보를 업데이트 할 경우 예외가 발생한다.", () -> {
@@ -404,7 +404,7 @@ class BetServiceTest extends IntegrationTestSupport {
         User bettor = createUserAndSave("bettor");
         User receiver = createUserAndSave("receiver");
         int amount = 4500;
-        Location location = new Location(454, 589);
+        Location location = new Location(454, 589,"목적지");
 
 
         LocalDateTime startTime1 = LocalDateTime.of(2021, 2, 5, 23, 50);

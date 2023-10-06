@@ -41,7 +41,7 @@ class BetRepositoryTest extends IntegrationTestSupport {
         User receiver = createUserAndSave("receiver1");
 
         int amount = 4500;
-        Location location = new Location(454, 589);
+        Location location = new Location(454, 589,"목적지");
         LocalDateTime startTime = LocalDateTime.of(2021, 2, 3, 1, 2, 3);
         LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 1, 2, 3);
 
@@ -70,7 +70,7 @@ class BetRepositoryTest extends IntegrationTestSupport {
         User receiver = createUserAndSave("receiver1");
 
         int amount = 4500;
-        Location location = new Location(454, 589);
+        Location location = new Location(454, 589,"목적지");
         LocalDateTime startTime = LocalDateTime.of(2021, 2, 3, 1, 2, 3);
         LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 1, 2, 3);
 
@@ -98,7 +98,7 @@ class BetRepositoryTest extends IntegrationTestSupport {
         User receiver = createUserAndSave("receiver1");
 
         int amount = 4500;
-        Location location = new Location(454, 589);
+        Location location = new Location(454, 589,"목적지");
         LocalDateTime startTime = LocalDateTime.of(2021, 2, 3, 1, 2, 3);
         LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 1, 2, 3);
         BetDateTime betDateTime = new BetDateTime(startTime, endTime);
@@ -126,7 +126,7 @@ class BetRepositoryTest extends IntegrationTestSupport {
         User bettor = createUserAndSave("bettor2");
         User receiver = createUserAndSave("receiver2");
         User test = createUserAndSave("test1");
-        Location location = new Location(454, 589);
+        Location location = new Location(454, 589,"목적지");
 
         LocalDateTime startTime1 = LocalDateTime.of(2021, 2, 5, 23, 50);
         LocalDateTime endTime1 = LocalDateTime.of(2021, 2, 5, 23, 59);
@@ -177,7 +177,7 @@ class BetRepositoryTest extends IntegrationTestSupport {
         User bettor = createUserAndSave("bettor3");
         User receiver = createUserAndSave("receiver3");
 
-        Location location = new Location(454, 589);
+        Location location = new Location(454, 589,"목적지");
         LocalDateTime startTime1 = LocalDateTime.of(2021, 2, 5, 23, 50);
         LocalDateTime endTime1 = LocalDateTime.of(2021, 2, 5, 23, 59);
         BetDateTime betDateTime1 = new BetDateTime(startTime1, endTime1);

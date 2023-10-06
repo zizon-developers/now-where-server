@@ -17,10 +17,13 @@ public class Location {
     private double latitude;
     @Schema(description = "경도")
     private double longitude; //경도
+    @Schema(description = "도착지 이름")
+    private String destination;
 
-    public Location(double latitude, double longitude) {
+    public Location(double latitude, double longitude, String destination) {
         this.latitude = latitude;
         this.longitude = longitude;
+        this.destination = destination;
     }
 
     @Override

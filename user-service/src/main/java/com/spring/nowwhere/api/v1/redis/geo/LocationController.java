@@ -33,10 +33,9 @@ public class LocationController {
     public ResponseEntity<ResponseBetGeo> locations(@RequestBody RequestBetGeo requestBetGeo,
                                                     HttpServletRequest request) {
 
-        var location =  requestBetGeo.getLocation();
         String checkId = getCheckIdByRequest(request);
-        ResponseBetGeo responseBetGeo = geoService.nearByDestination(new Location(checkId, location.getLatitude(),
-                location.getLongitude()), requestBetGeo.getDestination());
+        Location location = new Location(checkId, requestBetGeo.getLatitude(), requestBetGeo.getLongitude());
+        ResponseBetGeo responseBetGeo = geoService.nearByDestination(location, requestBetGeo.getDestination());
         return ResponseEntity.ok(responseBetGeo);
     }
     @PostMapping("/location")
