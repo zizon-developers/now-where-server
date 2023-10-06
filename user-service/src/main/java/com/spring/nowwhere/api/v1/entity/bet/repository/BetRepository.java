@@ -13,5 +13,4 @@ import java.util.Optional;
 
 
 public interface BetRepository extends JpaRepository<Bet, Long>, BetQueryRepository{
-    Optional<Bet> findByBet(Bet bet);
 }

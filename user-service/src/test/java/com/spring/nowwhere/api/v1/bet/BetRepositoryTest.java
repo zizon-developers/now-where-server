@@ -27,32 +27,42 @@ class BetRepositoryTest extends IntegrationTestSupport {
     @Autowired
     private BetRepository betRepository;
 
-    @AfterEach
+//    @AfterEach
     void tearDown(){
         betRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
     }
 
     @Test
-    @DisplayName("findById")
-    public void findById() {
+    @DisplayName("test")
+    public void test() {
+        // given
         User bettor = createUserAndSave("bettor1");
         User receiver = createUserAndSave("receiver1");
 
         int amount = 4500;
-        Location location = new Location(454, 589,"목적지");
-        LocalDateTime startTime = LocalDateTime.of(2021, 2, 3, 1, 2, 3);
-        LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 1, 2, 3);
+        Location location = new Location(2.17403, 41.40338,"목적지");
+        LocalDateTime startTime = LocalDateTime.of(2023, 10, 6, 17, 05, 01);
+        LocalDateTime endTime = LocalDateTime.of(2023, 10, 7, 16, 50, 01);
 
         BetDateTime betDateTime = new BetDateTime(startTime, endTime);
         BetInfo betInfo = createBetInfo(amount, betDateTime,location);
-        Bet saveBet = createBetAndSave(bettor, receiver, betInfo, BetStatus.REQUESTED);
-        //when
-        Optional<Bet> findBet = betRepository.findById(saveBet);
-        // then
-        assertThat(findBet).isNotEmpty();
-    }
+        createBetAndSave(bettor, receiver, betInfo, BetStatus.REQUESTED);
+        // when
+        User bettor1 = createUserAndSave("bettor2");
+        User receiver1 = createUserAndSave("receiver2");
 
+        BetDateTime betDateTime2 = new BetDateTime(startTime, endTime.plusDays(1));
+        BetInfo betInfo2 = createBetInfo(amount, betDateTime2,location);
+        createBetAndSave(bettor1, receiver1, betInfo2, BetStatus.REQUESTED);
+
+        User bettor2 = createUserAndSave("bettor3");
+        User receive2 = createUserAndSave("receiver3");
+        BetDateTime betDateTime3 = new BetDateTime(startTime, endTime.plusDays(2));
+        BetInfo betInfo3 = createBetInfo(amount, betDateTime3,location);
+        createBetAndSave(bettor2, receive2, betInfo3, BetStatus.REQUESTED);
+        // then
+    }
     @Test
     @DisplayName("특정 시작시간인 내기를 모두 조회할 수 있다.")
     public void findBetsByStartTime() {

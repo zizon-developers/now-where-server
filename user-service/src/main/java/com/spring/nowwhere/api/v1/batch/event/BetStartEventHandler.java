@@ -3,6 +3,7 @@ package com.spring.nowwhere.api.v1.batch.event;//package com.spring.nowwhere.api
 import com.spring.nowwhere.api.v1.entity.bet.Bet;
 import com.spring.nowwhere.api.v1.entity.bet.Location;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.core.GeoOperations;
