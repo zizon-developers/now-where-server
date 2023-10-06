@@ -1,6 +1,5 @@
 package com.spring.nowwhere.api.v1.batch;//package com.spring.nowwhere.api.v1.batch;
 
-import com.spring.nowwhere.api.v1.batch.event.EndedBetEvent;
 import com.spring.nowwhere.api.v1.batch.event.StartedBetEvent;
 import com.spring.nowwhere.api.v1.entity.bet.repository.BetRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,11 +25,4 @@ public class BetSchedulerService {
                 .forEach(publisher::publishEvent);
     }
 
-    @Scheduled(cron = "0 0/10 * * * *", zone = "Asia/Seoul") //매일 10분마다 처리하기
-    public void betEndTimeProcess() {
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-        repository.findBetsByEndTime(now).stream()
-                .map(EndedBetEvent::new)
-                .forEach(publisher::publishEvent);
-    }
 }

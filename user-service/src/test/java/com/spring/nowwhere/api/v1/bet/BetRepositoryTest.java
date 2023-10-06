@@ -34,6 +34,26 @@ class BetRepositoryTest extends IntegrationTestSupport {
     }
 
     @Test
+    @DisplayName("findById")
+    public void findById() {
+        User bettor = createUserAndSave("bettor1");
+        User receiver = createUserAndSave("receiver1");
+
+        int amount = 4500;
+        Location location = new Location(454, 589,"목적지");
+        LocalDateTime startTime = LocalDateTime.of(2021, 2, 3, 1, 2, 3);
+        LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 1, 2, 3);
+
+        BetDateTime betDateTime = new BetDateTime(startTime, endTime);
+        BetInfo betInfo = createBetInfo(amount, betDateTime,location);
+        Bet saveBet = createBetAndSave(bettor, receiver, betInfo, BetStatus.REQUESTED);
+        //when
+        Optional<Bet> findBet = betRepository.findById(saveBet);
+        // then
+        assertThat(findBet).isNotEmpty();
+    }
+
+    @Test
     @DisplayName("특정 시작시간인 내기를 모두 조회할 수 있다.")
     public void findBetsByStartTime() {
         // given
