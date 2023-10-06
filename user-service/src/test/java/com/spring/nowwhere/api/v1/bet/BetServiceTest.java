@@ -12,7 +12,6 @@ import com.spring.nowwhere.api.v1.entity.user.User;
 import com.spring.nowwhere.api.v1.entity.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -60,7 +59,7 @@ class BetServiceTest extends IntegrationTestSupport {
         // when
         AcceptBetRequest request = createAcceptBetRequest(bettor, betDateTime);
         betService.acceptBet(receiver.getCheckId(),request);
-        Bet findBet = betRepository.findBetsInTimeRange(bettor, receiver, betDateTime).get();
+        Bet findBet = betRepository.findBetInTimeRange(bettor, receiver, betDateTime).get();
         // then
         assertThat(findBet.getBetStatus()).isEqualTo(WAITING);
     }
@@ -154,7 +153,7 @@ class BetServiceTest extends IntegrationTestSupport {
         // when
         RejectBetRequest request = createRejectBetRequest(bettor, betDateTime);
         betService.rejectBet(receiver.getCheckId(),request);
-        Optional<Bet> findBet = betRepository.findBetsInTimeRange(bettor, receiver, betDateTime);
+        Optional<Bet> findBet = betRepository.findBetInTimeRange(bettor, receiver, betDateTime);
         // then
         assertThat(findBet.isEmpty()).isTrue();
     }
@@ -248,7 +247,7 @@ class BetServiceTest extends IntegrationTestSupport {
         // when
         RemoveBetRequest removeBetRequest = createRemoveBetRequest(receiver, betDateTime);
         betService.removeBet(bettor.getCheckId(),removeBetRequest);
-        Optional<Bet> findBet = betRepository.findBetsInTimeRange(bettor, receiver, betDateTime);
+        Optional<Bet> findBet = betRepository.findBetInTimeRange(bettor, receiver, betDateTime);
         // then
         assertThat(findBet.isEmpty()).isTrue();
     }
@@ -338,7 +337,7 @@ class BetServiceTest extends IntegrationTestSupport {
         em.flush();
         em.clear();
         // then
-        Bet bet = betRepository.findBetsInTimeRange(bettor, receiver, betDateTime).get();
+        Bet bet = betRepository.findBetInTimeRange(bettor, receiver, betDateTime).get();
         BetInfo findBetInfo = bet.getBetInfo();
         assertAll(
                 () -> assertEquals(findBetInfo.getBetDateTime(), betDateTime),

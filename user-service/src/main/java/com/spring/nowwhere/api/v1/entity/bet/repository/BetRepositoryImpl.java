@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static com.spring.nowwhere.api.v1.entity.bet.QBet.*;
@@ -25,6 +26,7 @@ import static com.spring.nowwhere.api.v1.entity.bet.QBet.*;
 @Repository
 @Transactional
 public class BetRepositoryImpl implements BetQueryRepository{
+
     private final EntityManager em;
     private final JPAQueryFactory queryFactory;
 
@@ -34,7 +36,7 @@ public class BetRepositoryImpl implements BetQueryRepository{
     }
 
     @Override
-    public Optional<Bet> findBetsInTimeRange(User bettor, User receiver, BetDateTime betDateTime) {
+    public Optional<Bet> findBetInTimeRange(User bettor, User receiver, BetDateTime betDateTime) {
         return Optional.ofNullable(
                 queryFactory.selectFrom(bet)
                     .join(bet.bettor).fetchJoin()
@@ -63,6 +65,24 @@ public class BetRepositoryImpl implements BetQueryRepository{
         return betSummaryDto;
     }
 
+    @Override
+    public List<Bet> findBetsByStartTime(LocalDateTime startTime) {
+        return queryFactory.selectFrom(bet)
+                        .join(bet.bettor).fetchJoin()
+                        .join(bet.receiver).fetchJoin()
+                        .where(startTimeEq(startTime))
+                        .fetch();
+    }
+
+    @Override
+    public List<Bet> findBetsByEndTime(LocalDateTime endTime) {
+        return queryFactory.selectFrom(bet)
+                .join(bet.bettor).fetchJoin()
+                .join(bet.receiver).fetchJoin()
+                .where(endTimeEq(endTime))
+                .fetch();
+    }
+
     private Expression<Integer> getTotalBetAmount(User user) {
         return ExpressionUtils.as(
                 JPAExpressions.select(bet.betInfo.amount.sum())
@@ -89,6 +109,12 @@ public class BetRepositoryImpl implements BetQueryRepository{
     private BooleanBuilder inTimeRange(LocalDateTime startTime, LocalDateTime endTime) {
         return new BooleanBuilder(bet.betInfo.betDateTime.startTime.loe(endTime)
                                         .and(bet.betInfo.betDateTime.endTime.goe(startTime)));
+    }
+    private BooleanBuilder startTimeEq(LocalDateTime startTime) {
+        return new BooleanBuilder(bet.betInfo.betDateTime.startTime.eq(startTime));
+    }
+    private BooleanBuilder endTimeEq(LocalDateTime endTime) {
+        return new BooleanBuilder(bet.betInfo.betDateTime.endTime.eq(endTime));
     }
     private BooleanBuilder bettorAndReceiverEq(User user) {
         return new BooleanBuilder(bet.bettor.eq(user).or(bet.receiver.eq(user)));

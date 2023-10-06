@@ -77,7 +77,7 @@ public class BetService {
     }
 
     private Bet getBetByDateTimeAndCheckStatus(User bettor, User receiver, BetDateTime betDateTime) {
-        Bet bet = betRepository.findBetsInTimeRange(bettor, receiver, betDateTime)
+        Bet bet = betRepository.findBetInTimeRange(bettor, receiver, betDateTime)
                 .orElseThrow(() -> new BetNotFoundException("해당하는 내기 정보가 없습니다."));
         BetStatus betStatus = bet.getBetStatus();
         if (betStatus.equals(COMPLETED) || betStatus.equals(IN_PROGRESS)){
@@ -87,7 +87,7 @@ public class BetService {
     }
 
     private Bet getBetByDateTimeAndRequest(User bettor, User receiver, BetDateTime betDateTime) {
-        Bet bet = betRepository.findBetsInTimeRange(bettor, receiver, betDateTime)
+        Bet bet = betRepository.findBetInTimeRange(bettor, receiver, betDateTime)
                 .orElseThrow(() -> new BetNotFoundException("해당하는 내기 정보가 없습니다."));
         BetStatus betStatus = bet.getBetStatus();
         if (!REQUESTED.equals(betStatus)){
@@ -148,7 +148,7 @@ public class BetService {
     }
 
     private void validationTimeRange(User bettor, User receiver, BetDateTime betDateTime) {
-        betRepository.findBetsInTimeRange(bettor, receiver, betDateTime)
+        betRepository.findBetInTimeRange(bettor, receiver, betDateTime)
                 .ifPresent((ex)->{
                     throw new TimeValidationException("이미 시간에 포함된 내기가 있습니다.");});
     }
