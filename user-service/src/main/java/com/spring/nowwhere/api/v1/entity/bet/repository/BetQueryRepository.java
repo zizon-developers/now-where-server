@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BetQueryRepository {
+    Optional<Bet> findTimeRangeAndDestination(User user, BetDateTime betDateTime, String destination);
     Optional<Bet> findBetInTimeRange(User bettor, User receiver, BetDateTime betDateTime);
     BetSummaryDto getUserBettingSummary(User user);
     List<Bet> findBetsByStartTime(LocalDateTime startTime);

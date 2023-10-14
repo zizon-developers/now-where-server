@@ -18,12 +18,12 @@ public class Location {
     @Schema(description = "경도")
     private double longitude; //경도
     @Schema(description = "이름")
-    private String name;
+    private String LocationName;
 
-    public Location(double latitude, double longitude, String name) {
+    public Location(double latitude, double longitude, String LocationName) {
         this.latitude = latitude;
         this.longitude = longitude;
-        this.name = name;
+        this.LocationName = LocationName;
     }
 
     @Override
@@ -31,11 +31,11 @@ public class Location {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Location location = (Location) o;
-        return Double.compare(location.latitude, latitude) == 0 && Double.compare(location.longitude, longitude) == 0 && Objects.equals(name, location.name);
+        return Double.compare(location.latitude, latitude) == 0 && Double.compare(location.longitude, longitude) == 0 && Objects.equals(LocationName, location.LocationName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(latitude, longitude, name);
+        return Objects.hash(latitude, longitude, LocationName);
     }
 }

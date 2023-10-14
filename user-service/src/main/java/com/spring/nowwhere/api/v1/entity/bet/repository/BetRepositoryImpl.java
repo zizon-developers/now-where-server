@@ -8,6 +8,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spring.nowwhere.api.v1.entity.bet.Bet;
 import com.spring.nowwhere.api.v1.entity.bet.BetDateTime;
 import com.spring.nowwhere.api.v1.entity.bet.BetResult;
+import com.spring.nowwhere.api.v1.entity.bet.BetStatus;
 import com.spring.nowwhere.api.v1.entity.bet.dto.BetSummaryDto;
 import com.spring.nowwhere.api.v1.entity.bet.dto.QBetSummaryDto;
 import com.spring.nowwhere.api.v1.entity.bet.dto.QUserInfoDto;
@@ -36,13 +37,25 @@ public class BetRepositoryImpl implements BetQueryRepository{
     }
 
     @Override
+    public Optional<Bet> findTimeRangeAndDestination(User user, BetDateTime betDateTime, String destination) {
+        return Optional.ofNullable(
+                queryFactory.selectFrom(bet)
+                        .join(bet.bettor).fetchJoin()
+                        .join(bet.receiver).fetchJoin()
+                        .where(inTimeRange(betDateTime.getStartTime(), betDateTime.getEndTime())
+                                .and(bet.betInfo.appointmentLocation.LocationName.eq(destination))
+                                .and(bet.betStatus.eq(BetStatus.IN_PROGRESS)).and(bettorOrReceiverEq(user)))
+                        .fetchFirst());
+    }
+
+    @Override
     public Optional<Bet> findBetInTimeRange(User bettor, User receiver, BetDateTime betDateTime) {
         return Optional.ofNullable(
                 queryFactory.selectFrom(bet)
                     .join(bet.bettor).fetchJoin()
                     .join(bet.receiver).fetchJoin()
                     .where(inTimeRange(betDateTime.getStartTime(), betDateTime.getEndTime())
-                            .and(bettorAndReceiverEq(bettor).or(bettorAndReceiverEq(receiver))))
+                            .and(bettorOrReceiverEq(bettor).or(bettorOrReceiverEq(receiver))))
                     .fetchFirst());
     }
 
@@ -116,7 +129,7 @@ public class BetRepositoryImpl implements BetQueryRepository{
     private BooleanBuilder endTimeEq(LocalDateTime endTime) {
         return new BooleanBuilder(bet.betInfo.betDateTime.endTime.eq(endTime));
     }
-    private BooleanBuilder bettorAndReceiverEq(User user) {
+    private BooleanBuilder bettorOrReceiverEq(User user) {
         return new BooleanBuilder(bet.bettor.eq(user).or(bet.receiver.eq(user)));
     }
 }

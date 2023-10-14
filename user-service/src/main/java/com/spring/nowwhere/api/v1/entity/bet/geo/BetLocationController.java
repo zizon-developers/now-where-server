@@ -1,6 +1,7 @@
 package com.spring.nowwhere.api.v1.entity.bet.geo;
 
 import com.spring.nowwhere.api.v1.entity.bet.Location;
+import com.spring.nowwhere.api.v1.entity.bet.geo.dto.BetRefreshDto;
 import com.spring.nowwhere.api.v1.entity.bet.geo.dto.RequestBetGeo;
 import com.spring.nowwhere.api.v1.entity.bet.geo.dto.ResponseBetGeo;
 import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
@@ -30,10 +31,10 @@ public class BetLocationController {
     @PostMapping("bets/refresh")
     @Operation(security = {@SecurityRequirement(name = "bearer-key")},
             summary = "시작시간이 지났을 때 새로고침 api", description = "redis key를 다시 셋팅해서 업데이트")
-    public ResponseEntity<?> refreshBet(@RequestBody RequestBetGeo requestBetGeo,
-                                                    HttpServletRequest request) {
-
-
+    public ResponseEntity<?> refreshBet(@RequestBody BetRefreshDto betRefreshDto,
+                                                     HttpServletRequest request) {
+        String checkId = getCheckIdByRequest(request);
+        betGeoService.refreshBet(betRefreshDto, checkId);
         return ResponseEntity.ok("실시간 내기가 업데이트 되었습니다.");
     }
 
@@ -52,7 +53,7 @@ public class BetLocationController {
     @Operation(summary = "실시간 사용자 위치 정보 저장", description = "실시간 사용자 위치 정보 저장")
     public ResponseEntity<String> addLocation(@RequestBody Location location,String key) {
         Point point = new Point(location.getLongitude(), location.getLatitude());
-        geoOperations.add(key, point, location.getName());
+        geoOperations.add(key, point, location.getLocationName());
         betGeoService.add(location,key);
         return ResponseEntity.ok("Success");
     }

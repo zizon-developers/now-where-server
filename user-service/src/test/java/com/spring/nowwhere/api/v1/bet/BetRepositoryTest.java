@@ -34,6 +34,27 @@ class BetRepositoryTest extends IntegrationTestSupport {
     }
 
     @Test
+    @DisplayName("시간 정보와 목적지 이름을 통해서 내기가 존재하는지 조회할 수 있다.")
+    public void findTimeRangeAndDestination() {
+        // given
+        User bettor = createUserAndSave("bettor1");
+        User receiver = createUserAndSave("receiver1");
+
+        int amount = 4500;
+        Location location = new Location(454, 589,"목적지");
+        LocalDateTime startTime = LocalDateTime.of(2021, 2, 3, 1, 2);
+        LocalDateTime endTime = LocalDateTime.of(2021, 2, 5, 1, 2);
+
+        BetDateTime betDateTime = new BetDateTime(startTime, endTime);
+        BetInfo betInfo = createBetInfo(amount, betDateTime,location);
+        createBetAndSave(bettor, receiver, betInfo, BetStatus.IN_PROGRESS);
+        // when
+        Optional<Bet> bet = betRepository.findTimeRangeAndDestination(bettor, betDateTime, "목적지");
+        // then
+        assertThat(bet.isPresent()).isTrue();
+    }
+
+    @Test
     @DisplayName("특정 시작시간인 내기를 모두 조회할 수 있다.")
     public void findBetsByStartTime() {
         // given

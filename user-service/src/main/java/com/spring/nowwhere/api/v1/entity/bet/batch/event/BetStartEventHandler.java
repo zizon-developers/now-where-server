@@ -20,13 +20,13 @@ public class BetStartEventHandler {
         //내기 시작시간시 처리 logic
         Bet bet = event.getBet();
         Location location = bet.getBetInfo().getAppointmentLocation();
-        String destination = location.getName();
+        String destination = location.getLocationName();
 
         //redis 각각의 키 저장
         String receiverKey = redisNameFormat(bet.getReceiver().getCheckId(), destination);
         String bettorKey = redisNameFormat(bet.getBettor().getCheckId(), destination);
-        geoOperations.add(receiverKey, new Point(location.getLongitude(), location.getLatitude()), location.getName());
-        geoOperations.add(bettorKey, new Point(location.getLongitude(), location.getLatitude()), location.getName());
+        geoOperations.add(receiverKey, new Point(location.getLongitude(), location.getLatitude()), location.getLocationName());
+        geoOperations.add(bettorKey, new Point(location.getLongitude(), location.getLatitude()), location.getLocationName());
     }
 
     private String redisNameFormat(String user, String destination){
