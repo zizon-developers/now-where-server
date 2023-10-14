@@ -1,4 +1,4 @@
-package com.spring.nowwhere.api.v1.redis.geo.dto;
+package com.spring.nowwhere.api.v1.entity.bet.geo.dto;
 
 import com.spring.nowwhere.api.v1.entity.bet.Location;
 import io.swagger.v3.oas.annotations.media.Schema;

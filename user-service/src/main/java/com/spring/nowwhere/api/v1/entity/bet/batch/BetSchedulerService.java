@@ -1,6 +1,6 @@
-package com.spring.nowwhere.api.v1.batch;
+package com.spring.nowwhere.api.v1.entity.bet.batch;
 
-import com.spring.nowwhere.api.v1.batch.event.StartedBetEvent;
+import com.spring.nowwhere.api.v1.entity.bet.batch.event.StartedBetEvent;
 import com.spring.nowwhere.api.v1.entity.bet.repository.BetRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;

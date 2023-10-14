@@ -1,4 +1,4 @@
-package com.spring.nowwhere.api.v1.batch.event;//package com.spring.nowwhere.api.v1.batch.event;
+package com.spring.nowwhere.api.v1.entity.bet.batch.event;//package com.spring.nowwhere.api.v1.batch.event;
 
 import com.spring.nowwhere.api.v1.entity.bet.Bet;
 

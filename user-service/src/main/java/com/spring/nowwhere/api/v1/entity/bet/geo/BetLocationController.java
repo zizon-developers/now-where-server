@@ -1,7 +1,8 @@
-package com.spring.nowwhere.api.v1.redis.geo;
+package com.spring.nowwhere.api.v1.entity.bet.geo;
 
-import com.spring.nowwhere.api.v1.redis.geo.dto.RequestBetGeo;
-import com.spring.nowwhere.api.v1.redis.geo.dto.ResponseBetGeo;
+import com.spring.nowwhere.api.v1.entity.bet.Location;
+import com.spring.nowwhere.api.v1.entity.bet.geo.dto.RequestBetGeo;
+import com.spring.nowwhere.api.v1.entity.bet.geo.dto.ResponseBetGeo;
 import com.spring.nowwhere.api.v1.security.jwt.JwtProperties;
 import com.spring.nowwhere.api.v1.security.jwt.TokenProvider;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,11 +22,20 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
-public class LocationController {
-    private final GeoService geoService;
+public class BetLocationController {
+    private final BetGeoService betGeoService;
     private final GeoOperations<String, String> geoOperations;
     private final TokenProvider tokenProvider;
 
+    @PostMapping("bets/refresh")
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")},
+            summary = "시작시간이 지났을 때 새로고침 api", description = "redis key를 다시 셋팅해서 업데이트")
+    public ResponseEntity<?> refreshBet(@RequestBody RequestBetGeo requestBetGeo,
+                                                    HttpServletRequest request) {
+
+
+        return ResponseEntity.ok("실시간 내기가 업데이트 되었습니다.");
+    }
 
     @PostMapping("bets/location")
     @Operation(security = {@SecurityRequirement(name = "bearer-key")},
@@ -34,8 +44,8 @@ public class LocationController {
                                                     HttpServletRequest request) {
 
         String checkId = getCheckIdByRequest(request);
-        Location location = new Location(checkId, requestBetGeo.getLatitude(), requestBetGeo.getLongitude());
-        ResponseBetGeo responseBetGeo = geoService.nearByDestination(location, requestBetGeo.getDestination());
+        Location location = new Location(requestBetGeo.getLatitude(), requestBetGeo.getLongitude(),checkId);
+        ResponseBetGeo responseBetGeo = betGeoService.nearByDestination(location, requestBetGeo.getDestination());
         return ResponseEntity.ok(responseBetGeo);
     }
     @PostMapping("/location")
@@ -43,7 +53,7 @@ public class LocationController {
     public ResponseEntity<String> addLocation(@RequestBody Location location,String key) {
         Point point = new Point(location.getLongitude(), location.getLatitude());
         geoOperations.add(key, point, location.getName());
-        geoService.add(location,key);
+        betGeoService.add(location,key);
         return ResponseEntity.ok("Success");
     }
 
@@ -51,7 +61,7 @@ public class LocationController {
     @Operation(summary = "실시간 사용자 반경 정보 조회", description = "특정 좌표와 키를 통해서 반경 몇 키로 미터에 요소를 조회할 수 있다.")
     public ResponseEntity<List<String>> locations(Double longitude, Double latitude, Double km, String key) {
 
-        List<String> locations = geoService.nearByVenues(longitude,latitude,km,key);
+        List<String> locations = betGeoService.nearByVenues(longitude,latitude,km,key);
         return ResponseEntity.ok(locations);
     }
 

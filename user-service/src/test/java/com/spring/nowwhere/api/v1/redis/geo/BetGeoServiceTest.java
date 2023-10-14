@@ -1,8 +1,10 @@
 package com.spring.nowwhere.api.v1.redis.geo;
 
 import com.spring.nowwhere.api.IntegrationTestSupport;
+import com.spring.nowwhere.api.v1.entity.bet.Location;
 import com.spring.nowwhere.api.v1.entity.bet.exception.BetNotFoundException;
-import com.spring.nowwhere.api.v1.redis.geo.dto.ResponseBetGeo;
+import com.spring.nowwhere.api.v1.entity.bet.geo.BetGeoService;
+import com.spring.nowwhere.api.v1.entity.bet.geo.dto.ResponseBetGeo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,13 +16,13 @@ import org.springframework.data.redis.core.ScanOptions;
 
 import static org.assertj.core.api.Assertions.*;
 
-class GeoServiceTest extends IntegrationTestSupport {
+class BetGeoServiceTest extends IntegrationTestSupport {
     @Autowired
     private GeoOperations<String, String> geoOperations;
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
     @Autowired
-    private GeoService geoService;
+    private BetGeoService betGeoService;
 
     @AfterEach
     void tearDown(){
@@ -34,13 +36,13 @@ class GeoServiceTest extends IntegrationTestSupport {
     @DisplayName("사용자의 위도 경도를 통해서 목적지와 거리차이를 알 수 있다.")
     public void nearByDestination() {
         // given
-        Location userLocation = new Location("user",37.557453,126.924288);
-        Location destLocation = new Location("홍대입구역",37.557529,126.924404);
+        Location userLocation = new Location(37.557453,126.924288,"user");
+        Location destLocation = new Location(37.557529,126.924404,"홍대입구역");
         String key = String.format("%s:%s", userLocation.getName(), destLocation.getName());
         geoOperations.add(key, new Point(destLocation.getLongitude(), destLocation.getLatitude()),
                                                                             destLocation.getName());
         // when
-        ResponseBetGeo responseBetGeo = geoService.nearByDestination(userLocation, destLocation.getName());
+        ResponseBetGeo responseBetGeo = betGeoService.nearByDestination(userLocation, destLocation.getName());
         // then
         double distance = calculateDistance(userLocation.getLatitude(),
                 userLocation.getLongitude(), destLocation.getLatitude(), destLocation.getLongitude());
@@ -51,13 +53,13 @@ class GeoServiceTest extends IntegrationTestSupport {
     @DisplayName("key가 없는 경우 예외가 발생한다.")
     public void nearByDestination_EX() {
         // given
-        Location userLocation = new Location("user",37.557453,126.924288);
-        Location destLocation = new Location("홍대입구역",37.557529,126.924404);
+        Location userLocation = new Location(37.557453,126.924288,"user");
+        Location destLocation = new Location(37.557529,126.924404,"홍대입구역");
         String key = String.format("%s:%s", userLocation.getName(), destLocation.getName());
         // when // then
-        assertThatThrownBy(() -> geoService.nearByDestination(userLocation, destLocation.getName()))
+        assertThatThrownBy(() -> betGeoService.nearByDestination(userLocation, destLocation.getName()))
                 .isInstanceOf(BetNotFoundException.class)
-                .hasMessage("진행중인 내기가 없습니다.");
+                .hasMessage("진행중인 내기를 업데이트 해주세요");
     }
     public static double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
         final int R = 6371; // 지구의 반지름 (km)

@@ -1,7 +1,8 @@
-package com.spring.nowwhere.api.v1.redis.geo;
+package com.spring.nowwhere.api.v1.entity.bet.geo;
 
+import com.spring.nowwhere.api.v1.entity.bet.Location;
 import com.spring.nowwhere.api.v1.entity.bet.exception.BetNotFoundException;
-import com.spring.nowwhere.api.v1.redis.geo.dto.ResponseBetGeo;
+import com.spring.nowwhere.api.v1.entity.bet.geo.dto.ResponseBetGeo;
 import org.springframework.data.geo.*;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.GeoOperations;
@@ -14,11 +15,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class GeoService {
+public class BetGeoService {
     private final GeoOperations<String, String> geoOperations;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public GeoService(GeoOperations<String, String> geoOperations, RedisTemplate<String, String> redisTemplate) {
+    public BetGeoService(GeoOperations<String, String> geoOperations, RedisTemplate<String, String> redisTemplate) {
         this.geoOperations = geoOperations;
         this.redisTemplate = redisTemplate;
     }
@@ -28,7 +29,7 @@ public class GeoService {
         ScanOptions scanOptions = ScanOptions.scanOptions().match(key).count(1).build();
 
         boolean isBet = redisTemplate.scan(scanOptions).hasNext();
-        if(!isBet) throw new BetNotFoundException("진행중인 내기가 없습니다.");
+        if(!isBet) throw new BetNotFoundException("진행중인 내기를 업데이트 해주세요");
 
         //사용자 위치정보 저장
         Point point = new Point(location.getLongitude(), location.getLatitude());
