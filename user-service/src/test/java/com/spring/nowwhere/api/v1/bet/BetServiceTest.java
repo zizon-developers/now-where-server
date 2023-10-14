@@ -422,8 +422,8 @@ class BetServiceTest extends IntegrationTestSupport {
         return List.of(
                 DynamicTest.dynamicTest("사용자는 다른 사용자에게 내기를 신청할 수 있다.", () -> {
                     //given
-                    LocalDateTime startTime = LocalDateTime.of(2021, 2, 6, 00, 00);
-                    LocalDateTime endTime = LocalDateTime.of(2021, 2, 6, 00, 9);
+                    LocalDateTime startTime = LocalDateTime.of(2021, 2, 7, 00, 00);
+                    LocalDateTime endTime = LocalDateTime.of(2021, 2, 7, 00, 10);
                     BetDateTime betDateTime = new BetDateTime(startTime, endTime);
                     BetInfo requestBetInfo = createBetInfo(amount, betDateTime, location);
 
@@ -443,10 +443,10 @@ class BetServiceTest extends IntegrationTestSupport {
                     );
 
                 }),
-                DynamicTest.dynamicTest("내기의 시작시간과 끝나는 시간의 차이가 5분 이하라면 예외가 발생한다.", () -> {
+                DynamicTest.dynamicTest("내기의 시작시간과 끝나는 시간의 차이가 10분 이하라면 예외가 발생한다.", () -> {
                     //given
                     LocalDateTime startTime = LocalDateTime.of(2021, 2, 3, 1, 0);
-                    LocalDateTime endTime = LocalDateTime.of(2021, 2, 3, 1, 4);
+                    LocalDateTime endTime = LocalDateTime.of(2021, 2, 3, 1, 9);
                     BetDateTime betDateTime = new BetDateTime(startTime, endTime);
                     BetInfo betInfo = createBetInfo(amount, betDateTime, location);
 
@@ -456,7 +456,7 @@ class BetServiceTest extends IntegrationTestSupport {
                     //when //then
                     assertThatThrownBy(() -> betService.createBet(bettor.getCheckId(), requestBet))
                             .isInstanceOf(TimeValidationException.class)
-                            .hasMessage("내기의 시작시간과 끝나는 시간의 차이는 5분 이상이어야 합니다.");
+                            .hasMessage("내기의 시작시간과 끝나는 시간의 차이는 10분 이상이어야 합니다.");
 
                 }),
                 DynamicTest.dynamicTest("이미 지정된 시간에 다른 내기가 있다면 예외가 발생한다.", () -> {

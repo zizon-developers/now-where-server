@@ -155,8 +155,8 @@ public class BetService {
 
     private void validateTimeRange(BetDateTime betDateTime){
         Duration duration = Duration.between(betDateTime.getStartTime(), betDateTime.getEndTime())
-                                    .minusMinutes(5);
+                                    .minusMinutes(10);
         if (duration.toMinutes() < 0)
-            throw new TimeValidationException("내기의 시작시간과 끝나는 시간의 차이는 5분 이상이어야 합니다.");
+            throw new TimeValidationException("내기의 시작시간과 끝나는 시간의 차이는 10분 이상이어야 합니다.");
     }
 }
