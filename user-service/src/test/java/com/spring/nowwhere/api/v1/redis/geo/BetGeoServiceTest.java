@@ -37,6 +37,8 @@ class BetGeoServiceTest extends IntegrationTestSupport {
 
     @AfterEach
     void tearDown(){
+        betRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
         ScanOptions scanOptions = ScanOptions.scanOptions()
                                         .match("*").count(3).build();
         redisTemplate.scan(scanOptions).stream()
@@ -46,8 +48,8 @@ class BetGeoServiceTest extends IntegrationTestSupport {
     @DisplayName("사용자 내기가 진행중이라면 내기를 새로고침 할 수 있다.")
     public void refreshBet() {
         // given
-        User bettor = createUserAndSave("bettor1");
-        User receiver = createUserAndSave("receiver1");
+        User bettor = createUserAndSave("redisBettor");
+        User receiver = createUserAndSave("redisReceiver");
 
         int amount = 4500;
         Location location = new Location(37.557529,126.924404,"홍대입구역");
