@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.spring.nowwhere.api.v1.entity.bet.BetStatus.*;
@@ -123,7 +124,7 @@ public class BetService {
         BetInfo betInfo = requestBet.getBetInfo();
         BetDateTime betDateTime = betInfo.getBetDateTime();
 
-        validateTimeRange(betDateTime);
+        validationTimeRange(betDateTime);
         validationTimeRange(bettor, receiver, betDateTime);
 
         return ResponseBet.of(saveBet(bettor, receiver, betInfo));
@@ -153,10 +154,18 @@ public class BetService {
                     throw new TimeValidationException("이미 시간에 포함된 내기가 있습니다.");});
     }
 
-    private void validateTimeRange(BetDateTime betDateTime){
+    private void validationTimeRange(BetDateTime betDateTime){
         Duration duration = Duration.between(betDateTime.getStartTime(), betDateTime.getEndTime())
                                     .minusMinutes(10);
         if (duration.toMinutes() < 0)
             throw new TimeValidationException("내기의 시작시간과 끝나는 시간의 차이는 10분 이상이어야 합니다.");
+
+        if(isTimeTenMinutesApart(betDateTime.getStartTime(),betDateTime.getEndTime()))
+            throw new TimeValidationException("내기는 10분 단위로 설정할 수 있습니다.");
+
+    }
+    private boolean isTimeTenMinutesApart(LocalDateTime startTime, LocalDateTime endTime){
+        return startTime.getMinute() % 10 != 0 ||
+                            endTime.getMinute() % 10 != 0;
     }
 }

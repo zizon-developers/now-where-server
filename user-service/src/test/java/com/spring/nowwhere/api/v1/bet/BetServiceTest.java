@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -407,14 +408,14 @@ class BetServiceTest extends IntegrationTestSupport {
         Location location = new Location(454, 589,"목적지");
 
 
-        LocalDateTime startTime1 = LocalDateTime.of(2021, 2, 5, 23, 50);
-        LocalDateTime endTime1 = LocalDateTime.of(2021, 2, 5, 23, 59);
+        LocalDateTime startTime1 = LocalDateTime.of(2021, 2, 5, 23, 10);
+        LocalDateTime endTime1 = LocalDateTime.of(2021, 2, 5, 23, 20);
         BetDateTime betDateTime1 = new BetDateTime(startTime1, endTime1);
         BetInfo betInfo1 = createBetInfo(amount, betDateTime1, location);
         createBetAndSave(bettor, receiver, betInfo1, REQUESTED);
 
         LocalDateTime startTime2 = LocalDateTime.of(2021, 2, 6, 00, 10);
-        LocalDateTime endTime2 = LocalDateTime.of(2021, 2, 6, 00, 59);
+        LocalDateTime endTime2 = LocalDateTime.of(2021, 2, 6, 00, 20);
         BetDateTime betDateTime2 = new BetDateTime(startTime2, endTime2);
         BetInfo betInfo2 = createBetInfo(amount, betDateTime2, location);
         createBetAndSave(bettor, receiver, betInfo2, REQUESTED);
@@ -461,8 +462,8 @@ class BetServiceTest extends IntegrationTestSupport {
                 }),
                 DynamicTest.dynamicTest("이미 지정된 시간에 다른 내기가 있다면 예외가 발생한다.", () -> {
                     //when //then
-                    LocalDateTime startTime = LocalDateTime.of(2021, 2, 5, 23, 59);
-                    LocalDateTime endTime = LocalDateTime.of(2021, 2, 6, 00, 9);
+                    LocalDateTime startTime = LocalDateTime.of(2021, 2, 6, 00, 00);
+                    LocalDateTime endTime = LocalDateTime.of(2021, 2, 6, 00, 20);
                     BetDateTime betDateTime = new BetDateTime(startTime, endTime);
                     BetInfo requestBetInfo = createBetInfo(amount, betDateTime, location);
                     RequestBet requestBet = RequestBet.builder().receiverId("receiverId")
@@ -472,6 +473,20 @@ class BetServiceTest extends IntegrationTestSupport {
                     assertThatThrownBy(() -> betService.createBet(bettor.getCheckId(), requestBet))
                             .isInstanceOf(TimeValidationException.class)
                             .hasMessage("이미 시간에 포함된 내기가 있습니다.");
+                }),
+                DynamicTest.dynamicTest("내기를 10분 단위로 설정하지 않으면 예외가 발생한다.", () -> {
+                    //when //then
+                    LocalDateTime startTime = LocalDateTime.of(2021, 2, 9, 23, 59);
+                    LocalDateTime endTime = LocalDateTime.of(2021, 2, 9, 00, 10);
+                    BetDateTime betDateTime = new BetDateTime(startTime, endTime);
+                    BetInfo requestBetInfo = createBetInfo(amount, betDateTime, location);
+                    RequestBet requestBet = RequestBet.builder().receiverId("receiverId")
+                            .betInfo(requestBetInfo)
+                            .build();
+
+                    assertThatThrownBy(() -> betService.createBet(bettor.getCheckId(), requestBet))
+                            .isInstanceOf(TimeValidationException.class)
+                            .hasMessage("내기의 시작시간과 끝나는 시간의 차이는 10분 이상이어야 합니다.");
                 })
         );
     }
